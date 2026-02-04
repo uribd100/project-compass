@@ -37,16 +37,26 @@ const activityColors: Record<ActivityType, string> = {
   milestone: 'bg-accent/10 text-accent',
 };
 
+const activityTypeLabels: Record<ActivityType, string> = {
+  message: 'הודעה',
+  decision: 'החלטה',
+  approval: 'אישור',
+  file_upload: 'העלאת קובץ',
+  task_update: 'עדכון משימה',
+  budget_change: 'שינוי תקציב',
+  milestone: 'אבן דרך',
+};
+
 function formatRelativeTime(timestamp: string): string {
   const now = new Date();
   const date = new Date(timestamp);
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-  if (diffInSeconds < 60) return 'Just now';
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  if (diffInSeconds < 60) return 'עכשיו';
+  if (diffInSeconds < 3600) return `לפני ${Math.floor(diffInSeconds / 60)} דקות`;
+  if (diffInSeconds < 86400) return `לפני ${Math.floor(diffInSeconds / 3600)} שעות`;
+  if (diffInSeconds < 604800) return `לפני ${Math.floor(diffInSeconds / 86400)} ימים`;
+  return date.toLocaleDateString('he-IL', { month: 'short', day: 'numeric' });
 }
 
 export function ActivityFeed({ activities, maxItems }: ActivityFeedProps) {
@@ -78,8 +88,8 @@ export function ActivityFeed({ activities, maxItems }: ActivityFeedProps) {
                     </p>
                   )}
                 </div>
-                <Badge variant="outline" className="text-xs capitalize flex-shrink-0">
-                  {activity.type.replace('_', ' ')}
+                <Badge variant="outline" className="text-xs flex-shrink-0">
+                  {activityTypeLabels[activity.type]}
                 </Badge>
               </div>
 
@@ -124,8 +134,8 @@ export function ActivityFeed({ activities, maxItems }: ActivityFeedProps) {
           <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
             <MessageSquare className="h-6 w-6 text-muted-foreground" />
           </div>
-          <p className="text-muted-foreground">No activities yet</p>
-          <p className="text-sm text-muted-foreground/70 mt-1">Activities will appear here as your team works</p>
+          <p className="text-muted-foreground">אין פעילויות עדיין</p>
+          <p className="text-sm text-muted-foreground/70 mt-1">פעילויות יופיעו כאן כאשר הצוות יתחיל לעבוד</p>
         </div>
       )}
     </div>

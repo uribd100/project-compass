@@ -3,7 +3,7 @@ import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, Users, ArrowRight, Clock } from 'lucide-react';
+import { Calendar, Users, ArrowLeft, Clock } from 'lucide-react';
 
 interface DecisionCardProps {
   decision: Decision;
@@ -12,10 +12,10 @@ interface DecisionCardProps {
 }
 
 const statusConfig: Record<DecisionStatus, { label: string; className: string }> = {
-  pending: { label: 'Pending', className: 'bg-warning/10 text-warning border-warning/30' },
-  approved: { label: 'Approved', className: 'bg-success/10 text-success border-success/30' },
-  rejected: { label: 'Rejected', className: 'bg-destructive/10 text-destructive border-destructive/30' },
-  revision_needed: { label: 'Needs Revision', className: 'bg-info/10 text-info border-info/30' },
+  pending: { label: 'ממתין', className: 'bg-warning/10 text-warning border-warning/30' },
+  approved: { label: 'אושר', className: 'bg-success/10 text-success border-success/30' },
+  rejected: { label: 'נדחה', className: 'bg-destructive/10 text-destructive border-destructive/30' },
+  revision_needed: { label: 'דורש תיקון', className: 'bg-info/10 text-info border-info/30' },
 };
 
 function getDaysUntilDeadline(deadline: string): { days: number; isOverdue: boolean } {
@@ -49,11 +49,11 @@ export function DecisionCard({ decision, compact, onClick }: DecisionCardProps) 
               )}
             >
               <Clock className="h-3 w-3" />
-              {deadline.isOverdue ? `${deadline.days}d overdue` : `${deadline.days}d left`}
+              {deadline.isOverdue ? `באיחור של ${deadline.days} ימים` : `נותרו ${deadline.days} ימים`}
             </span>
           </div>
         </div>
-        <ArrowRight className="h-4 w-4 text-muted-foreground" />
+        <ArrowLeft className="h-4 w-4 text-muted-foreground" />
       </div>
     );
   }
@@ -65,7 +65,7 @@ export function DecisionCard({ decision, compact, onClick }: DecisionCardProps) 
     >
       <div className="flex items-start justify-between mb-3">
         <h3 className="font-semibold text-foreground">{decision.title}</h3>
-        <Badge variant="outline" className={cn('ml-3', status.className)}>
+        <Badge variant="outline" className={cn('mr-3', status.className)}>
           {status.label}
         </Badge>
       </div>
@@ -78,17 +78,17 @@ export function DecisionCard({ decision, compact, onClick }: DecisionCardProps) 
         <div className="flex items-center gap-1.5">
           <Calendar className="h-4 w-4" />
           <span className={deadline.isOverdue ? 'text-destructive font-medium' : ''}>
-            {deadline.isOverdue ? `${deadline.days}d overdue` : `Due in ${deadline.days}d`}
+            {deadline.isOverdue ? `באיחור של ${deadline.days} ימים` : `נותרו ${deadline.days} ימים`}
           </span>
         </div>
         <div className="flex items-center gap-1.5">
           <Users className="h-4 w-4" />
-          <span>{decision.responsibleUsers.length} responsible</span>
+          <span>{decision.responsibleUsers.length} אחראים</span>
         </div>
       </div>
 
       <div className="flex items-center justify-between pt-4 border-t border-border">
-        <div className="flex -space-x-2">
+        <div className="flex -space-x-2 space-x-reverse">
           {decision.responsibleUsers.slice(0, 4).map((user) => (
             <Avatar key={user.id} className="h-7 w-7 border-2 border-card">
               <AvatarImage src={user.avatar} alt={user.name} />
@@ -101,7 +101,7 @@ export function DecisionCard({ decision, compact, onClick }: DecisionCardProps) 
 
         {decision.status === 'pending' && (
           <Button size="sm" variant="outline" className="text-xs">
-            Review
+            סקירה
           </Button>
         )}
       </div>

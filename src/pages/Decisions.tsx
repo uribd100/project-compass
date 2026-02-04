@@ -35,14 +35,14 @@ export default function Decisions() {
           <div className="px-6 lg:px-8 py-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Decisions & Approvals</h1>
+                <h1 className="text-2xl font-bold text-foreground">החלטות ואישורים</h1>
                 <p className="text-muted-foreground mt-1">
-                  Track and manage project decisions requiring approval
+                  מעקב וניהול החלטות פרויקט הדורשות אישור
                 </p>
               </div>
               <Button className="gap-2 bg-primary hover:bg-primary/90">
                 <Plus className="h-4 w-4" />
-                New Decision
+                החלטה חדשה
               </Button>
             </div>
           </div>
@@ -57,42 +57,42 @@ export default function Decisions() {
                 size="sm"
                 onClick={() => setStatusFilter(null)}
               >
-                All
-                <Badge variant="secondary" className="ml-2">{statusCounts.all}</Badge>
+                הכל
+                <Badge variant="secondary" className="mr-2">{statusCounts.all}</Badge>
               </Button>
               <Button
                 variant={statusFilter === 'pending' ? 'secondary' : 'ghost'}
                 size="sm"
                 onClick={() => setStatusFilter('pending')}
               >
-                Pending
-                <Badge variant="secondary" className="ml-2 bg-warning/10 text-warning">{statusCounts.pending}</Badge>
+                ממתינות
+                <Badge variant="secondary" className="mr-2 bg-warning/10 text-warning">{statusCounts.pending}</Badge>
               </Button>
               <Button
                 variant={statusFilter === 'approved' ? 'secondary' : 'ghost'}
                 size="sm"
                 onClick={() => setStatusFilter('approved')}
               >
-                Approved
-                <Badge variant="secondary" className="ml-2 bg-success/10 text-success">{statusCounts.approved}</Badge>
+                אושרו
+                <Badge variant="secondary" className="mr-2 bg-success/10 text-success">{statusCounts.approved}</Badge>
               </Button>
               <Button
                 variant={statusFilter === 'revision_needed' ? 'secondary' : 'ghost'}
                 size="sm"
                 onClick={() => setStatusFilter('revision_needed')}
               >
-                Needs Revision
-                <Badge variant="secondary" className="ml-2 bg-info/10 text-info">{statusCounts.revision_needed}</Badge>
+                דורשות תיקון
+                <Badge variant="secondary" className="mr-2 bg-info/10 text-info">{statusCounts.revision_needed}</Badge>
               </Button>
             </div>
 
             <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search decisions..."
+                placeholder="חיפוש החלטות..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
+                className="pr-9"
               />
             </div>
           </div>
@@ -109,11 +109,11 @@ export default function Decisions() {
               <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
                 <Search className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-medium text-foreground mb-2">No decisions found</h3>
+              <h3 className="text-lg font-medium text-foreground mb-2">לא נמצאו החלטות</h3>
               <p className="text-muted-foreground max-w-sm mx-auto">
                 {searchQuery || statusFilter
-                  ? "Try adjusting your search or filter criteria"
-                  : "Create your first decision to get started"}
+                  ? "נסה לשנות את החיפוש או הסינון"
+                  : "צור את ההחלטה הראשונה שלך כדי להתחיל"}
               </p>
             </div>
           )}

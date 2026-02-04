@@ -71,7 +71,7 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ["Heebo", "system-ui", "sans-serif"],
       },
       boxShadow: {
         soft: "0 2px 8px -2px hsl(220 20% 15% / 0.08)",

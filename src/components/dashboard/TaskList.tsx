@@ -11,17 +11,17 @@ interface TaskListProps {
 }
 
 const statusConfig: Record<TaskStatus, { label: string; className: string }> = {
-  not_started: { label: 'Not Started', className: 'bg-muted text-muted-foreground' },
-  in_progress: { label: 'In Progress', className: 'bg-info/10 text-info' },
-  completed: { label: 'Completed', className: 'bg-success/10 text-success' },
-  blocked: { label: 'Blocked', className: 'bg-destructive/10 text-destructive' },
+  not_started: { label: 'לא התחיל', className: 'bg-muted text-muted-foreground' },
+  in_progress: { label: 'בביצוע', className: 'bg-info/10 text-info' },
+  completed: { label: 'הושלם', className: 'bg-success/10 text-success' },
+  blocked: { label: 'חסום', className: 'bg-destructive/10 text-destructive' },
 };
 
 const priorityConfig: Record<TaskPriority, { label: string; className: string }> = {
-  low: { label: 'Low', className: 'text-muted-foreground' },
-  medium: { label: 'Medium', className: 'text-info' },
-  high: { label: 'High', className: 'text-warning' },
-  urgent: { label: 'Urgent', className: 'text-destructive' },
+  low: { label: 'נמוכה', className: 'text-muted-foreground' },
+  medium: { label: 'בינונית', className: 'text-info' },
+  high: { label: 'גבוהה', className: 'text-warning' },
+  urgent: { label: 'דחוף', className: 'text-destructive' },
 };
 
 export function TaskList({ tasks, onTaskToggle }: TaskListProps) {
@@ -82,7 +82,7 @@ export function TaskList({ tasks, onTaskToggle }: TaskListProps) {
                     )}
                   >
                     <Calendar className="h-3 w-3" />
-                    {dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    {dueDate.toLocaleDateString('he-IL', { month: 'short', day: 'numeric' })}
                   </span>
                 )}
               </div>
@@ -105,8 +105,8 @@ export function TaskList({ tasks, onTaskToggle }: TaskListProps) {
           <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
             <Flag className="h-6 w-6 text-muted-foreground" />
           </div>
-          <p className="text-muted-foreground">No tasks yet</p>
-          <p className="text-sm text-muted-foreground/70 mt-1">Create your first task to get started</p>
+          <p className="text-muted-foreground">אין משימות עדיין</p>
+          <p className="text-sm text-muted-foreground/70 mt-1">צור את המשימה הראשונה שלך כדי להתחיל</p>
         </div>
       )}
     </div>
