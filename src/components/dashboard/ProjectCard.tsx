@@ -10,6 +10,12 @@ interface ProjectCardProps {
   onClick?: () => void;
 }
 
+const statusLabels: Record<string, string> = {
+  active: 'פעיל',
+  on_hold: 'מושהה',
+  completed: 'הושלם',
+};
+
 export function ProjectCard({ project, onClick }: ProjectCardProps) {
   const statusColors = {
     active: 'bg-success/10 text-success border-success/30',
@@ -21,9 +27,9 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
   const isOverBudget = budgetPercentage > 100;
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('he-IL', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'ILS',
       notation: 'compact',
       maximumFractionDigits: 1,
     }).format(amount);
@@ -46,16 +52,16 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
         </div>
         <Badge
           variant="outline"
-          className={cn('ml-3 capitalize flex-shrink-0', statusColors[project.status])}
+          className={cn('mr-3 flex-shrink-0', statusColors[project.status])}
         >
-          {project.status.replace('_', ' ')}
+          {statusLabels[project.status]}
         </Badge>
       </div>
 
       {/* Progress */}
       <div className="mb-4">
         <div className="flex items-center justify-between text-sm mb-2">
-          <span className="text-muted-foreground">Progress</span>
+          <span className="text-muted-foreground">התקדמות</span>
           <span className="font-medium text-foreground">{project.progress}%</span>
         </div>
         <Progress value={project.progress} className="h-2" />
@@ -64,7 +70,7 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
       {/* Budget */}
       <div className="flex items-center justify-between text-sm mb-4 p-3 rounded-lg bg-muted/50">
         <div>
-          <p className="text-muted-foreground text-xs uppercase tracking-wide">Budget</p>
+          <p className="text-muted-foreground text-xs uppercase tracking-wide">תקציב</p>
           <p className="font-medium text-foreground">
             {formatCurrency(project.budget.actual)} / {formatCurrency(project.budget.planned)}
           </p>
@@ -79,11 +85,11 @@ export function ProjectCard({ project, onClick }: ProjectCardProps) {
       <div className="flex items-center justify-between pt-4 border-t border-border">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Calendar className="h-4 w-4" />
-          <span>{new Date(project.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
+          <span>{new Date(project.startDate).toLocaleDateString('he-IL', { month: 'short', year: 'numeric' })}</span>
         </div>
         
         <div className="flex items-center gap-2">
-          <div className="flex -space-x-2">
+          <div className="flex -space-x-2 space-x-reverse">
             {project.team.slice(0, 3).map((member) => (
               <Avatar key={member.id} className="h-7 w-7 border-2 border-card">
                 <AvatarImage src={member.avatar} alt={member.name} />

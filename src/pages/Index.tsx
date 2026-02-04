@@ -18,7 +18,7 @@ import {
   CheckSquare, 
   Clock, 
   DollarSign,
-  ArrowRight,
+  ArrowLeft,
   Calendar
 } from 'lucide-react';
 
@@ -30,6 +30,15 @@ export default function Index() {
   const totalBudget = mockProjects.reduce((sum, p) => sum + p.budget.planned, 0);
   const actualSpend = mockProjects.reduce((sum, p) => sum + p.budget.actual, 0);
 
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('he-IL', {
+      style: 'currency',
+      currency: 'ILS',
+      notation: 'compact',
+      maximumFractionDigits: 1,
+    }).format(amount);
+  };
+
   return (
     <MainLayout>
       <div className="min-h-screen">
@@ -39,15 +48,15 @@ export default function Index() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
                 <h1 className="text-2xl font-bold text-foreground">
-                  Good morning, {currentUser.name.split(' ')[0]}
+                  בוקר טוב, {currentUser.name.split(' ')[0]}
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                  Here's what's happening across your projects today.
+                  הנה מה שקורה בפרויקטים שלך היום.
                 </p>
               </div>
               <Button className="gap-2 bg-primary hover:bg-primary/90">
                 <Plus className="h-4 w-4" />
-                New Project
+                פרויקט חדש
               </Button>
             </div>
           </div>
@@ -57,34 +66,34 @@ export default function Index() {
           {/* Stats Overview */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatsCard
-              title="Active Projects"
+              title="פרויקטים פעילים"
               value={activeProjects.length}
-              subtitle={`${mockProjects.length} total`}
+              subtitle={`${mockProjects.length} סה"כ`}
               icon={FolderKanban}
               variant="primary"
-              trend={{ value: 12, label: 'from last month' }}
+              trend={{ value: 12, label: 'מהחודש שעבר' }}
             />
             <StatsCard
-              title="Tasks In Progress"
+              title="משימות בביצוע"
               value={inProgressTasks.length}
-              subtitle={`${mockTasks.length} total tasks`}
+              subtitle={`${mockTasks.length} משימות סה"כ`}
               icon={CheckSquare}
               variant="accent"
-              trend={{ value: -5, label: 'from last week' }}
+              trend={{ value: -5, label: 'מהשבוע שעבר' }}
             />
             <StatsCard
-              title="Pending Decisions"
+              title="החלטות ממתינות"
               value={pendingDecisions.length}
-              subtitle="Awaiting approval"
+              subtitle="ממתינות לאישור"
               icon={Clock}
-              trend={{ value: 0, label: 'no change' }}
+              trend={{ value: 0, label: 'ללא שינוי' }}
             />
             <StatsCard
-              title="Budget Utilization"
+              title="ניצול תקציב"
               value={`${((actualSpend / totalBudget) * 100).toFixed(0)}%`}
-              subtitle={`$${(actualSpend / 1000000).toFixed(1)}M of $${(totalBudget / 1000000).toFixed(1)}M`}
+              subtitle={`${formatCurrency(actualSpend)} מתוך ${formatCurrency(totalBudget)}`}
               icon={DollarSign}
-              trend={{ value: 8, label: 'from last month' }}
+              trend={{ value: 8, label: 'מהחודש שעבר' }}
             />
           </section>
 
@@ -95,10 +104,10 @@ export default function Index() {
               {/* Active Projects */}
               <section>
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-foreground">Active Projects</h2>
+                  <h2 className="text-lg font-semibold text-foreground">פרויקטים פעילים</h2>
                   <Button variant="ghost" size="sm" className="text-muted-foreground gap-1">
-                    View all
-                    <ArrowRight className="h-4 w-4" />
+                    הצג הכל
+                    <ArrowLeft className="h-4 w-4" />
                   </Button>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -111,10 +120,10 @@ export default function Index() {
               {/* Recent Activity */}
               <section>
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-foreground">Recent Activity</h2>
+                  <h2 className="text-lg font-semibold text-foreground">פעילות אחרונה</h2>
                   <Button variant="ghost" size="sm" className="text-muted-foreground gap-1">
-                    View all
-                    <ArrowRight className="h-4 w-4" />
+                    הצג הכל
+                    <ArrowLeft className="h-4 w-4" />
                   </Button>
                 </div>
                 <ActivityFeed activities={mockActivities} maxItems={4} />
@@ -126,8 +135,8 @@ export default function Index() {
               {/* Pending Decisions */}
               <section>
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-foreground">Pending Decisions</h2>
-                  <span className="text-sm text-muted-foreground">{pendingDecisions.length} pending</span>
+                  <h2 className="text-lg font-semibold text-foreground">החלטות ממתינות</h2>
+                  <span className="text-sm text-muted-foreground">{pendingDecisions.length} ממתינות</span>
                 </div>
                 <div className="space-y-3">
                   {mockDecisions.slice(0, 3).map((decision) => (
@@ -139,10 +148,10 @@ export default function Index() {
               {/* My Tasks */}
               <section>
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold text-foreground">My Tasks</h2>
+                  <h2 className="text-lg font-semibold text-foreground">המשימות שלי</h2>
                   <Button variant="ghost" size="sm" className="text-muted-foreground gap-1">
                     <Plus className="h-4 w-4" />
-                    Add
+                    הוסף
                   </Button>
                 </div>
                 <TaskList tasks={mockTasks.slice(0, 4)} />
@@ -155,8 +164,8 @@ export default function Index() {
                     <Calendar className="h-5 w-5 text-warning" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-foreground">Upcoming Deadlines</h3>
-                    <p className="text-sm text-muted-foreground">Next 7 days</p>
+                    <h3 className="font-medium text-foreground">מועדים קרובים</h3>
+                    <p className="text-sm text-muted-foreground">7 ימים הבאים</p>
                   </div>
                 </div>
                 <div className="space-y-3">
@@ -167,7 +176,7 @@ export default function Index() {
                       <div key={decision.id} className="flex items-center justify-between text-sm">
                         <span className="text-foreground truncate max-w-[180px]">{decision.title}</span>
                         <span className="text-muted-foreground flex-shrink-0">
-                          {new Date(decision.deadline).toLocaleDateString('en-US', { 
+                          {new Date(decision.deadline).toLocaleDateString('he-IL', { 
                             month: 'short', 
                             day: 'numeric' 
                           })}

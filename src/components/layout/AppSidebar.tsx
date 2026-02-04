@@ -21,19 +21,27 @@ import { Badge } from '@/components/ui/badge';
 import { currentUser } from '@/data/mockData';
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
-  { name: 'Projects', href: '/projects', icon: FolderKanban },
-  { name: 'Activity', href: '/activity', icon: Activity },
-  { name: 'Tasks', href: '/tasks', icon: CheckSquare, badge: 3 },
-  { name: 'Decisions', href: '/decisions', icon: FileText, badge: 2 },
-  { name: 'Files', href: '/files', icon: FileText },
-  { name: 'Budget', href: '/budget', icon: DollarSign },
-  { name: 'Team', href: '/team', icon: Users },
+  { name: 'לוח בקרה', href: '/', icon: LayoutDashboard },
+  { name: 'פרויקטים', href: '/projects', icon: FolderKanban },
+  { name: 'פעילות', href: '/activity', icon: Activity },
+  { name: 'משימות', href: '/tasks', icon: CheckSquare, badge: 3 },
+  { name: 'החלטות', href: '/decisions', icon: FileText, badge: 2 },
+  { name: 'קבצים', href: '/files', icon: FileText },
+  { name: 'תקציב', href: '/budget', icon: DollarSign },
+  { name: 'צוות', href: '/team', icon: Users },
 ];
 
 const bottomNav = [
-  { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'הגדרות', href: '/settings', icon: Settings },
 ];
+
+const roleLabels: Record<string, string> = {
+  admin: 'מנהל מערכת',
+  deputy_manager: 'סגן מנהל פרויקט',
+  engineer: 'מהנדס',
+  consultant: 'יועץ',
+  project_owner: 'בעל הפרויקט',
+};
 
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
@@ -42,7 +50,7 @@ export function AppSidebar() {
   return (
     <aside
       className={cn(
-        'flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-300',
+        'flex flex-col h-screen bg-sidebar border-l border-sidebar-border transition-all duration-300',
         collapsed ? 'w-16' : 'w-64'
       )}
     >
@@ -62,7 +70,7 @@ export function AppSidebar() {
           onClick={() => setCollapsed(!collapsed)}
           className="text-sidebar-foreground hover:bg-sidebar-accent/10"
         >
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          {collapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </Button>
       </div>
 
@@ -71,8 +79,8 @@ export function AppSidebar() {
         <div className="p-3">
           <button className="flex items-center w-full gap-2 px-3 py-2 text-sm text-muted-foreground bg-background/50 rounded-lg border border-border hover:border-border/80 transition-colors">
             <Search className="h-4 w-4" />
-            <span>Search...</span>
-            <kbd className="ml-auto text-xs bg-muted px-1.5 py-0.5 rounded">⌘K</kbd>
+            <span>חיפוש...</span>
+            <kbd className="mr-auto text-xs bg-muted px-1.5 py-0.5 rounded">⌘K</kbd>
           </button>
         </div>
       )}
@@ -153,7 +161,7 @@ export function AppSidebar() {
           {!collapsed && (
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-sidebar-foreground truncate">{currentUser.name}</p>
-              <p className="text-xs text-muted-foreground truncate capitalize">{currentUser.role.replace('_', ' ')}</p>
+              <p className="text-xs text-muted-foreground truncate">{roleLabels[currentUser.role]}</p>
             </div>
           )}
           {!collapsed && (
