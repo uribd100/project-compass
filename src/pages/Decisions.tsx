@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
+ import { PageHeader } from '@/components/layout/PageHeader';
 import { DecisionCard } from '@/components/dashboard/DecisionCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { mockDecisions } from '@/data/mockData';
-import { Plus, Search, Filter } from 'lucide-react';
+ import { Plus, Search } from 'lucide-react';
 import { DecisionStatus } from '@/types/project';
 
 export default function Decisions() {
@@ -28,25 +29,18 @@ export default function Decisions() {
   };
 
   return (
-    <MainLayout>
-      <div className="min-h-screen">
-        {/* Header */}
-        <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
-          <div className="px-6 lg:px-8 py-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">החלטות ואישורים</h1>
-                <p className="text-muted-foreground mt-1">
-                  מעקב וניהול החלטות פרויקט הדורשות אישור
-                </p>
-              </div>
-              <Button className="gap-2 bg-primary hover:bg-primary/90">
-                <Plus className="h-4 w-4" />
-                החלטה חדשה
-              </Button>
-            </div>
-          </div>
-        </header>
+     <MainLayout>
+       <div className="min-h-screen">
+         <PageHeader
+           title="החלטות ואישורים"
+           subtitle="מעקב וניהול החלטות פרויקט הדורשות אישור"
+           actions={
+             <Button className="gap-2 bg-primary hover:bg-primary/90">
+               <Plus className="h-4 w-4" />
+               החלטה חדשה
+             </Button>
+           }
+         />
 
         <div className="px-6 lg:px-8 py-6 space-y-6">
           {/* Filters */}
