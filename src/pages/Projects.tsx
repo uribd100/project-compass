@@ -1,5 +1,7 @@
 import { useState } from 'react';
+ import { Link } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
+ import { PageHeader } from '@/components/layout/PageHeader';
 import { ProjectCard } from '@/components/dashboard/ProjectCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,25 +30,18 @@ export default function Projects() {
   };
 
   return (
-    <MainLayout>
-      <div className="min-h-screen">
-        {/* Header */}
-        <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-lg border-b border-border">
-          <div className="px-6 lg:px-8 py-4">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">פרויקטים</h1>
-                <p className="text-muted-foreground mt-1">
-                  ניהול ומעקב אחר כל פרויקטי הבנייה שלך
-                </p>
-              </div>
-              <Button className="gap-2 bg-primary hover:bg-primary/90">
-                <Plus className="h-4 w-4" />
-                פרויקט חדש
-              </Button>
-            </div>
-          </div>
-        </header>
+     <MainLayout>
+       <div className="min-h-screen">
+         <PageHeader
+           title="פרויקטים"
+           subtitle="ניהול ומעקב אחר כל פרויקטי הבנייה שלך"
+           actions={
+             <Button className="gap-2 bg-primary hover:bg-primary/90">
+               <Plus className="h-4 w-4" />
+               פרויקט חדש
+             </Button>
+           }
+         />
 
         <div className="px-6 lg:px-8 py-6 space-y-6">
           {/* Filters */}
@@ -130,8 +125,10 @@ export default function Projects() {
                   : 'space-y-4'
               )}
             >
-              {filteredProjects.map((project) => (
-                <ProjectCard key={project.id} project={project} />
+               {filteredProjects.map((project) => (
+                 <Link key={project.id} to={`/projects/${project.id}`}>
+                   <ProjectCard project={project} />
+                 </Link>
               ))}
             </div>
           ) : (

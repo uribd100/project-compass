@@ -21,14 +21,11 @@ import { Badge } from '@/components/ui/badge';
 import { currentUser } from '@/data/mockData';
 
 const navigation = [
-  { name: 'לוח בקרה', href: '/', icon: LayoutDashboard },
+   { name: 'לוח בקרה', href: '/dashboard', icon: LayoutDashboard },
   { name: 'פרויקטים', href: '/projects', icon: FolderKanban },
   { name: 'פעילות', href: '/activity', icon: Activity },
   { name: 'משימות', href: '/tasks', icon: CheckSquare, badge: 3 },
   { name: 'החלטות', href: '/decisions', icon: FileText, badge: 2 },
-  { name: 'קבצים', href: '/files', icon: FileText },
-  { name: 'תקציב', href: '/budget', icon: DollarSign },
-  { name: 'צוות', href: '/team', icon: Users },
 ];
 
 const bottomNav = [
@@ -88,7 +85,8 @@ export function AppSidebar() {
       {/* Main Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navigation.map((item) => {
-          const isActive = location.pathname === item.href;
+         const isActive = location.pathname === item.href || 
+           (item.href !== '/dashboard' && location.pathname.startsWith(item.href));
           return (
             <Link
               key={item.name}
