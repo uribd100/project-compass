@@ -117,6 +117,18 @@ export interface FileAttachment {
   uploadedAt: string;
   version: number;
   tags?: string[];
+  folder?: string;
+}
+
+export interface BudgetItem {
+  id: string;
+  projectId: string;
+  name: string;
+  category: string;
+  planned: number;
+  actual: number;
+  description?: string;
+  createdAt: string;
 }
 
 export interface Comment {

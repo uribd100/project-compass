@@ -3,11 +3,20 @@ import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Calendar, Flag } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Calendar, Flag, MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface TaskListProps {
   tasks: Task[];
   onTaskToggle?: (taskId: string) => void;
+  onTaskEdit?: (task: Task) => void;
+  onTaskDelete?: (taskId: string) => void;
 }
 
 const statusConfig: Record<TaskStatus, { label: string; className: string }> = {
@@ -24,7 +33,7 @@ const priorityConfig: Record<TaskPriority, { label: string; className: string }>
   urgent: { label: 'דחוף', className: 'text-destructive' },
 };
 
-export function TaskList({ tasks, onTaskToggle }: TaskListProps) {
+export function TaskList({ tasks, onTaskToggle, onTaskEdit, onTaskDelete }: TaskListProps) {
   const sortedTasks = [...tasks].sort((a, b) => {
     const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
     return priorityOrder[a.priority] - priorityOrder[b.priority];
@@ -42,7 +51,7 @@ export function TaskList({ tasks, onTaskToggle }: TaskListProps) {
           <div
             key={task.id}
             className={cn(
-              'flex items-center gap-4 p-4 rounded-xl bg-card border border-border/50 hover:border-border transition-all duration-200 animate-fade-in',
+              'flex items-center gap-4 p-4 rounded-xl bg-card border border-border/50 hover:border-border transition-all duration-200 animate-fade-in group',
               isCompleted && 'opacity-60'
             )}
             style={{ animationDelay: `${index * 30}ms` }}
@@ -95,6 +104,37 @@ export function TaskList({ tasks, onTaskToggle }: TaskListProps) {
                   {task.assignee.name.split(' ').map((n) => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
+            )}
+
+            {(onTaskEdit || onTaskDelete) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  {onTaskEdit && (
+                    <DropdownMenuItem onClick={() => onTaskEdit(task)}>
+                      <Edit2 className="h-4 w-4 ml-2" />
+                      ערוך
+                    </DropdownMenuItem>
+                  )}
+                  {onTaskDelete && (
+                    <DropdownMenuItem 
+                      className="text-destructive focus:text-destructive"
+                      onClick={() => onTaskDelete(task.id)}
+                    >
+                      <Trash2 className="h-4 w-4 ml-2" />
+                      מחק
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
         );

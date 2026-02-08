@@ -1,19 +1,19 @@
 import { MainLayout } from '@/components/layout/MainLayout';
- import { PageHeader } from '@/components/layout/PageHeader';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ActivityFeed } from '@/components/dashboard/ActivityFeed';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { mockActivities } from '@/data/mockData';
- import { Plus, Search } from 'lucide-react';
+import { useProjectData } from '@/contexts/ProjectDataContext';
+import { Plus, Search } from 'lucide-react';
 import { useState } from 'react';
 import { ActivityType } from '@/types/project';
 
 export default function Activity() {
+  const { activities } = useProjectData();
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<ActivityType | null>(null);
 
-  const filteredActivities = mockActivities.filter((activity) => {
+  const filteredActivities = activities.filter((activity) => {
     const matchesSearch = activity.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       activity.description?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesType = !typeFilter || activity.type === typeFilter;
@@ -21,18 +21,18 @@ export default function Activity() {
   });
 
   return (
-     <MainLayout>
-       <div className="min-h-screen">
-         <PageHeader
-           title="פיד פעילות"
-           subtitle="כל פעילויות הפרויקט, ההחלטות והעדכונים במקום אחד"
-           actions={
-             <Button className="gap-2 bg-primary hover:bg-primary/90">
-               <Plus className="h-4 w-4" />
-               פרסם עדכון
-             </Button>
-           }
-         />
+    <MainLayout>
+      <div className="min-h-screen">
+        <PageHeader
+          title="פיד פעילות"
+          subtitle="כל פעילויות הפרויקט, ההחלטות והעדכונים במקום אחד"
+          actions={
+            <Button className="gap-2 bg-primary hover:bg-primary/90">
+              <Plus className="h-4 w-4" />
+              פרסם עדכון
+            </Button>
+          }
+        />
 
         <div className="px-6 lg:px-8 py-6 space-y-6">
           {/* Filters */}
