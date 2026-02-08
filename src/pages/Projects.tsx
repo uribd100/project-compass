@@ -1,21 +1,24 @@
 import { useState } from 'react';
- import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
- import { PageHeader } from '@/components/layout/PageHeader';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ProjectCard } from '@/components/dashboard/ProjectCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { mockProjects } from '@/data/mockData';
-import { Plus, Search, Filter, Grid3X3, List } from 'lucide-react';
+import { NewProjectModal } from '@/components/modals/NewProjectModal';
+import { useProjectData } from '@/contexts/ProjectDataContext';
+import { Plus, Search, Grid3X3, List } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function Projects() {
+  const { projects } = useProjectData();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [showNewProjectModal, setShowNewProjectModal] = useState(false);
 
-  const filteredProjects = mockProjects.filter((project) => {
+  const filteredProjects = projects.filter((project) => {
     const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       project.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = !statusFilter || project.status === statusFilter;
@@ -23,25 +26,28 @@ export default function Projects() {
   });
 
   const statusCounts = {
-    all: mockProjects.length,
-    active: mockProjects.filter(p => p.status === 'active').length,
-    on_hold: mockProjects.filter(p => p.status === 'on_hold').length,
-    completed: mockProjects.filter(p => p.status === 'completed').length,
+    all: projects.length,
+    active: projects.filter(p => p.status === 'active').length,
+    on_hold: projects.filter(p => p.status === 'on_hold').length,
+    completed: projects.filter(p => p.status === 'completed').length,
   };
 
   return (
-     <MainLayout>
-       <div className="min-h-screen">
-         <PageHeader
-           title="פרויקטים"
-           subtitle="ניהול ומעקב אחר כל פרויקטי הבנייה שלך"
-           actions={
-             <Button className="gap-2 bg-primary hover:bg-primary/90">
-               <Plus className="h-4 w-4" />
-               פרויקט חדש
-             </Button>
-           }
-         />
+    <MainLayout>
+      <div className="min-h-screen">
+        <PageHeader
+          title="פרויקטים"
+          subtitle="ניהול ומעקב אחר כל פרויקטי הבנייה שלך"
+          actions={
+            <Button 
+              className="gap-2 bg-primary hover:bg-primary/90"
+              onClick={() => setShowNewProjectModal(true)}
+            >
+              <Plus className="h-4 w-4" />
+              פרויקט חדש
+            </Button>
+          }
+        />
 
         <div className="px-6 lg:px-8 py-6 space-y-6">
           {/* Filters */}
@@ -125,10 +131,10 @@ export default function Projects() {
                   : 'space-y-4'
               )}
             >
-               {filteredProjects.map((project) => (
-                 <Link key={project.id} to={`/projects/${project.id}`}>
-                   <ProjectCard project={project} />
-                 </Link>
+              {filteredProjects.map((project) => (
+                <Link key={project.id} to={`/projects/${project.id}`}>
+                  <ProjectCard project={project} />
+                </Link>
               ))}
             </div>
           ) : (
@@ -143,7 +149,10 @@ export default function Projects() {
                   : "התחל על ידי יצירת הפרויקט הראשון שלך"}
               </p>
               {!searchQuery && !statusFilter && (
-                <Button className="mt-6 gap-2">
+                <Button 
+                  className="mt-6 gap-2"
+                  onClick={() => setShowNewProjectModal(true)}
+                >
                   <Plus className="h-4 w-4" />
                   צור פרויקט
                 </Button>
@@ -152,6 +161,11 @@ export default function Projects() {
           )}
         </div>
       </div>
+      
+      <NewProjectModal 
+        open={showNewProjectModal} 
+        onOpenChange={setShowNewProjectModal} 
+      />
     </MainLayout>
   );
 }
