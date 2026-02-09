@@ -29,7 +29,7 @@ export function StatsCard({
   return <div className="card-elevated p-6 animate-fade-in">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-muted-foreground bg-green-100">{title}</p>
+          <p className="text-sm font-medium text-muted-foreground bg-teal-100 border-gray-950">{title}</p>
           <p className="text-2xl font-bold text-foreground mt-2">{value}</p>
           {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
           {trend && TrendIcon && <div className="flex items-center gap-1.5 mt-3">
@@ -41,7 +41,7 @@ export function StatsCard({
             </div>}
         </div>
         <div className={cn('flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center', iconVariants[variant])}>
-          <Icon className="h-6 w-6 text-sky-500" />
+          <Icon className="h-6 w-6" />
         </div>
       </div>
     </div>;
