@@ -29,7 +29,7 @@ export function StatsCard({
   return <div className="card-elevated p-6 animate-fade-in">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-muted-foreground border-gray-950 bg-primary-foreground">{title}</p>
+          <p className="text-sm font-medium border-primary text-primary bg-primary">{title}</p>
           <p className="text-2xl font-bold mt-2 text-cyan-400 bg-green-100">{value}</p>
           {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
           {trend && TrendIcon && <div className="flex items-center gap-1.5 mt-3">
