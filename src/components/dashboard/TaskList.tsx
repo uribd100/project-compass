@@ -24,6 +24,7 @@ const statusConfig: Record<TaskStatus, { label: string; className: string }> = {
   in_progress: { label: 'בביצוע', className: 'bg-info/10 text-info' },
   completed: { label: 'הושלם', className: 'bg-success/10 text-success' },
   blocked: { label: 'חסום', className: 'bg-destructive/10 text-destructive' },
+  ready: { label: 'מוכן להתחלה', className: 'bg-primary/10 text-primary' },
 };
 
 const priorityConfig: Record<TaskPriority, { label: string; className: string }> = {

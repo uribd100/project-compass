@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { NewProjectModal } from '@/components/modals/NewProjectModal';
 import { useProjectData } from '@/contexts/ProjectDataContext';
-import { mockDecisions, currentUser } from '@/data/mockData';
+import { currentUser } from '@/data/mockData';
 import { 
   Plus, 
   FolderKanban, 
@@ -22,15 +22,19 @@ import {
 } from 'lucide-react';
 
 export default function Dashboard() {
-  const { projects, tasks, activities, toggleTaskStatus } = useProjectData();
+  const { 
+    projects, 
+    tasks, 
+    activities, 
+    decisions,
+    stats,
+    toggleTaskStatus 
+  } = useProjectData();
   const [showNewProjectModal, setShowNewProjectModal] = useState(false);
   
   const activeProjects = projects.filter(p => p.status === 'active');
-  const pendingDecisions = mockDecisions.filter(d => d.status === 'pending');
+  const pendingDecisions = decisions.filter(d => d.status === 'pending');
   const inProgressTasks = tasks.filter(t => t.status === 'in_progress');
-  
-  const totalBudget = projects.reduce((sum, p) => sum + p.budget.planned, 0);
-  const actualSpend = projects.reduce((sum, p) => sum + p.budget.actual, 0);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('he-IL', {
@@ -59,37 +63,33 @@ export default function Dashboard() {
         />
 
         <div className="px-6 lg:px-8 py-6 space-y-8">
-          {/* Stats Overview */}
+          {/* Stats Overview - Computed from real data */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatsCard
               title="פרויקטים פעילים"
-              value={activeProjects.length}
+              value={stats.activeProjectsCount}
               subtitle={`${projects.length} סה"כ`}
               icon={FolderKanban}
               variant="primary"
-              trend={{ value: 12, label: 'מהחודש שעבר' }}
             />
             <StatsCard
               title="משימות בביצוע"
               value={inProgressTasks.length}
-              subtitle={`${tasks.length} משימות סה"כ`}
+              subtitle={`${stats.tasksCompletionRate}% הושלמו`}
               icon={CheckSquare}
               variant="accent"
-              trend={{ value: -5, label: 'מהשבוע שעבר' }}
             />
             <StatsCard
               title="החלטות ממתינות"
-              value={pendingDecisions.length}
+              value={stats.pendingDecisionsCount}
               subtitle="ממתינות לאישור"
               icon={Clock}
-              trend={{ value: 0, label: 'ללא שינוי' }}
             />
             <StatsCard
               title="ניצול תקציב"
-              value={totalBudget > 0 ? `${((actualSpend / totalBudget) * 100).toFixed(0)}%` : '0%'}
-              subtitle={`${formatCurrency(actualSpend)} מתוך ${formatCurrency(totalBudget)}`}
+              value={`${stats.budgetUtilization}%`}
+              subtitle={`${formatCurrency(stats.totalBudgetActual)} מתוך ${formatCurrency(stats.totalBudgetPlanned)}`}
               icon={DollarSign}
-              trend={{ value: 8, label: 'מהחודש שעבר' }}
             />
           </section>
 
@@ -151,12 +151,19 @@ export default function Dashboard() {
               <section>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-semibold text-foreground">החלטות ממתינות</h2>
-                  <span className="text-sm text-muted-foreground">{pendingDecisions.length} ממתינות</span>
+                  <Link to="/decisions">
+                    <span className="text-sm text-muted-foreground">{pendingDecisions.length} ממתינות</span>
+                  </Link>
                 </div>
                 <div className="space-y-3">
-                  {mockDecisions.slice(0, 3).map((decision) => (
+                  {decisions.slice(0, 3).map((decision) => (
                     <DecisionCard key={decision.id} decision={decision} compact />
                   ))}
+                  {decisions.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      אין החלטות ממתינות
+                    </div>
+                  )}
                 </div>
               </section>
 
@@ -189,8 +196,7 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  {mockDecisions
-                    .filter(d => d.status === 'pending')
+                  {pendingDecisions
                     .slice(0, 2)
                     .map((decision) => (
                       <div key={decision.id} className="flex items-center justify-between text-sm">
@@ -203,6 +209,9 @@ export default function Dashboard() {
                         </span>
                       </div>
                     ))}
+                  {pendingDecisions.length === 0 && (
+                    <div className="text-sm text-muted-foreground">אין מועדים קרובים</div>
+                  )}
                 </div>
               </section>
             </div>

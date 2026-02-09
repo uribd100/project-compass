@@ -34,9 +34,12 @@ export type TaskStatus =
   | 'not_started' 
   | 'in_progress' 
   | 'completed' 
-  | 'blocked';
+  | 'blocked'
+  | 'ready';
 
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
+
+export type BudgetItemStatus = 'planned' | 'in_progress' | 'completed';
 
 export interface User {
   id: string;
@@ -45,6 +48,15 @@ export interface User {
   role: UserRole;
   consultantType?: ConsultantType;
   avatar?: string;
+}
+
+export interface ProjectMember {
+  id: string;
+  projectId: string;
+  userId: string;
+  user: User;
+  role: 'owner' | 'manager' | 'member' | 'viewer';
+  joinedAt: string;
 }
 
 export interface Project {
@@ -72,8 +84,11 @@ export interface Activity {
   user: User;
   timestamp: string;
   metadata?: Record<string, unknown>;
+  // Linked entities
   relatedDecisionId?: string;
   relatedTaskId?: string;
+  relatedFileId?: string;
+  relatedBudgetItemId?: string;
   attachments?: FileAttachment[];
   mentions?: string[];
 }
@@ -91,6 +106,9 @@ export interface Decision {
   updatedAt: string;
   attachments: FileAttachment[];
   comments: Comment[];
+  // Linked entities for automations
+  linkedTaskId?: string;
+  linkedBudgetItemId?: string;
 }
 
 export interface Task {
@@ -103,12 +121,14 @@ export interface Task {
   assignee?: User;
   dueDate?: string;
   createdAt: string;
+  completedAt?: string;
   relatedDecisionId?: string;
   dependencies?: string[];
 }
 
 export interface FileAttachment {
   id: string;
+  projectId?: string;
   name: string;
   type: string;
   size: number;
@@ -127,8 +147,11 @@ export interface BudgetItem {
   category: string;
   planned: number;
   actual: number;
+  status: BudgetItemStatus;
   description?: string;
   createdAt: string;
+  updatedAt?: string;
+  linkedDecisionId?: string;
 }
 
 export interface Comment {

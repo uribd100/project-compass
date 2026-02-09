@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
- import { PageHeader } from '@/components/layout/PageHeader';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { DecisionCard } from '@/components/dashboard/DecisionCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { mockDecisions } from '@/data/mockData';
- import { Plus, Search } from 'lucide-react';
+import { useProjectData } from '@/contexts/ProjectDataContext';
+import { Plus, Search } from 'lucide-react';
 import { DecisionStatus } from '@/types/project';
 
 export default function Decisions() {
+  const { decisions } = useProjectData();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<DecisionStatus | null>(null);
 
-  const filteredDecisions = mockDecisions.filter((decision) => {
+  const filteredDecisions = decisions.filter((decision) => {
     const matchesSearch = decision.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       decision.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = !statusFilter || decision.status === statusFilter;
@@ -21,26 +22,26 @@ export default function Decisions() {
   });
 
   const statusCounts = {
-    all: mockDecisions.length,
-    pending: mockDecisions.filter(d => d.status === 'pending').length,
-    approved: mockDecisions.filter(d => d.status === 'approved').length,
-    rejected: mockDecisions.filter(d => d.status === 'rejected').length,
-    revision_needed: mockDecisions.filter(d => d.status === 'revision_needed').length,
+    all: decisions.length,
+    pending: decisions.filter(d => d.status === 'pending').length,
+    approved: decisions.filter(d => d.status === 'approved').length,
+    rejected: decisions.filter(d => d.status === 'rejected').length,
+    revision_needed: decisions.filter(d => d.status === 'revision_needed').length,
   };
 
   return (
-     <MainLayout>
-       <div className="min-h-screen">
-         <PageHeader
-           title="החלטות ואישורים"
-           subtitle="מעקב וניהול החלטות פרויקט הדורשות אישור"
-           actions={
-             <Button className="gap-2 bg-primary hover:bg-primary/90">
-               <Plus className="h-4 w-4" />
-               החלטה חדשה
-             </Button>
-           }
-         />
+    <MainLayout>
+      <div className="min-h-screen">
+        <PageHeader
+          title="החלטות ואישורים"
+          subtitle="מעקב וניהול החלטות פרויקט הדורשות אישור"
+          actions={
+            <Button className="gap-2 bg-primary hover:bg-primary/90">
+              <Plus className="h-4 w-4" />
+              החלטה חדשה
+            </Button>
+          }
+        />
 
         <div className="px-6 lg:px-8 py-6 space-y-6">
           {/* Filters */}

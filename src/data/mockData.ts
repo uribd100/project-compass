@@ -1,4 +1,4 @@
-import { User, Project, Activity, Decision, Task } from '@/types/project';
+import { User, Project, Activity, Decision, Task, BudgetItem, FileAttachment } from '@/types/project';
 
 export const currentUser: User = {
   id: 'user-1',
@@ -105,9 +105,11 @@ export const mockActivities: Activity[] = [
     description: 'תוכניות קומות מעודכנות לקומות 12-18',
     user: mockUsers[3],
     timestamp: '2024-01-20T11:15:00Z',
+    relatedFileId: 'file-1',
     attachments: [
       {
         id: 'file-1',
+        projectId: 'proj-1',
         name: 'תוכניות_קומות_12-18_v2.3.pdf',
         type: 'application/pdf',
         size: 15728640,
@@ -137,6 +139,7 @@ export const mockActivities: Activity[] = [
     description: 'עלייה בעלויות חומרים עקב שינויים בשוק - שינוי הזמנה של ₪165,000',
     user: mockUsers[1],
     timestamp: '2024-01-18T09:20:00Z',
+    relatedBudgetItemId: 'budget-2',
   },
   {
     id: 'act-5',
@@ -172,6 +175,7 @@ export const mockDecisions: Decision[] = [
     updatedAt: '2024-01-20T14:30:00Z',
     attachments: [],
     comments: [],
+    linkedTaskId: 'task-1',
   },
   {
     id: 'dec-2',
@@ -186,6 +190,7 @@ export const mockDecisions: Decision[] = [
     updatedAt: '2024-01-18T09:00:00Z',
     attachments: [],
     comments: [],
+    linkedBudgetItemId: 'budget-5',
   },
   {
     id: 'dec-3',
@@ -200,6 +205,7 @@ export const mockDecisions: Decision[] = [
     updatedAt: '2024-01-19T11:00:00Z',
     attachments: [],
     comments: [],
+    linkedTaskId: 'task-4',
   },
 ];
 
@@ -214,6 +220,7 @@ export const mockTasks: Task[] = [
     assignee: mockUsers[2],
     dueDate: '2024-01-24',
     createdAt: '2024-01-10T10:00:00Z',
+    relatedDecisionId: 'dec-1',
   },
   {
     id: 'task-2',
@@ -225,6 +232,7 @@ export const mockTasks: Task[] = [
     assignee: mockUsers[1],
     dueDate: '2024-01-20',
     createdAt: '2024-01-08T09:00:00Z',
+    completedAt: '2024-01-19T16:00:00Z',
   },
   {
     id: 'task-3',
@@ -259,5 +267,127 @@ export const mockTasks: Task[] = [
     assignee: mockUsers[2],
     dueDate: '2024-01-25',
     createdAt: '2024-01-17T08:00:00Z',
+  },
+];
+
+export const mockBudgetItems: BudgetItem[] = [
+  { 
+    id: 'budget-1', 
+    projectId: 'proj-1', 
+    name: 'תכנון ופיקוח', 
+    category: 'planning', 
+    planned: 500000, 
+    actual: 420000, 
+    status: 'in_progress',
+    createdAt: '2024-01-01' 
+  },
+  { 
+    id: 'budget-2', 
+    projectId: 'proj-1', 
+    name: 'בנייה וקונסטרוקציה', 
+    category: 'construction', 
+    planned: 2000000, 
+    actual: 1850000, 
+    status: 'in_progress',
+    createdAt: '2024-01-01' 
+  },
+  { 
+    id: 'budget-3', 
+    projectId: 'proj-1', 
+    name: 'מערכות חשמל', 
+    category: 'electrical', 
+    planned: 300000, 
+    actual: 280000, 
+    status: 'in_progress',
+    createdAt: '2024-01-01' 
+  },
+  { 
+    id: 'budget-4', 
+    projectId: 'proj-1', 
+    name: 'אינסטלציה', 
+    category: 'plumbing', 
+    planned: 250000, 
+    actual: 190000, 
+    status: 'planned',
+    createdAt: '2024-01-01' 
+  },
+  { 
+    id: 'budget-5', 
+    projectId: 'proj-1', 
+    name: 'גמר ופיתוח', 
+    category: 'finishing', 
+    planned: 400000, 
+    actual: 120000, 
+    status: 'planned',
+    createdAt: '2024-01-01',
+    linkedDecisionId: 'dec-2'
+  },
+];
+
+export const mockFiles: FileAttachment[] = [
+  { 
+    id: 'file-1', 
+    projectId: 'proj-1',
+    name: 'תוכנית אדריכלית - קומה ראשית.dwg', 
+    type: 'cad', 
+    size: 2400000, 
+    url: '#', 
+    uploadedBy: currentUser, 
+    uploadedAt: '2024-01-15', 
+    version: 1, 
+    folder: 'תוכניות', 
+    tags: [] 
+  },
+  { 
+    id: 'file-2', 
+    projectId: 'proj-1',
+    name: 'דו״ח קונסטרוקציה.pdf', 
+    type: 'pdf', 
+    size: 1200000, 
+    url: '#', 
+    uploadedBy: currentUser, 
+    uploadedAt: '2024-01-14', 
+    version: 1, 
+    folder: 'דוחות', 
+    tags: [] 
+  },
+  { 
+    id: 'file-3', 
+    projectId: 'proj-1',
+    name: 'הדמיית חזית.jpg', 
+    type: 'image', 
+    size: 3800000, 
+    url: '#', 
+    uploadedBy: currentUser, 
+    uploadedAt: '2024-01-13', 
+    version: 1, 
+    folder: 'הדמיות', 
+    tags: [] 
+  },
+  { 
+    id: 'file-4', 
+    projectId: 'proj-1',
+    name: 'טבלת כמויות.xlsx', 
+    type: 'excel', 
+    size: 520000, 
+    url: '#', 
+    uploadedBy: currentUser, 
+    uploadedAt: '2024-01-12', 
+    version: 1, 
+    folder: 'תחשיבים', 
+    tags: [] 
+  },
+  { 
+    id: 'file-5', 
+    projectId: 'proj-1',
+    name: 'פרוטוקול ישיבה 12.pdf', 
+    type: 'pdf', 
+    size: 340000, 
+    url: '#', 
+    uploadedBy: currentUser, 
+    uploadedAt: '2024-01-11', 
+    version: 1, 
+    folder: 'פרוטוקולים', 
+    tags: [] 
   },
 ];
