@@ -30,7 +30,7 @@ export function StatsCard({
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <p className="text-sm font-medium border-primary text-primary bg-primary">{title}</p>
-          <p className="text-2xl font-bold mt-2 text-cyan-400 bg-green-100">{value}</p>
+          <p className="text-2xl font-bold mt-2 text-cyan-400 bg-primary">{value}</p>
           {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
           {trend && TrendIcon && <div className="flex items-center gap-1.5 mt-3">
               <TrendIcon className={cn('h-4 w-4', trend.value > 0 ? 'text-success' : trend.value < 0 ? 'text-destructive' : 'text-muted-foreground')} />
