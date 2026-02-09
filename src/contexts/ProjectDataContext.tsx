@@ -1,9 +1,24 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { Project, Task, Activity, FileAttachment, BudgetItem, User, TaskStatus, ActivityType } from '@/types/project';
+import React, { createContext, useContext, useState, useCallback, ReactNode, useMemo } from 'react';
+import { 
+  Project, 
+  Task, 
+  Activity, 
+  FileAttachment, 
+  BudgetItem, 
+  Decision,
+  User, 
+  TaskStatus, 
+  ActivityType,
+  DecisionStatus,
+  BudgetItemStatus
+} from '@/types/project';
 import { 
   mockProjects as initialProjects, 
   mockTasks as initialTasks, 
   mockActivities as initialActivities,
+  mockDecisions as initialDecisions,
+  mockBudgetItems as initialBudgetItems,
+  mockFiles as initialFiles,
   currentUser 
 } from '@/data/mockData';
 import { toast } from '@/hooks/use-toast';
@@ -15,6 +30,18 @@ interface ProjectDataContextType {
   activities: Activity[];
   files: FileAttachment[];
   budgetItems: BudgetItem[];
+  decisions: Decision[];
+  
+  // Computed statistics
+  stats: {
+    activeProjectsCount: number;
+    completedTasksCount: number;
+    pendingDecisionsCount: number;
+    totalBudgetPlanned: number;
+    totalBudgetActual: number;
+    budgetUtilization: number;
+    tasksCompletionRate: number;
+  };
   
   // Project CRUD
   createProject: (project: Omit<Project, 'id' | 'progress' | 'team'>) => Project;
@@ -26,12 +53,20 @@ interface ProjectDataContextType {
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   toggleTaskStatus: (id: string) => void;
+  completeTask: (id: string) => void;
+  
+  // Decision CRUD
+  createDecision: (decision: Omit<Decision, 'id' | 'createdAt' | 'updatedAt'>) => Decision;
+  updateDecision: (id: string, updates: Partial<Decision>) => void;
+  approveDecision: (id: string) => void;
+  rejectDecision: (id: string) => void;
+  deleteDecision: (id: string) => void;
   
   // Activity
   addActivity: (activity: Omit<Activity, 'id' | 'timestamp' | 'user'>) => void;
   
   // Files
-  uploadFile: (file: Omit<FileAttachment, 'id' | 'uploadedAt' | 'uploadedBy' | 'version'>) => void;
+  uploadFile: (file: Omit<FileAttachment, 'id' | 'uploadedAt' | 'uploadedBy' | 'version'>) => FileAttachment;
   deleteFile: (id: string) => void;
   
   // Budget
@@ -45,27 +80,11 @@ interface ProjectDataContextType {
   getProjectActivities: (projectId: string) => Activity[];
   getProjectFiles: (projectId: string) => FileAttachment[];
   getProjectBudget: (projectId: string) => BudgetItem[];
+  getProjectDecisions: (projectId: string) => Decision[];
+  computeProjectProgress: (projectId: string) => number;
 }
 
 const ProjectDataContext = createContext<ProjectDataContextType | undefined>(undefined);
-
-// Initial budget items from existing data
-const initialBudgetItems: BudgetItem[] = [
-  { id: 'budget-1', projectId: 'proj-1', name: 'תכנון ופיקוח', category: 'planning', planned: 500000, actual: 420000, createdAt: '2024-01-01' },
-  { id: 'budget-2', projectId: 'proj-1', name: 'בנייה וקונסטרוקציה', category: 'construction', planned: 2000000, actual: 1850000, createdAt: '2024-01-01' },
-  { id: 'budget-3', projectId: 'proj-1', name: 'מערכות חשמל', category: 'electrical', planned: 300000, actual: 280000, createdAt: '2024-01-01' },
-  { id: 'budget-4', projectId: 'proj-1', name: 'אינסטלציה', category: 'plumbing', planned: 250000, actual: 190000, createdAt: '2024-01-01' },
-  { id: 'budget-5', projectId: 'proj-1', name: 'גמר ופיתוח', category: 'finishing', planned: 400000, actual: 120000, createdAt: '2024-01-01' },
-];
-
-// Initial files
-const initialFiles: FileAttachment[] = [
-  { id: 'file-1', name: 'תוכנית אדריכלית - קומה ראשית.dwg', type: 'cad', size: 2400000, url: '#', uploadedBy: currentUser, uploadedAt: '2024-01-15', version: 1, folder: 'תוכניות', tags: [] },
-  { id: 'file-2', name: 'דו״ח קונסטרוקציה.pdf', type: 'pdf', size: 1200000, url: '#', uploadedBy: currentUser, uploadedAt: '2024-01-14', version: 1, folder: 'דוחות', tags: [] },
-  { id: 'file-3', name: 'הדמיית חזית.jpg', type: 'image', size: 3800000, url: '#', uploadedBy: currentUser, uploadedAt: '2024-01-13', version: 1, folder: 'הדמיות', tags: [] },
-  { id: 'file-4', name: 'טבלת כמויות.xlsx', type: 'excel', size: 520000, url: '#', uploadedBy: currentUser, uploadedAt: '2024-01-12', version: 1, folder: 'תחשיבים', tags: [] },
-  { id: 'file-5', name: 'פרוטוקול ישיבה 12.pdf', type: 'pdf', size: 340000, url: '#', uploadedBy: currentUser, uploadedAt: '2024-01-11', version: 1, folder: 'פרוטוקולים', tags: [] },
-];
 
 export function ProjectDataProvider({ children }: { children: ReactNode }) {
   const [projects, setProjects] = useState<Project[]>(initialProjects);
@@ -73,8 +92,88 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
   const [activities, setActivities] = useState<Activity[]>(initialActivities);
   const [files, setFiles] = useState<FileAttachment[]>(initialFiles);
   const [budgetItems, setBudgetItems] = useState<BudgetItem[]>(initialBudgetItems);
+  const [decisions, setDecisions] = useState<Decision[]>(initialDecisions);
 
   const generateId = () => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+  // Internal activity logger
+  const logActivity = useCallback((
+    projectId: string, 
+    type: ActivityType, 
+    title: string, 
+    description?: string,
+    linkedIds?: {
+      relatedDecisionId?: string;
+      relatedTaskId?: string;
+      relatedFileId?: string;
+      relatedBudgetItemId?: string;
+    }
+  ) => {
+    const newActivity: Activity = {
+      id: `act-${generateId()}`,
+      projectId,
+      type,
+      title,
+      description,
+      user: currentUser,
+      timestamp: new Date().toISOString(),
+      ...linkedIds,
+    };
+    setActivities(prev => [newActivity, ...prev]);
+    return newActivity;
+  }, []);
+
+  // Compute project progress based on completed tasks
+  const computeProjectProgress = useCallback((projectId: string): number => {
+    const projectTasks = tasks.filter(t => t.projectId === projectId);
+    if (projectTasks.length === 0) return 0;
+    const completedTasks = projectTasks.filter(t => t.status === 'completed').length;
+    return Math.round((completedTasks / projectTasks.length) * 100);
+  }, [tasks]);
+
+  // Update project progress when tasks change
+  const updateProjectProgress = useCallback((projectId: string) => {
+    const progress = computeProjectProgress(projectId);
+    setProjects(prev => prev.map(p => 
+      p.id === projectId ? { ...p, progress } : p
+    ));
+  }, [computeProjectProgress]);
+
+  // Update project budget totals from budget items
+  const updateProjectBudgetTotals = useCallback((projectId: string) => {
+    const projectBudgetItems = budgetItems.filter(b => b.projectId === projectId);
+    const planned = projectBudgetItems.reduce((sum, b) => sum + b.planned, 0);
+    const actual = projectBudgetItems.reduce((sum, b) => sum + b.actual, 0);
+    
+    setProjects(prev => prev.map(p => 
+      p.id === projectId ? { ...p, budget: { planned, actual } } : p
+    ));
+  }, [budgetItems]);
+
+  // Computed statistics
+  const stats = useMemo(() => {
+    const activeProjectsCount = projects.filter(p => p.status === 'active').length;
+    const completedTasksCount = tasks.filter(t => t.status === 'completed').length;
+    const pendingDecisionsCount = decisions.filter(d => d.status === 'pending').length;
+    const totalBudgetPlanned = projects.reduce((sum, p) => sum + p.budget.planned, 0);
+    const totalBudgetActual = projects.reduce((sum, p) => sum + p.budget.actual, 0);
+    const budgetUtilization = totalBudgetPlanned > 0 
+      ? Math.round((totalBudgetActual / totalBudgetPlanned) * 100) 
+      : 0;
+    const tasksCompletionRate = tasks.length > 0 
+      ? Math.round((completedTasksCount / tasks.length) * 100) 
+      : 0;
+
+    return {
+      activeProjectsCount,
+      completedTasksCount,
+      pendingDecisionsCount,
+      totalBudgetPlanned,
+      totalBudgetActual,
+      budgetUtilization,
+      tasksCompletionRate,
+    };
+  }, [projects, tasks, decisions]);
 
   // Project CRUD
   const createProject = useCallback((projectData: Omit<Project, 'id' | 'progress' | 'team'>): Project => {
@@ -86,16 +185,12 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
     };
     setProjects(prev => [...prev, newProject]);
     
-    // Add activity
-    setActivities(prev => [...prev, {
-      id: `act-${generateId()}`,
-      projectId: newProject.id,
-      type: 'milestone' as ActivityType,
-      title: 'פרויקט חדש נוצר',
-      description: `הפרויקט "${newProject.name}" נוצר בהצלחה`,
-      user: currentUser,
-      timestamp: new Date().toISOString(),
-    }]);
+    logActivity(
+      newProject.id, 
+      'milestone', 
+      'פרויקט חדש נוצר',
+      `הפרויקט "${newProject.name}" נוצר בהצלחה`
+    );
     
     toast({
       title: "הפרויקט נוצר בהצלחה",
@@ -103,7 +198,7 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
     });
     
     return newProject;
-  }, []);
+  }, [logActivity]);
 
   const updateProject = useCallback((id: string, updates: Partial<Project>) => {
     setProjects(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
@@ -118,8 +213,9 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
     setProjects(prev => prev.filter(p => p.id !== id));
     setTasks(prev => prev.filter(t => t.projectId !== id));
     setActivities(prev => prev.filter(a => a.projectId !== id));
-    setFiles(prev => prev.filter(f => !f.url.includes(id)));
+    setFiles(prev => prev.filter(f => f.projectId !== id));
     setBudgetItems(prev => prev.filter(b => b.projectId !== id));
+    setDecisions(prev => prev.filter(d => d.projectId !== id));
     
     toast({
       title: "הפרויקט נמחק",
@@ -137,17 +233,16 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
     };
     setTasks(prev => [...prev, newTask]);
     
-    // Add activity
-    setActivities(prev => [...prev, {
-      id: `act-${generateId()}`,
-      projectId: newTask.projectId,
-      type: 'task_update' as ActivityType,
-      title: 'משימה חדשה נוצרה',
-      description: newTask.title,
-      user: currentUser,
-      timestamp: new Date().toISOString(),
-      relatedTaskId: newTask.id,
-    }]);
+    logActivity(
+      newTask.projectId, 
+      'task_update', 
+      'משימה חדשה נוצרה',
+      newTask.title,
+      { relatedTaskId: newTask.id }
+    );
+    
+    // Update project progress
+    setTimeout(() => updateProjectProgress(newTask.projectId), 0);
     
     toast({
       title: "המשימה נוספה",
@@ -155,49 +250,259 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
     });
     
     return newTask;
-  }, []);
+  }, [logActivity, updateProjectProgress]);
 
   const updateTask = useCallback((id: string, updates: Partial<Task>) => {
+    const task = tasks.find(t => t.id === id);
     setTasks(prev => prev.map(t => t.id === id ? { ...t, ...updates } : t));
+    
+    if (task) {
+      setTimeout(() => updateProjectProgress(task.projectId), 0);
+    }
+    
     toast({
       title: "המשימה עודכנה",
       description: "השינויים נשמרו",
     });
-  }, []);
+  }, [tasks, updateProjectProgress]);
 
   const deleteTask = useCallback((id: string) => {
     const task = tasks.find(t => t.id === id);
     setTasks(prev => prev.filter(t => t.id !== id));
+    
+    if (task) {
+      setTimeout(() => updateProjectProgress(task.projectId), 0);
+    }
+    
     toast({
       title: "המשימה נמחקה",
       description: task?.title || "המשימה הוסרה",
       variant: "destructive",
     });
-  }, [tasks]);
+  }, [tasks, updateProjectProgress]);
 
   const toggleTaskStatus = useCallback((id: string) => {
-    setTasks(prev => prev.map(t => {
-      if (t.id === id) {
-        const newStatus: TaskStatus = t.status === 'completed' ? 'not_started' : 'completed';
-        return { ...t, status: newStatus };
+    setTasks(prev => {
+      const updatedTasks = prev.map(t => {
+        if (t.id === id) {
+          const newStatus: TaskStatus = t.status === 'completed' ? 'not_started' : 'completed';
+          const completedAt = newStatus === 'completed' ? new Date().toISOString() : undefined;
+          return { ...t, status: newStatus, completedAt };
+        }
+        return t;
+      });
+      
+      const task = updatedTasks.find(t => t.id === id);
+      if (task) {
+        setTimeout(() => updateProjectProgress(task.projectId), 0);
       }
-      return t;
-    }));
-  }, []);
+      
+      return updatedTasks;
+    });
+  }, [updateProjectProgress]);
+
+  const completeTask = useCallback((id: string) => {
+    const task = tasks.find(t => t.id === id);
+    if (!task || task.status === 'completed') return;
+    
+    setTasks(prev => prev.map(t => 
+      t.id === id 
+        ? { ...t, status: 'completed' as TaskStatus, completedAt: new Date().toISOString() } 
+        : t
+    ));
+    
+    logActivity(
+      task.projectId,
+      'task_update',
+      'משימה הושלמה',
+      `"${task.title}" סומנה כהושלמה`,
+      { relatedTaskId: task.id }
+    );
+    
+    setTimeout(() => updateProjectProgress(task.projectId), 0);
+    
+    toast({
+      title: "המשימה הושלמה",
+      description: task.title,
+    });
+  }, [tasks, logActivity, updateProjectProgress]);
+
+  // Decision CRUD
+  const createDecision = useCallback((decisionData: Omit<Decision, 'id' | 'createdAt' | 'updatedAt'>): Decision => {
+    const now = new Date().toISOString();
+    const newDecision: Decision = {
+      ...decisionData,
+      id: `dec-${generateId()}`,
+      createdAt: now,
+      updatedAt: now,
+    };
+    setDecisions(prev => [...prev, newDecision]);
+    
+    logActivity(
+      newDecision.projectId,
+      'decision',
+      'החלטה חדשה נוצרה',
+      newDecision.title,
+      { relatedDecisionId: newDecision.id }
+    );
+    
+    toast({
+      title: "ההחלטה נוצרה",
+      description: newDecision.title,
+    });
+    
+    return newDecision;
+  }, [logActivity]);
+
+  const updateDecision = useCallback((id: string, updates: Partial<Decision>) => {
+    const decision = decisions.find(d => d.id === id);
+    const previousStatus = decision?.status;
+    
+    setDecisions(prev => prev.map(d => 
+      d.id === id 
+        ? { ...d, ...updates, updatedAt: new Date().toISOString() } 
+        : d
+    ));
+    
+    if (decision && updates.status && updates.status !== previousStatus) {
+      logActivity(
+        decision.projectId,
+        'decision',
+        `סטטוס החלטה שונה`,
+        `"${decision.title}" שונה ל-${getStatusLabel(updates.status)}`,
+        { relatedDecisionId: decision.id }
+      );
+    }
+    
+    toast({
+      title: "ההחלטה עודכנה",
+      description: "השינויים נשמרו",
+    });
+  }, [decisions, logActivity]);
+
+  // Automation: When decision is approved
+  const approveDecision = useCallback((id: string) => {
+    const decision = decisions.find(d => d.id === id);
+    if (!decision) return;
+    
+    // Update decision status
+    setDecisions(prev => prev.map(d => 
+      d.id === id 
+        ? { ...d, status: 'approved' as DecisionStatus, updatedAt: new Date().toISOString() } 
+        : d
+    ));
+    
+    // Log approval activity
+    logActivity(
+      decision.projectId,
+      'approval',
+      'החלטה אושרה',
+      `"${decision.title}" אושרה`,
+      { relatedDecisionId: decision.id }
+    );
+    
+    // Automation #1: If linked to a task, update task status to "ready"
+    if (decision.linkedTaskId) {
+      const linkedTask = tasks.find(t => t.id === decision.linkedTaskId);
+      if (linkedTask && linkedTask.status !== 'completed') {
+        setTasks(prev => prev.map(t => 
+          t.id === decision.linkedTaskId 
+            ? { ...t, status: 'ready' as TaskStatus } 
+            : t
+        ));
+        
+        logActivity(
+          decision.projectId,
+          'task_update',
+          'משימה עודכנה אוטומטית',
+          `"${linkedTask.title}" עברה לסטטוס "מוכן להתחלה" בעקבות אישור החלטה`,
+          { relatedTaskId: linkedTask.id, relatedDecisionId: decision.id }
+        );
+        
+        setTimeout(() => updateProjectProgress(decision.projectId), 0);
+      }
+    }
+    
+    // Automation #2: If linked to a budget item, update budget item status
+    if (decision.linkedBudgetItemId) {
+      const linkedBudget = budgetItems.find(b => b.id === decision.linkedBudgetItemId);
+      if (linkedBudget) {
+        setBudgetItems(prev => prev.map(b => 
+          b.id === decision.linkedBudgetItemId 
+            ? { ...b, status: 'in_progress' as BudgetItemStatus, updatedAt: new Date().toISOString() } 
+            : b
+        ));
+        
+        logActivity(
+          decision.projectId,
+          'budget_change',
+          'סעיף תקציב הופעל',
+          `"${linkedBudget.name}" אושר והופעל בעקבות אישור החלטה`,
+          { relatedBudgetItemId: linkedBudget.id, relatedDecisionId: decision.id }
+        );
+      }
+    }
+    
+    toast({
+      title: "ההחלטה אושרה",
+      description: decision.title,
+    });
+  }, [decisions, tasks, budgetItems, logActivity, updateProjectProgress]);
+
+  const rejectDecision = useCallback((id: string) => {
+    const decision = decisions.find(d => d.id === id);
+    if (!decision) return;
+    
+    setDecisions(prev => prev.map(d => 
+      d.id === id 
+        ? { ...d, status: 'rejected' as DecisionStatus, updatedAt: new Date().toISOString() } 
+        : d
+    ));
+    
+    logActivity(
+      decision.projectId,
+      'decision',
+      'החלטה נדחתה',
+      `"${decision.title}" נדחתה`,
+      { relatedDecisionId: decision.id }
+    );
+    
+    toast({
+      title: "ההחלטה נדחתה",
+      description: decision.title,
+      variant: "destructive",
+    });
+  }, [decisions, logActivity]);
+
+  const deleteDecision = useCallback((id: string) => {
+    const decision = decisions.find(d => d.id === id);
+    setDecisions(prev => prev.filter(d => d.id !== id));
+    
+    toast({
+      title: "ההחלטה נמחקה",
+      description: decision?.title || "ההחלטה הוסרה",
+      variant: "destructive",
+    });
+  }, [decisions]);
 
   // Activity
   const addActivity = useCallback((activityData: Omit<Activity, 'id' | 'timestamp' | 'user'>) => {
-    const newActivity: Activity = {
-      ...activityData,
-      id: `act-${generateId()}`,
-      timestamp: new Date().toISOString(),
-      user: currentUser,
-    };
-    setActivities(prev => [newActivity, ...prev]);
-  }, []);
+    logActivity(
+      activityData.projectId,
+      activityData.type,
+      activityData.title,
+      activityData.description,
+      {
+        relatedDecisionId: activityData.relatedDecisionId,
+        relatedTaskId: activityData.relatedTaskId,
+        relatedFileId: activityData.relatedFileId,
+        relatedBudgetItemId: activityData.relatedBudgetItemId,
+      }
+    );
+  }, [logActivity]);
 
-  // Files
-  const uploadFile = useCallback((fileData: Omit<FileAttachment, 'id' | 'uploadedAt' | 'uploadedBy' | 'version'>) => {
+  // Files - with automatic activity logging
+  const uploadFile = useCallback((fileData: Omit<FileAttachment, 'id' | 'uploadedAt' | 'uploadedBy' | 'version'>): FileAttachment => {
     const newFile: FileAttachment = {
       ...fileData,
       id: `file-${generateId()}`,
@@ -207,11 +512,24 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
     };
     setFiles(prev => [...prev, newFile]);
     
+    // Automatically create activity for file upload
+    if (newFile.projectId) {
+      logActivity(
+        newFile.projectId,
+        'file_upload',
+        'קובץ הועלה',
+        `"${newFile.name}" הועלה לפרויקט`,
+        { relatedFileId: newFile.id }
+      );
+    }
+    
     toast({
       title: "הקובץ הועלה בהצלחה",
       description: newFile.name,
     });
-  }, []);
+    
+    return newFile;
+  }, [logActivity]);
 
   const deleteFile = useCallback((id: string) => {
     const file = files.find(f => f.id === id);
@@ -223,7 +541,7 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
     });
   }, [files]);
 
-  // Budget
+  // Budget - with automatic activity logging
   const createBudgetItem = useCallback((itemData: Omit<BudgetItem, 'id' | 'createdAt'>) => {
     const newItem: BudgetItem = {
       ...itemData,
@@ -232,40 +550,64 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
     };
     setBudgetItems(prev => [...prev, newItem]);
     
-    // Add activity
-    setActivities(prev => [...prev, {
-      id: `act-${generateId()}`,
-      projectId: newItem.projectId,
-      type: 'budget_change' as ActivityType,
-      title: 'סעיף תקציב נוסף',
-      description: `${newItem.name} - ₪${newItem.planned.toLocaleString()}`,
-      user: currentUser,
-      timestamp: new Date().toISOString(),
-    }]);
+    logActivity(
+      newItem.projectId,
+      'budget_change',
+      'סעיף תקציב נוסף',
+      `${newItem.name} - ₪${newItem.planned.toLocaleString()}`,
+      { relatedBudgetItemId: newItem.id }
+    );
+    
+    // Update project budget totals
+    setTimeout(() => updateProjectBudgetTotals(newItem.projectId), 0);
     
     toast({
       title: "סעיף התקציב נוסף",
       description: newItem.name,
     });
-  }, []);
+  }, [logActivity, updateProjectBudgetTotals]);
 
   const updateBudgetItem = useCallback((id: string, updates: Partial<BudgetItem>) => {
-    setBudgetItems(prev => prev.map(b => b.id === id ? { ...b, ...updates } : b));
+    const item = budgetItems.find(b => b.id === id);
+    
+    setBudgetItems(prev => prev.map(b => 
+      b.id === id 
+        ? { ...b, ...updates, updatedAt: new Date().toISOString() } 
+        : b
+    ));
+    
+    if (item && (updates.actual !== undefined || updates.planned !== undefined)) {
+      logActivity(
+        item.projectId,
+        'budget_change',
+        'סעיף תקציב עודכן',
+        `"${item.name}" עודכן`,
+        { relatedBudgetItemId: item.id }
+      );
+      
+      setTimeout(() => updateProjectBudgetTotals(item.projectId), 0);
+    }
+    
     toast({
       title: "התקציב עודכן",
       description: "השינויים נשמרו",
     });
-  }, []);
+  }, [budgetItems, logActivity, updateProjectBudgetTotals]);
 
   const deleteBudgetItem = useCallback((id: string) => {
     const item = budgetItems.find(b => b.id === id);
     setBudgetItems(prev => prev.filter(b => b.id !== id));
+    
+    if (item) {
+      setTimeout(() => updateProjectBudgetTotals(item.projectId), 0);
+    }
+    
     toast({
       title: "סעיף התקציב נמחק",
       description: item?.name || "הסעיף הוסר",
       variant: "destructive",
     });
-  }, [budgetItems]);
+  }, [budgetItems, updateProjectBudgetTotals]);
 
   // Helpers
   const getProjectById = useCallback((id: string) => {
@@ -281,13 +623,16 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
   }, [activities]);
 
   const getProjectFiles = useCallback((projectId: string) => {
-    // For now, return all files (we can add projectId to files later)
-    return files;
+    return files.filter(f => f.projectId === projectId);
   }, [files]);
 
   const getProjectBudget = useCallback((projectId: string) => {
     return budgetItems.filter(b => b.projectId === projectId);
   }, [budgetItems]);
+
+  const getProjectDecisions = useCallback((projectId: string) => {
+    return decisions.filter(d => d.projectId === projectId);
+  }, [decisions]);
 
   return (
     <ProjectDataContext.Provider value={{
@@ -296,6 +641,8 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
       activities,
       files,
       budgetItems,
+      decisions,
+      stats,
       createProject,
       updateProject,
       deleteProject,
@@ -303,6 +650,12 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
       updateTask,
       deleteTask,
       toggleTaskStatus,
+      completeTask,
+      createDecision,
+      updateDecision,
+      approveDecision,
+      rejectDecision,
+      deleteDecision,
       addActivity,
       uploadFile,
       deleteFile,
@@ -314,10 +667,23 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
       getProjectActivities,
       getProjectFiles,
       getProjectBudget,
+      getProjectDecisions,
+      computeProjectProgress,
     }}>
       {children}
     </ProjectDataContext.Provider>
   );
+}
+
+// Helper function for status labels
+function getStatusLabel(status: DecisionStatus): string {
+  const labels: Record<DecisionStatus, string> = {
+    pending: 'ממתין',
+    approved: 'אושר',
+    rejected: 'נדחה',
+    revision_needed: 'דורש תיקון',
+  };
+  return labels[status] || status;
 }
 
 export function useProjectData() {

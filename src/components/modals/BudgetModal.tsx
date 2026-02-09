@@ -72,6 +72,7 @@ export function BudgetModal({ open, onOpenChange, projectId, budgetItem }: Budge
           category: formData.category,
           planned: Number(formData.planned),
           actual: Number(formData.actual) || 0,
+          status: 'planned',
         });
       }
       
