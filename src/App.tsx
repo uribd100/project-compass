@@ -33,7 +33,8 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/:projectId" element={<ProjectDetail />}>
-              <Route index element={<ProjectOverview />} />
+              <Route index element={<Navigate to="overview" replace />} />
+              <Route path="overview" element={<ProjectOverview />} />
               <Route path="activity" element={<ProjectActivity />} />
               <Route path="files" element={<ProjectFiles />} />
               <Route path="tasks" element={<ProjectTasks />} />

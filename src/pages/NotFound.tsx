@@ -1,5 +1,8 @@
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { MainLayout } from "@/components/layout/MainLayout";
+import { Button } from "@/components/ui/button";
+import { Home } from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
@@ -9,15 +12,23 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-muted-foreground">Oops! Page not found</p>
-        <a href="/" className="text-primary underline hover:text-primary/90">
-          Return to Home
-        </a>
+    <MainLayout>
+      <div className="flex min-h-[80vh] items-center justify-center">
+        <div className="text-center space-y-4">
+          <h1 className="text-6xl font-bold text-foreground">404</h1>
+          <p className="text-xl text-muted-foreground">הדף המבוקש לא נמצא</p>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+            ייתכן שהקישור שגוי או שהדף הוסר מהמערכת.
+          </p>
+          <Link to="/dashboard">
+            <Button className="mt-4 gap-2">
+              <Home className="h-4 w-4" />
+              חזרה ללוח הבקרה
+            </Button>
+          </Link>
+        </div>
       </div>
-    </div>
+    </MainLayout>
   );
 };
 

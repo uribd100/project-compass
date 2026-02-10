@@ -15,7 +15,7 @@ import {
 import { cn } from '@/lib/utils';
 
 const tabs = [
-  { id: 'overview', label: 'סקירה', path: '', icon: Activity },
+  { id: 'overview', label: 'סקירה', path: '/overview', icon: Activity },
   { id: 'activity', label: 'פעילות', path: '/activity', icon: Activity },
   { id: 'files', label: 'קבצים', path: '/files', icon: FileText },
   { id: 'tasks', label: 'משימות', path: '/tasks', icon: CheckSquare },
