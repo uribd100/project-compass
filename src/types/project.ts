@@ -119,6 +119,8 @@ export interface Task {
   status: TaskStatus;
   priority: TaskPriority;
   assignee?: User;
+  startDate?: string;
+  endDate?: string;
   dueDate?: string;
   createdAt: string;
   completedAt?: string;
