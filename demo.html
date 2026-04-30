@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Project Compass · סרטון רקע למערכת</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --loop: 24s;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background: #07101e;
+    font-family: 'Heebo', system-ui, sans-serif;
+    color: #fff;
+    overflow: hidden;
+  }
+  .stage {
+    position: fixed; inset: 0;
+    overflow: hidden;
+    background: #07101e;
+  }
+  .blueprint-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 30% 20%, hsl(200 80% 25% / 0.55), transparent 55%),
+      radial-gradient(ellipse at 75% 80%, hsl(215 60% 18% / 0.6), transparent 55%),
+      linear-gradient(135deg, hsl(220 45% 9%), hsl(215 45% 13%));
+  }
+  .layer { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  .bp-phase-blueprint {
+    animation: bpPhaseBlueprint var(--loop) linear infinite;
+  }
+  .bp-phase-building {
+    animation: bpPhaseBuilding var(--loop) linear infinite;
+    opacity: 0;
+  }
+  @keyframes bpPhaseBlueprint {
+    0%   { opacity: 0; }
+    10%  { opacity: 1; }
+    40%  { opacity: 1; }
+    55%  { opacity: 0.15; }
+    88%  { opacity: 0.15; }
+    95%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  @keyframes bpPhaseBuilding {
+    0%   { opacity: 0; transform: translateY(20px); }
+    18%  { opacity: 0; transform: translateY(20px); }
+    40%  { opacity: 0.4; transform: translateY(0); }
+    55%  { opacity: 1; transform: translateY(0); }
+    85%  { opacity: 1; transform: translateY(0); }
+    95%  { opacity: 0; transform: translateY(-10px); }
+    100% { opacity: 0; transform: translateY(-10px); }
+  }
+
+  .bp-line {
+    stroke-dasharray: var(--bp-len);
+    stroke-dashoffset: var(--bp-len);
+    animation: bpDraw var(--loop) linear infinite;
+    animation-delay: var(--bp-delay, 0s);
+  }
+  @keyframes bpDraw {
+    0%   { stroke-dashoffset: var(--bp-len); }
+    15%  { stroke-dashoffset: 0; }
+    85%  { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: var(--bp-len); }
+  }
+
+  .bp-fade-in {
+    opacity: 0;
+    animation: bpFadeIn var(--loop) linear infinite;
+    animation-delay: var(--bp-delay, 0s);
+  }
+  @keyframes bpFadeIn {
+    0%   { opacity: 0; }
+    15%  { opacity: 1; }
+    85%  { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  .bp-floor {
+    opacity: 0;
+    transform-origin: center bottom;
+    transform: scaleY(0.05) translateY(20px);
+    animation: bpFloorRise var(--loop) ease-out infinite;
+    animation-delay: var(--bp-delay, 0s);
+  }
+  @keyframes bpFloorRise {
+    0%, 20%   { opacity: 0; transform: scaleY(0.05) translateY(20px); }
+    24%       { opacity: 1; transform: scaleY(1) translateY(0); }
+    85%       { opacity: 1; transform: scaleY(1) translateY(0); }
+    95%       { opacity: 0; transform: scaleY(1) translateY(0); }
+    100%      { opacity: 0; transform: scaleY(0.05) translateY(20px); }
+  }
+
+  .bp-window {
+    opacity: 0;
+    animation: bpWindowGlow var(--loop) ease-in-out infinite;
+    animation-delay: var(--bp-delay, 0s);
+    filter: drop-shadow(0 0 3px hsl(45 95% 70% / 0.9));
+  }
+  @keyframes bpWindowGlow {
+    0%, 22%   { opacity: 0; }
+    26%       { opacity: 1; }
+    50%       { opacity: 0.6; }
+    70%       { opacity: 1; }
+    85%       { opacity: 0.8; }
+    95%       { opacity: 0; }
+    100%      { opacity: 0; }
+  }
+
+  .bp-roof {
+    opacity: 0;
+    transform: translateY(-30px);
+    animation: bpRoof var(--loop) ease-out infinite;
+    animation-delay: var(--bp-delay, 0s);
+  }
+  @keyframes bpRoof {
+    0%, 40% { opacity: 0; transform: translateY(-30px); }
+    48%     { opacity: 1; transform: translateY(0); }
+    85%     { opacity: 1; transform: translateY(0); }
+    95%     { opacity: 0; transform: translateY(-20px); }
+    100%    { opacity: 0; transform: translateY(-30px); }
+  }
+
+  .bp-ground {
+    opacity: 0;
+    animation: bpGround var(--loop) linear infinite;
+    animation-delay: 4.8s;
+  }
+  @keyframes bpGround {
+    0%   { opacity: 0; }
+    10%  { opacity: 1; }
+    80%  { opacity: 1; }
+    90%  { opacity: 0; }
+    100% { opacity: 0; }
+  }
+
+  .bp-crane {
+    opacity: 0;
+    animation: bpCrane var(--loop) linear infinite;
+    animation-delay: 6s;
+    transform-origin: 220px 200px;
+  }
+  @keyframes bpCrane {
+    0%   { opacity: 0; transform: rotate(-15deg); }
+    12%  { opacity: 1; transform: rotate(-15deg); }
+    50%  { opacity: 1; transform: rotate(15deg); }
+    75%  { opacity: 1; transform: rotate(-5deg); }
+    85%  { opacity: 1; transform: rotate(0); }
+    92%  { opacity: 0; }
+    100% { opacity: 0; }
+  }
+  .bp-crane-hook {
+    animation: bpHook var(--loop) ease-in-out infinite;
+    animation-delay: 6.5s;
+  }
+  @keyframes bpHook {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(40px); }
+  }
+
+  .bp-particle {
+    opacity: 0;
+    animation: bpParticle var(--loop) linear infinite;
+    animation-delay: var(--bp-delay, 0s);
+  }
+  @keyframes bpParticle {
+    0%, 25%  { opacity: 0; transform: translateY(0) scale(0.5); }
+    30%      { opacity: 1; transform: translateY(-20px) scale(1); }
+    80%      { opacity: 0.8; transform: translateY(-200px) scale(0.8); }
+    90%      { opacity: 0; transform: translateY(-220px) scale(0.5); }
+    100%     { opacity: 0; transform: translateY(-220px) scale(0.5); }
+  }
+
+  .overlays { position: absolute; inset: 0; pointer-events: none; }
+  .overlays.hidden { display: none; }
+  .chip {
+    position: absolute;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 12px 16px;
+    min-width: 170px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    opacity: 0;
+    animation: bpOverlay var(--loop) ease-out infinite;
+  }
+  .chip-1 { top: 24px; right: 24px; animation-delay: 0.5s; }
+  .chip-2 { top: 24px; left: 24px;  animation-delay: 1.0s; }
+  .chip-3 { bottom: 24px; right: 24px; animation-delay: 1.5s; }
+  .chip-4 { bottom: 24px; left: 24px;  animation-delay: 2.0s; }
+  @keyframes bpOverlay {
+    0%   { opacity: 0; transform: translateY(8px); }
+    10%  { opacity: 1; transform: translateY(0); }
+    90%  { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-4px); }
+  }
+  .chip .label { display:flex; align-items:center; gap:6px; color: rgba(255,255,255,0.7); font-size: 12px; margin-bottom: 4px; }
+  .chip .value { color:#fff; font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .chip .bar {
+    margin-top: 8px; height: 4px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 999px; overflow: hidden;
+  }
+  .chip .bar > span {
+    display:block; height: 100%;
+    background: linear-gradient(90deg, #22d3ee, #3b82f6);
+    transition: width 150ms linear;
+  }
+
+  .scanline {
+    position: absolute; inset-inline: 0; height: 2px;
+    background: linear-gradient(90deg,
+      transparent,
+      hsl(198 93% 70% / 0.6),
+      hsl(198 93% 90% / 0.9),
+      hsl(198 93% 70% / 0.6),
+      transparent);
+    box-shadow: 0 0 12px hsl(198 93% 70% / 0.7);
+    top: 0;
+    pointer-events: none;
+    animation: bpScan calc(var(--loop) / 2) linear infinite;
+  }
+  @keyframes bpScan {
+    0%   { transform: translateY(0); opacity: 0; }
+    5%   { opacity: 0.7; }
+    95%  { opacity: 0.7; }
+    100% { transform: translateY(100vh); opacity: 0; }
+  }
+
+  /* Top toolbar */
+  .toolbar {
+    position: absolute; top: 16px; right: 16px; left: 16px; z-index: 5;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+  }
+  .brand {
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    padding: 8px 14px;
+  }
+  .brand .small { color: rgba(255,255,255,0.6); font-size: 11px; }
+  .brand .big { font-weight: 600; font-size: 14px; }
+  .controls { display: flex; gap: 8px; }
+  .btn {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 150ms;
+  }
+  .btn:hover { background: rgba(255,255,255,0.2); }
+
+  .hint {
+    position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 999px;
+    padding: 6px 14px;
+    color: rgba(255,255,255,0.7);
+    font-size: 11px;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  .stage.dimmed .blueprint-bg,
+  .stage.dimmed .layer,
+  .stage.dimmed .scanline { opacity: 0.5; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bp-line, .bp-fade-in, .bp-floor, .bp-window, .bp-roof,
+    .bp-ground, .bp-crane, .bp-crane-hook, .bp-particle,
+    .chip, .scanline, .bp-phase-blueprint, .bp-phase-building {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+      stroke-dashoffset: 0 !important;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="blueprint-bg"></div>
+
+  <!-- Grid -->
+  <svg class="layer" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="bp-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="hsl(200 98% 39% / 0.15)" stroke-width="0.5"/>
+      </pattern>
+      <pattern id="bp-grid-major" width="200" height="200" patternUnits="userSpaceOnUse">
+        <path d="M 200 0 L 0 0 0 200" fill="none" stroke="hsl(200 98% 39% / 0.25)" stroke-width="1"/>
+      </pattern>
+      <radialGradient id="bp-vignette" cx="50%" cy="50%" r="65%">
+        <stop offset="60%" stop-color="hsl(200 98% 39% / 0)"/>
+        <stop offset="100%" stop-color="hsl(220 50% 8% / 0.55)"/>
+      </radialGradient>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#bp-grid)"/>
+    <rect width="100%" height="100%" fill="url(#bp-grid-major)"/>
+    <rect width="100%" height="100%" fill="url(#bp-vignette)"/>
+  </svg>
+
+  <!-- PHASE A: 2D BLUEPRINT -->
+  <svg class="layer bp-phase-blueprint" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+    <g fill="none" stroke="hsl(198 93% 70%)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path class="bp-line" d="M 60 60 L 540 60 L 540 340 L 60 340 Z" style="--bp-len:1520;--bp-delay:0s"/>
+      <path class="bp-line" d="M 60 200 L 540 200" style="--bp-len:480;--bp-delay:0.4s"/>
+      <path class="bp-line" d="M 220 60 L 220 200" style="--bp-len:140;--bp-delay:0.8s"/>
+      <path class="bp-line" d="M 420 60 L 420 200" style="--bp-len:140;--bp-delay:1.0s"/>
+      <path class="bp-line" d="M 220 200 L 220 340" style="--bp-len:140;--bp-delay:1.2s"/>
+      <path class="bp-line" d="M 420 200 L 420 340" style="--bp-len:140;--bp-delay:1.4s"/>
+      <path class="bp-line" d="M 145 200 A 25 25 0 0 1 170 175" style="--bp-len:40;--bp-delay:1.8s"/>
+      <path class="bp-line" d="M 325 200 A 25 25 0 0 1 350 175" style="--bp-len:40;--bp-delay:1.9s"/>
+      <path class="bp-line" d="M 445 200 A 25 25 0 0 1 470 175" style="--bp-len:40;--bp-delay:2.0s"/>
+      <path class="bp-line" d="M 100 60 L 180 60 M 260 60 L 380 60 M 460 60 L 510 60"
+            style="--bp-len:250;--bp-delay:2.2s" stroke="hsl(45 95% 65%)" stroke-width="2.5"/>
+    </g>
+    <g fill="none" stroke="hsl(198 93% 70% / 0.55)" stroke-width="0.6">
+      <path class="bp-line" d="M 60 30 L 540 30 M 60 24 L 60 36 M 540 24 L 540 36" style="--bp-len:500;--bp-delay:2.6s"/>
+      <path class="bp-line" d="M 30 60 L 30 340 M 24 60 L 36 60 M 24 340 L 36 340" style="--bp-len:300;--bp-delay:2.8s"/>
+    </g>
+    <g font-family="'Space Mono', monospace" fill="hsl(198 93% 80%)" font-size="9" text-anchor="middle" class="bp-fade-in" style="--bp-delay:3.0s">
+      <text x="300" y="22">12.40 מ׳</text>
+      <text x="22" y="205" transform="rotate(-90 22 205)">8.20 מ׳</text>
+    </g>
+    <text x="120" y="110" text-anchor="middle" font-family="Heebo, sans-serif" font-size="11" font-weight="500" fill="hsl(198 93% 85%)" class="bp-fade-in" style="--bp-delay:3.2s">סלון</text>
+    <text x="320" y="110" text-anchor="middle" font-family="Heebo, sans-serif" font-size="11" font-weight="500" fill="hsl(198 93% 85%)" class="bp-fade-in" style="--bp-delay:3.35s">מטבח</text>
+    <text x="480" y="110" text-anchor="middle" font-family="Heebo, sans-serif" font-size="11" font-weight="500" fill="hsl(198 93% 85%)" class="bp-fade-in" style="--bp-delay:3.5s">מרפסת</text>
+    <text x="120" y="260" text-anchor="middle" font-family="Heebo, sans-serif" font-size="11" font-weight="500" fill="hsl(198 93% 85%)" class="bp-fade-in" style="--bp-delay:3.65s">חדר שינה</text>
+    <text x="320" y="260" text-anchor="middle" font-family="Heebo, sans-serif" font-size="11" font-weight="500" fill="hsl(198 93% 85%)" class="bp-fade-in" style="--bp-delay:3.8s">חדר עבודה</text>
+    <text x="480" y="260" text-anchor="middle" font-family="Heebo, sans-serif" font-size="11" font-weight="500" fill="hsl(198 93% 85%)" class="bp-fade-in" style="--bp-delay:3.95s">שירותים</text>
+  </svg>
+
+  <!-- PHASE B: ISOMETRIC BUILDING -->
+  <svg class="layer bp-phase-building" viewBox="-300 -300 600 600" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bp-face-front" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="hsl(198 93% 60% / 0.9)"/>
+        <stop offset="100%" stop-color="hsl(215 35% 28% / 0.95)"/>
+      </linearGradient>
+      <linearGradient id="bp-face-side" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="hsl(215 35% 38%)"/>
+        <stop offset="100%" stop-color="hsl(215 35% 18%)"/>
+      </linearGradient>
+      <linearGradient id="bp-face-top" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="hsl(198 93% 75%)"/>
+        <stop offset="100%" stop-color="hsl(198 93% 50%)"/>
+      </linearGradient>
+    </defs>
+
+    <g class="bp-ground">
+      <polygon points="-180,90 0,180 180,90 0,0" fill="hsl(215 35% 12% / 0.8)" stroke="hsl(198 93% 70% / 0.5)" stroke-width="1"/>
+    </g>
+
+    <g id="floors"></g>
+
+    <g class="bp-roof" id="roof"></g>
+
+    <g class="bp-crane">
+      <line x1="220" y1="200" x2="220" y2="-220" stroke="hsl(45 95% 60%)" stroke-width="3"/>
+      <line x1="60" y1="-220" x2="280" y2="-220" stroke="hsl(45 95% 60%)" stroke-width="3"/>
+      <line x1="220" y1="-220" x2="280" y2="-180" stroke="hsl(45 95% 60%)" stroke-width="2"/>
+      <g class="bp-crane-hook">
+        <line x1="0" y1="-220" x2="0" y2="-100" stroke="hsl(45 95% 60%)" stroke-width="1"/>
+        <rect x="-8" y="-100" width="16" height="10" fill="hsl(45 95% 50%)"/>
+      </g>
+    </g>
+
+    <g id="particles"></g>
+  </svg>
+
+  <!-- Floating ghost overlays -->
+  <div class="overlays" id="overlays">
+    <div class="chip chip-1">
+      <div class="label">🏗️ פרויקט פעיל</div>
+      <div class="value">מגדל הרצליה</div>
+    </div>
+    <div class="chip chip-2">
+      <div class="label">🧱 קומה בבנייה</div>
+      <div class="value"><span id="floor">1</span> / 6</div>
+    </div>
+    <div class="chip chip-3">
+      <div class="label">📐 התקדמות</div>
+      <div class="value"><span id="progress">0</span>%</div>
+      <div class="bar"><span id="bar" style="width:0%"></span></div>
+    </div>
+    <div class="chip chip-4">
+      <div class="label">👷 משימות פתוחות</div>
+      <div class="value" id="tasks">12</div>
+    </div>
+  </div>
+
+  <div class="scanline"></div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="brand">
+      <div class="small">Project Compass</div>
+      <div class="big">סרטון רקע למערכת</div>
+    </div>
+    <div class="controls">
+      <button class="btn" id="btnDim">עמום</button>
+      <button class="btn" id="btnOverlays">הסתר ווידג׳טים</button>
+    </div>
+  </div>
+
+  <div class="hint">לופ אינסופי · משך מחזור 24 שניות · SVG + CSS, ללא קובץ וידאו</div>
+</div>
+
+<script>
+  // Build floors and windows dynamically (matches the React component)
+  const FLOORS = 6;
+  const floorH = 32;
+  const floorsG = document.getElementById('floors');
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  for (let i = 0; i < FLOORS; i++) {
+    const baseY = -i * floorH;
+    const g = document.createElementNS(SVG_NS, 'g');
+    g.setAttribute('class', 'bp-floor');
+    g.style.setProperty('--bp-delay', (5.2 + i * 0.55) + 's');
+
+    const front = document.createElementNS(SVG_NS, 'polygon');
+    front.setAttribute('points', `-180,${90+baseY} 0,${180+baseY} 0,${180+baseY-floorH} -180,${90+baseY-floorH}`);
+    front.setAttribute('fill', 'url(#bp-face-front)');
+    front.setAttribute('stroke', 'hsl(198 93% 80%)');
+    front.setAttribute('stroke-width', '0.8');
+    g.appendChild(front);
+
+    const side = document.createElementNS(SVG_NS, 'polygon');
+    side.setAttribute('points', `0,${180+baseY} 180,${90+baseY} 180,${90+baseY-floorH} 0,${180+baseY-floorH}`);
+    side.setAttribute('fill', 'url(#bp-face-side)');
+    side.setAttribute('stroke', 'hsl(198 93% 80%)');
+    side.setAttribute('stroke-width', '0.8');
+    g.appendChild(side);
+
+    for (let w = 0; w < 4; w++) {
+      const c1 = document.createElementNS(SVG_NS, 'circle');
+      c1.setAttribute('cx', -150 + w * 40);
+      c1.setAttribute('cy', 90 + baseY + (w * 22.5) - floorH/2 + 8);
+      c1.setAttribute('r', '2.5');
+      c1.setAttribute('fill', 'hsl(45 95% 70%)');
+      c1.setAttribute('class', 'bp-window');
+      c1.style.setProperty('--bp-delay', (5.8 + i*0.55 + w*0.08) + 's');
+      g.appendChild(c1);
+
+      const c2 = document.createElementNS(SVG_NS, 'circle');
+      c2.setAttribute('cx', 30 + w * 40);
+      c2.setAttribute('cy', 172 + baseY - (w * 22.5) - floorH/2 + 8);
+      c2.setAttribute('r', '2.5');
+      c2.setAttribute('fill', 'hsl(45 95% 70%)');
+      c2.setAttribute('class', 'bp-window');
+      c2.style.setProperty('--bp-delay', (5.85 + i*0.55 + w*0.08) + 's');
+      g.appendChild(c2);
+    }
+    floorsG.appendChild(g);
+  }
+
+  // Roof at top of stack
+  const roof = document.getElementById('roof');
+  roof.style.setProperty('--bp-delay', (5.2 + FLOORS * 0.55) + 's');
+  const top = -FLOORS * floorH;
+  const roofPoly = document.createElementNS(SVG_NS, 'polygon');
+  roofPoly.setAttribute('points', `-180,${90+top} 0,${180+top} 180,${90+top} 0,${0+top}`);
+  roofPoly.setAttribute('fill', 'url(#bp-face-top)');
+  roofPoly.setAttribute('stroke', 'hsl(198 93% 90%)');
+  roofPoly.setAttribute('stroke-width', '1');
+  roof.appendChild(roofPoly);
+
+  // Particles
+  const particles = document.getElementById('particles');
+  for (let p = 0; p < 5; p++) {
+    const c = document.createElementNS(SVG_NS, 'circle');
+    c.setAttribute('cx', -90 + p * 45);
+    c.setAttribute('cy', 0);
+    c.setAttribute('r', 2);
+    c.setAttribute('fill', 'hsl(198 93% 80%)');
+    c.setAttribute('class', 'bp-particle');
+    c.style.setProperty('--bp-delay', (6 + p * 0.4) + 's');
+    particles.appendChild(c);
+  }
+
+  // Live counters
+  const LOOP_MS = 24000;
+  const start = performance.now();
+  const elProgress = document.getElementById('progress');
+  const elBar = document.getElementById('bar');
+  const elFloor = document.getElementById('floor');
+  const elTasks = document.getElementById('tasks');
+  function tick(now) {
+    const elapsed = ((now - start) % LOOP_MS) / LOOP_MS;
+    const pct = Math.round(elapsed * 100);
+    elProgress.textContent = pct;
+    elBar.style.width = pct + '%';
+    elFloor.textContent = Math.min(FLOORS, Math.max(1, Math.ceil(elapsed * FLOORS)));
+    elTasks.textContent = 8 + Math.round(Math.sin(elapsed * Math.PI * 2) * 5 + 5);
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  // Toolbar toggles
+  const stage = document.getElementById('stage');
+  const overlays = document.getElementById('overlays');
+  document.getElementById('btnDim').addEventListener('click', (e) => {
+    stage.classList.toggle('dimmed');
+    e.currentTarget.textContent = stage.classList.contains('dimmed') ? 'מלא' : 'עמום';
+  });
+  document.getElementById('btnOverlays').addEventListener('click', (e) => {
+    overlays.classList.toggle('hidden');
+    e.currentTarget.textContent = overlays.classList.contains('hidden') ? 'הצג ווידג׳טים' : 'הסתר ווידג׳טים';
+  });
+</script>
+</body>
+</html>
