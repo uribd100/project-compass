@@ -17,6 +17,7 @@ import Activity from "./pages/Activity";
 import Tasks from "./pages/Tasks";
 import Decisions from "./pages/Decisions";
 import Settings from "./pages/Settings";
+import Demo from "./pages/Demo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/decisions" element={<Decisions />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/demo" element={<Demo />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
