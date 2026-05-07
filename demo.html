@@ -3,18 +3,15 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Project Compass · סרטון רקע למערכת</title>
+<title>Project Compass · משרטוט לבניין</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --loop: 24s;
-  }
   * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
-    background: #07101e;
+    background: #0a1322;
     font-family: 'Heebo', system-ui, sans-serif;
     color: #fff;
     overflow: hidden;
@@ -22,512 +19,809 @@
   .stage {
     position: fixed; inset: 0;
     overflow: hidden;
-    background: #07101e;
-  }
-  .blueprint-bg {
-    position: absolute; inset: 0;
     background:
-      radial-gradient(ellipse at 30% 20%, hsl(200 80% 25% / 0.55), transparent 55%),
-      radial-gradient(ellipse at 75% 80%, hsl(215 60% 18% / 0.6), transparent 55%),
-      linear-gradient(135deg, hsl(220 45% 9%), hsl(215 45% 13%));
+      radial-gradient(ellipse at 50% 30%, hsl(215 50% 18%) 0%, hsl(220 60% 8%) 70%);
   }
-  .layer { position: absolute; inset: 0; width: 100%; height: 100%; }
-
-  .bp-phase-blueprint {
-    animation: bpPhaseBlueprint var(--loop) linear infinite;
+  .sky-stars {
+    position: absolute; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.6), transparent),
+      radial-gradient(1px 1px at 78% 22%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 35% 12%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(1px 1px at 88% 8%, rgba(255,255,255,0.7), transparent),
+      radial-gradient(1px 1px at 22% 35%, rgba(255,255,255,0.3), transparent),
+      radial-gradient(1px 1px at 60% 32%, rgba(255,255,255,0.5), transparent),
+      radial-gradient(1px 1px at 5% 28%, rgba(255,255,255,0.4), transparent),
+      radial-gradient(2px 2px at 95% 38%, rgba(180,210,255,0.5), transparent);
+    opacity: 0.55;
   }
-  .bp-phase-building {
-    animation: bpPhaseBuilding var(--loop) linear infinite;
-    opacity: 0;
-  }
-  @keyframes bpPhaseBlueprint {
-    0%   { opacity: 0; }
-    10%  { opacity: 1; }
-    40%  { opacity: 1; }
-    55%  { opacity: 0.15; }
-    88%  { opacity: 0.15; }
-    95%  { opacity: 1; }
-    100% { opacity: 0; }
-  }
-  @keyframes bpPhaseBuilding {
-    0%   { opacity: 0; transform: translateY(20px); }
-    18%  { opacity: 0; transform: translateY(20px); }
-    40%  { opacity: 0.4; transform: translateY(0); }
-    55%  { opacity: 1; transform: translateY(0); }
-    85%  { opacity: 1; transform: translateY(0); }
-    95%  { opacity: 0; transform: translateY(-10px); }
-    100% { opacity: 0; transform: translateY(-10px); }
+  svg.scene {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    display: block;
   }
 
-  .bp-line {
-    stroke-dasharray: var(--bp-len);
-    stroke-dashoffset: var(--bp-len);
-    animation: bpDraw var(--loop) linear infinite;
-    animation-delay: var(--bp-delay, 0s);
-  }
-  @keyframes bpDraw {
-    0%   { stroke-dashoffset: var(--bp-len); }
-    15%  { stroke-dashoffset: 0; }
-    85%  { stroke-dashoffset: 0; }
-    100% { stroke-dashoffset: var(--bp-len); }
-  }
-
-  .bp-fade-in {
-    opacity: 0;
-    animation: bpFadeIn var(--loop) linear infinite;
-    animation-delay: var(--bp-delay, 0s);
-  }
-  @keyframes bpFadeIn {
-    0%   { opacity: 0; }
-    15%  { opacity: 1; }
-    85%  { opacity: 1; }
-    100% { opacity: 0; }
-  }
-
-  .bp-floor {
-    opacity: 0;
-    transform-origin: center bottom;
-    transform: scaleY(0.05) translateY(20px);
-    animation: bpFloorRise var(--loop) ease-out infinite;
-    animation-delay: var(--bp-delay, 0s);
-  }
-  @keyframes bpFloorRise {
-    0%, 20%   { opacity: 0; transform: scaleY(0.05) translateY(20px); }
-    24%       { opacity: 1; transform: scaleY(1) translateY(0); }
-    85%       { opacity: 1; transform: scaleY(1) translateY(0); }
-    95%       { opacity: 0; transform: scaleY(1) translateY(0); }
-    100%      { opacity: 0; transform: scaleY(0.05) translateY(20px); }
-  }
-
-  .bp-window {
-    opacity: 0;
-    animation: bpWindowGlow var(--loop) ease-in-out infinite;
-    animation-delay: var(--bp-delay, 0s);
-    filter: drop-shadow(0 0 3px hsl(45 95% 70% / 0.9));
-  }
-  @keyframes bpWindowGlow {
-    0%, 22%   { opacity: 0; }
-    26%       { opacity: 1; }
-    50%       { opacity: 0.6; }
-    70%       { opacity: 1; }
-    85%       { opacity: 0.8; }
-    95%       { opacity: 0; }
-    100%      { opacity: 0; }
-  }
-
-  .bp-roof {
-    opacity: 0;
-    transform: translateY(-30px);
-    animation: bpRoof var(--loop) ease-out infinite;
-    animation-delay: var(--bp-delay, 0s);
-  }
-  @keyframes bpRoof {
-    0%, 40% { opacity: 0; transform: translateY(-30px); }
-    48%     { opacity: 1; transform: translateY(0); }
-    85%     { opacity: 1; transform: translateY(0); }
-    95%     { opacity: 0; transform: translateY(-20px); }
-    100%    { opacity: 0; transform: translateY(-30px); }
-  }
-
-  .bp-ground {
-    opacity: 0;
-    animation: bpGround var(--loop) linear infinite;
-    animation-delay: 4.8s;
-  }
-  @keyframes bpGround {
-    0%   { opacity: 0; }
-    10%  { opacity: 1; }
-    80%  { opacity: 1; }
-    90%  { opacity: 0; }
-    100% { opacity: 0; }
-  }
-
-  .bp-crane {
-    opacity: 0;
-    animation: bpCrane var(--loop) linear infinite;
-    animation-delay: 6s;
-    transform-origin: 220px 200px;
-  }
-  @keyframes bpCrane {
-    0%   { opacity: 0; transform: rotate(-15deg); }
-    12%  { opacity: 1; transform: rotate(-15deg); }
-    50%  { opacity: 1; transform: rotate(15deg); }
-    75%  { opacity: 1; transform: rotate(-5deg); }
-    85%  { opacity: 1; transform: rotate(0); }
-    92%  { opacity: 0; }
-    100% { opacity: 0; }
-  }
-  .bp-crane-hook {
-    animation: bpHook var(--loop) ease-in-out infinite;
-    animation-delay: 6.5s;
-  }
-  @keyframes bpHook {
-    0%, 100% { transform: translateY(0); }
-    50%      { transform: translateY(40px); }
-  }
-
-  .bp-particle {
-    opacity: 0;
-    animation: bpParticle var(--loop) linear infinite;
-    animation-delay: var(--bp-delay, 0s);
-  }
-  @keyframes bpParticle {
-    0%, 25%  { opacity: 0; transform: translateY(0) scale(0.5); }
-    30%      { opacity: 1; transform: translateY(-20px) scale(1); }
-    80%      { opacity: 0.8; transform: translateY(-200px) scale(0.8); }
-    90%      { opacity: 0; transform: translateY(-220px) scale(0.5); }
-    100%     { opacity: 0; transform: translateY(-220px) scale(0.5); }
-  }
-
-  .overlays { position: absolute; inset: 0; pointer-events: none; }
-  .overlays.hidden { display: none; }
-  .chip {
-    position: absolute;
-    background: rgba(255,255,255,0.08);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.15);
-    border-radius: 12px;
-    padding: 12px 16px;
-    min-width: 170px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-    opacity: 0;
-    animation: bpOverlay var(--loop) ease-out infinite;
-  }
-  .chip-1 { top: 24px; right: 24px; animation-delay: 0.5s; }
-  .chip-2 { top: 24px; left: 24px;  animation-delay: 1.0s; }
-  .chip-3 { bottom: 24px; right: 24px; animation-delay: 1.5s; }
-  .chip-4 { bottom: 24px; left: 24px;  animation-delay: 2.0s; }
-  @keyframes bpOverlay {
-    0%   { opacity: 0; transform: translateY(8px); }
-    10%  { opacity: 1; transform: translateY(0); }
-    90%  { opacity: 1; transform: translateY(0); }
-    100% { opacity: 0; transform: translateY(-4px); }
-  }
-  .chip .label { display:flex; align-items:center; gap:6px; color: rgba(255,255,255,0.7); font-size: 12px; margin-bottom: 4px; }
-  .chip .value { color:#fff; font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
-  .chip .bar {
-    margin-top: 8px; height: 4px;
-    background: rgba(255,255,255,0.12);
-    border-radius: 999px; overflow: hidden;
-  }
-  .chip .bar > span {
-    display:block; height: 100%;
-    background: linear-gradient(90deg, #22d3ee, #3b82f6);
-    transition: width 150ms linear;
-  }
-
-  .scanline {
-    position: absolute; inset-inline: 0; height: 2px;
-    background: linear-gradient(90deg,
-      transparent,
-      hsl(198 93% 70% / 0.6),
-      hsl(198 93% 90% / 0.9),
-      hsl(198 93% 70% / 0.6),
-      transparent);
-    box-shadow: 0 0 12px hsl(198 93% 70% / 0.7);
-    top: 0;
-    pointer-events: none;
-    animation: bpScan calc(var(--loop) / 2) linear infinite;
-  }
-  @keyframes bpScan {
-    0%   { transform: translateY(0); opacity: 0; }
-    5%   { opacity: 0.7; }
-    95%  { opacity: 0.7; }
-    100% { transform: translateY(100vh); opacity: 0; }
-  }
-
-  /* Top toolbar */
+  /* Top toolbar - minimal */
   .toolbar {
-    position: absolute; top: 16px; right: 16px; left: 16px; z-index: 5;
+    position: absolute; top: 16px; right: 20px; left: 20px; z-index: 5;
     display: flex; align-items: center; justify-content: space-between;
     gap: 12px;
+    pointer-events: none;
   }
   .brand {
-    background: rgba(0,0,0,0.4);
+    background: rgba(0,0,0,0.45);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 10px;
     padding: 8px 14px;
+    pointer-events: auto;
   }
-  .brand .small { color: rgba(255,255,255,0.6); font-size: 11px; }
-  .brand .big { font-weight: 600; font-size: 14px; }
-  .controls { display: flex; gap: 8px; }
-  .btn {
-    background: rgba(255,255,255,0.1);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 8px;
-    padding: 6px 12px;
-    font-size: 12px;
-    cursor: pointer;
-    font-family: inherit;
-    transition: background 150ms;
+  .brand .small {
+    color: rgba(255,255,255,0.55);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
   }
-  .btn:hover { background: rgba(255,255,255,0.2); }
+  .brand .big {
+    font-weight: 600;
+    font-size: 14px;
+    margin-top: 2px;
+  }
 
-  .hint {
-    position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
-    background: rgba(0,0,0,0.4);
+  .phase-label {
+    background: rgba(0,0,0,0.45);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.08);
     border-radius: 999px;
     padding: 6px 14px;
     color: rgba(255,255,255,0.7);
     font-size: 11px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.1em;
+    pointer-events: auto;
+  }
+
+  .progress {
+    position: absolute; bottom: 18px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 6px;
     z-index: 5;
     pointer-events: none;
   }
-
-  .stage.dimmed .blueprint-bg,
-  .stage.dimmed .layer,
-  .stage.dimmed .scanline { opacity: 0.5; }
-
-  @media (prefers-reduced-motion: reduce) {
-    .bp-line, .bp-fade-in, .bp-floor, .bp-window, .bp-roof,
-    .bp-ground, .bp-crane, .bp-crane-hook, .bp-particle,
-    .chip, .scanline, .bp-phase-blueprint, .bp-phase-building {
-      animation: none !important;
-      opacity: 1 !important;
-      transform: none !important;
-      stroke-dashoffset: 0 !important;
-    }
+  .progress span {
+    display: block;
+    width: 32px; height: 3px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 2px;
+    overflow: hidden;
   }
 </style>
 </head>
 <body>
-<div class="stage" id="stage">
-  <div class="blueprint-bg"></div>
+<div class="stage">
+  <div class="sky-stars"></div>
 
-  <!-- Grid -->
-  <svg class="layer" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+  <svg class="scene" id="scene" viewBox="-500 -350 1000 700" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <pattern id="bp-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="hsl(200 98% 39% / 0.15)" stroke-width="0.5"/>
+      <pattern id="bp-grid-fine" width="20" height="20" patternUnits="userSpaceOnUse">
+        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="hsl(200 80% 50% / 0.13)" stroke-width="0.5"/>
       </pattern>
-      <pattern id="bp-grid-major" width="200" height="200" patternUnits="userSpaceOnUse">
-        <path d="M 200 0 L 0 0 0 200" fill="none" stroke="hsl(200 98% 39% / 0.25)" stroke-width="1"/>
+      <pattern id="bp-grid-major" width="100" height="100" patternUnits="userSpaceOnUse">
+        <path d="M 100 0 L 0 0 0 100" fill="none" stroke="hsl(200 80% 60% / 0.22)" stroke-width="0.8"/>
       </pattern>
-      <radialGradient id="bp-vignette" cx="50%" cy="50%" r="65%">
-        <stop offset="60%" stop-color="hsl(200 98% 39% / 0)"/>
-        <stop offset="100%" stop-color="hsl(220 50% 8% / 0.55)"/>
+
+      <linearGradient id="wall-front" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="hsl(35 35% 80%)"/>
+        <stop offset="100%" stop-color="hsl(30 30% 60%)"/>
+      </linearGradient>
+      <linearGradient id="wall-side-light" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="hsl(35 30% 70%)"/>
+        <stop offset="100%" stop-color="hsl(30 25% 52%)"/>
+      </linearGradient>
+      <linearGradient id="wall-side-shade" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="hsl(30 25% 48%)"/>
+        <stop offset="100%" stop-color="hsl(25 20% 32%)"/>
+      </linearGradient>
+      <linearGradient id="wall-back" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="hsl(30 22% 42%)"/>
+        <stop offset="100%" stop-color="hsl(25 18% 28%)"/>
+      </linearGradient>
+      <linearGradient id="wall-internal" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="hsl(30 18% 60%)"/>
+        <stop offset="100%" stop-color="hsl(25 15% 42%)"/>
+      </linearGradient>
+
+      <linearGradient id="roof-front" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="hsl(15 50% 38%)"/>
+        <stop offset="100%" stop-color="hsl(12 45% 26%)"/>
+      </linearGradient>
+      <linearGradient id="roof-back" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="hsl(12 40% 24%)"/>
+        <stop offset="100%" stop-color="hsl(10 35% 16%)"/>
+      </linearGradient>
+      <linearGradient id="roof-gable" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="hsl(15 45% 32%)"/>
+        <stop offset="100%" stop-color="hsl(12 40% 22%)"/>
+      </linearGradient>
+
+      <radialGradient id="window-lit" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="hsl(48 100% 88%)"/>
+        <stop offset="60%" stop-color="hsl(45 95% 68%)"/>
+        <stop offset="100%" stop-color="hsl(40 80% 50%)"/>
+      </radialGradient>
+
+      <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="hsl(218 50% 14%)"/>
+        <stop offset="100%" stop-color="hsl(220 55% 9%)"/>
+      </linearGradient>
+
+      <radialGradient id="ground-shadow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="rgba(0,0,0,0.55)"/>
+        <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
       </radialGradient>
     </defs>
-    <rect width="100%" height="100%" fill="url(#bp-grid)"/>
-    <rect width="100%" height="100%" fill="url(#bp-grid-major)"/>
-    <rect width="100%" height="100%" fill="url(#bp-vignette)"/>
+
+    <g id="world"></g>
   </svg>
 
-  <!-- PHASE A: 2D BLUEPRINT -->
-  <svg class="layer bp-phase-blueprint" viewBox="0 0 600 400" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
-    <g fill="none" stroke="hsl(198 93% 70%)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-      <path class="bp-line" d="M 60 60 L 540 60 L 540 340 L 60 340 Z" style="--bp-len:1520;--bp-delay:0s"/>
-      <path class="bp-line" d="M 60 200 L 540 200" style="--bp-len:480;--bp-delay:0.4s"/>
-      <path class="bp-line" d="M 220 60 L 220 200" style="--bp-len:140;--bp-delay:0.8s"/>
-      <path class="bp-line" d="M 420 60 L 420 200" style="--bp-len:140;--bp-delay:1.0s"/>
-      <path class="bp-line" d="M 220 200 L 220 340" style="--bp-len:140;--bp-delay:1.2s"/>
-      <path class="bp-line" d="M 420 200 L 420 340" style="--bp-len:140;--bp-delay:1.4s"/>
-      <path class="bp-line" d="M 145 200 A 25 25 0 0 1 170 175" style="--bp-len:40;--bp-delay:1.8s"/>
-      <path class="bp-line" d="M 325 200 A 25 25 0 0 1 350 175" style="--bp-len:40;--bp-delay:1.9s"/>
-      <path class="bp-line" d="M 445 200 A 25 25 0 0 1 470 175" style="--bp-len:40;--bp-delay:2.0s"/>
-      <path class="bp-line" d="M 100 60 L 180 60 M 260 60 L 380 60 M 460 60 L 510 60"
-            style="--bp-len:250;--bp-delay:2.2s" stroke="hsl(45 95% 65%)" stroke-width="2.5"/>
-    </g>
-    <g fill="none" stroke="hsl(198 93% 70% / 0.55)" stroke-width="0.6">
-      <path class="bp-line" d="M 60 30 L 540 30 M 60 24 L 60 36 M 540 24 L 540 36" style="--bp-len:500;--bp-delay:2.6s"/>
-      <path class="bp-line" d="M 30 60 L 30 340 M 24 60 L 36 60 M 24 340 L 36 340" style="--bp-len:300;--bp-delay:2.8s"/>
-    </g>
-    <g font-family="'Space Mono', monospace" fill="hsl(198 93% 80%)" font-size="9" text-anchor="middle" class="bp-fade-in" style="--bp-delay:3.0s">
-      <text x="300" y="22">12.40 מ׳</text>
-      <text x="22" y="205" transform="rotate(-90 22 205)">8.20 מ׳</text>
-    </g>
-    <text x="120" y="110" text-anchor="middle" font-family="Heebo, sans-serif" font-size="11" font-weight="500" fill="hsl(198 93% 85%)" class="bp-fade-in" style="--bp-delay:3.2s">סלון</text>
-    <text x="320" y="110" text-anchor="middle" font-family="Heebo, sans-serif" font-size="11" font-weight="500" fill="hsl(198 93% 85%)" class="bp-fade-in" style="--bp-delay:3.35s">מטבח</text>
-    <text x="480" y="110" text-anchor="middle" font-family="Heebo, sans-serif" font-size="11" font-weight="500" fill="hsl(198 93% 85%)" class="bp-fade-in" style="--bp-delay:3.5s">מרפסת</text>
-    <text x="120" y="260" text-anchor="middle" font-family="Heebo, sans-serif" font-size="11" font-weight="500" fill="hsl(198 93% 85%)" class="bp-fade-in" style="--bp-delay:3.65s">חדר שינה</text>
-    <text x="320" y="260" text-anchor="middle" font-family="Heebo, sans-serif" font-size="11" font-weight="500" fill="hsl(198 93% 85%)" class="bp-fade-in" style="--bp-delay:3.8s">חדר עבודה</text>
-    <text x="480" y="260" text-anchor="middle" font-family="Heebo, sans-serif" font-size="11" font-weight="500" fill="hsl(198 93% 85%)" class="bp-fade-in" style="--bp-delay:3.95s">שירותים</text>
-  </svg>
-
-  <!-- PHASE B: ISOMETRIC BUILDING -->
-  <svg class="layer bp-phase-building" viewBox="-300 -300 600 600" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="bp-face-front" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="hsl(198 93% 60% / 0.9)"/>
-        <stop offset="100%" stop-color="hsl(215 35% 28% / 0.95)"/>
-      </linearGradient>
-      <linearGradient id="bp-face-side" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="hsl(215 35% 38%)"/>
-        <stop offset="100%" stop-color="hsl(215 35% 18%)"/>
-      </linearGradient>
-      <linearGradient id="bp-face-top" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="hsl(198 93% 75%)"/>
-        <stop offset="100%" stop-color="hsl(198 93% 50%)"/>
-      </linearGradient>
-    </defs>
-
-    <g class="bp-ground">
-      <polygon points="-180,90 0,180 180,90 0,0" fill="hsl(215 35% 12% / 0.8)" stroke="hsl(198 93% 70% / 0.5)" stroke-width="1"/>
-    </g>
-
-    <g id="floors"></g>
-
-    <g class="bp-roof" id="roof"></g>
-
-    <g class="bp-crane">
-      <line x1="220" y1="200" x2="220" y2="-220" stroke="hsl(45 95% 60%)" stroke-width="3"/>
-      <line x1="60" y1="-220" x2="280" y2="-220" stroke="hsl(45 95% 60%)" stroke-width="3"/>
-      <line x1="220" y1="-220" x2="280" y2="-180" stroke="hsl(45 95% 60%)" stroke-width="2"/>
-      <g class="bp-crane-hook">
-        <line x1="0" y1="-220" x2="0" y2="-100" stroke="hsl(45 95% 60%)" stroke-width="1"/>
-        <rect x="-8" y="-100" width="16" height="10" fill="hsl(45 95% 50%)"/>
-      </g>
-    </g>
-
-    <g id="particles"></g>
-  </svg>
-
-  <!-- Floating ghost overlays -->
-  <div class="overlays" id="overlays">
-    <div class="chip chip-1">
-      <div class="label">🏗️ פרויקט פעיל</div>
-      <div class="value">מגדל הרצליה</div>
-    </div>
-    <div class="chip chip-2">
-      <div class="label">🧱 קומה בבנייה</div>
-      <div class="value"><span id="floor">1</span> / 6</div>
-    </div>
-    <div class="chip chip-3">
-      <div class="label">📐 התקדמות</div>
-      <div class="value"><span id="progress">0</span>%</div>
-      <div class="bar"><span id="bar" style="width:0%"></span></div>
-    </div>
-    <div class="chip chip-4">
-      <div class="label">👷 משימות פתוחות</div>
-      <div class="value" id="tasks">12</div>
-    </div>
-  </div>
-
-  <div class="scanline"></div>
-
-  <!-- Toolbar -->
   <div class="toolbar">
     <div class="brand">
       <div class="small">Project Compass</div>
-      <div class="big">סרטון רקע למערכת</div>
+      <div class="big">משרטוט · אל · בניין</div>
     </div>
-    <div class="controls">
-      <button class="btn" id="btnDim">עמום</button>
-      <button class="btn" id="btnOverlays">הסתר ווידג׳טים</button>
-    </div>
+    <div class="phase-label" id="phaseLabel">— SCHEMATIC —</div>
   </div>
 
-  <div class="hint">לופ אינסופי · משך מחזור 24 שניות · SVG + CSS, ללא קובץ וידאו</div>
+  <div class="progress">
+    <span id="dot-1"></span>
+    <span id="dot-2"></span>
+    <span id="dot-3"></span>
+    <span id="dot-4"></span>
+  </div>
 </div>
 
 <script>
-  // Build floors and windows dynamically (matches the React component)
-  const FLOORS = 6;
-  const floorH = 32;
-  const floorsG = document.getElementById('floors');
+(function () {
+  'use strict';
+
+  // Building footprint (X) x depth (Z), centered at origin. Wall height H.
+  const W = 480, D = 280, H = 130, ROOF_H = 90;
+
+  // Plan-view wall lines (centered): used both for the blueprint and as
+  // bases of 3D walls. Each entry: [x1, z1, x2, z2, kind]
+  const planLines = [
+    [-W/2, -D/2,  W/2, -D/2, 'outer'], // 0: south (front)
+    [ W/2, -D/2,  W/2,  D/2, 'outer'], // 1: east  (right)
+    [ W/2,  D/2, -W/2,  D/2, 'outer'], // 2: north (back)
+    [-W/2,  D/2, -W/2, -D/2, 'outer'], // 3: west  (left)
+    [-W/2, 0,     W/2, 0,    'internal'],
+    [-80, -D/2,  -80,  D/2,  'internal'],
+    [ 120, -D/2,  120, D/2,  'internal'],
+  ];
+
+  const planOpenings = [
+    { line: 0, t1: 0.46, t2: 0.54, type: 'door' },
+    { line: 0, t1: 0.18, t2: 0.30, type: 'window' },
+    { line: 0, t1: 0.70, t2: 0.82, type: 'window' },
+    { line: 2, t1: 0.18, t2: 0.30, type: 'window' },
+    { line: 2, t1: 0.70, t2: 0.82, type: 'window' },
+    { line: 1, t1: 0.20, t2: 0.32, type: 'window' },
+    { line: 1, t1: 0.68, t2: 0.80, type: 'window' },
+    { line: 3, t1: 0.20, t2: 0.32, type: 'window' },
+    { line: 3, t1: 0.68, t2: 0.80, type: 'window' },
+  ];
+
+  const roomLabels = [
+    { x: -160, z: -70, text: 'סלון' },
+    { x:   20, z: -70, text: 'מטבח' },
+    { x:  180, z: -70, text: 'מרפסת' },
+    { x: -160, z:  70, text: 'חדר שינה' },
+    { x:   20, z:  70, text: 'חדר עבודה' },
+    { x:  180, z:  70, text: 'שירותים' },
+  ];
+
+  // Rotate around X-axis by angle theta (camera tilt).
+  // theta = 0 => top-down (looking straight down at floor)
+  function project(x, y, z, theta) {
+    const cy = Math.cos(theta), sy = Math.sin(theta);
+    const ry = y * cy - z * sy;
+    const rz = y * sy + z * cy;
+    return { sx: x, sy: -ry, depth: rz };
+  }
+  function project3(p, theta) { return project(p[0], p[1], p[2], theta); }
+
   const SVG_NS = 'http://www.w3.org/2000/svg';
-  for (let i = 0; i < FLOORS; i++) {
-    const baseY = -i * floorH;
-    const g = document.createElementNS(SVG_NS, 'g');
-    g.setAttribute('class', 'bp-floor');
-    g.style.setProperty('--bp-delay', (5.2 + i * 0.55) + 's');
+  const world = document.getElementById('world');
 
-    const front = document.createElementNS(SVG_NS, 'polygon');
-    front.setAttribute('points', `-180,${90+baseY} 0,${180+baseY} 0,${180+baseY-floorH} -180,${90+baseY-floorH}`);
-    front.setAttribute('fill', 'url(#bp-face-front)');
-    front.setAttribute('stroke', 'hsl(198 93% 80%)');
-    front.setAttribute('stroke-width', '0.8');
-    g.appendChild(front);
+  function el(tag, attrs) {
+    const e = document.createElementNS(SVG_NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
 
-    const side = document.createElementNS(SVG_NS, 'polygon');
-    side.setAttribute('points', `0,${180+baseY} 180,${90+baseY} 180,${90+baseY-floorH} 0,${180+baseY-floorH}`);
-    side.setAttribute('fill', 'url(#bp-face-side)');
-    side.setAttribute('stroke', 'hsl(198 93% 80%)');
-    side.setAttribute('stroke-width', '0.8');
-    g.appendChild(side);
+  function drawPaperFloor(g, theta, blueprintOpacity) {
+    const pad = 110;
+    const corners = [
+      [-W/2 - pad, 0, -D/2 - pad],
+      [ W/2 + pad, 0, -D/2 - pad],
+      [ W/2 + pad, 0,  D/2 + pad],
+      [-W/2 - pad, 0,  D/2 + pad],
+    ];
+    const pts = corners.map(c => project3(c, theta));
+    const polyStr = pts.map(p => `${p.sx.toFixed(1)},${p.sy.toFixed(1)}`).join(' ');
 
-    for (let w = 0; w < 4; w++) {
-      const c1 = document.createElementNS(SVG_NS, 'circle');
-      c1.setAttribute('cx', -150 + w * 40);
-      c1.setAttribute('cy', 90 + baseY + (w * 22.5) - floorH/2 + 8);
-      c1.setAttribute('r', '2.5');
-      c1.setAttribute('fill', 'hsl(45 95% 70%)');
-      c1.setAttribute('class', 'bp-window');
-      c1.style.setProperty('--bp-delay', (5.8 + i*0.55 + w*0.08) + 's');
-      g.appendChild(c1);
+    g.appendChild(el('ellipse', {
+      cx: 0,
+      cy: -D/2 * Math.sin(theta) * 0.5 + 30,
+      rx: (W/2 + 80),
+      ry: (D/2 + 60) * Math.cos(theta),
+      fill: 'url(#ground-shadow)',
+      opacity: 0.65,
+    }));
 
-      const c2 = document.createElementNS(SVG_NS, 'circle');
-      c2.setAttribute('cx', 30 + w * 40);
-      c2.setAttribute('cy', 172 + baseY - (w * 22.5) - floorH/2 + 8);
-      c2.setAttribute('r', '2.5');
-      c2.setAttribute('fill', 'hsl(45 95% 70%)');
-      c2.setAttribute('class', 'bp-window');
-      c2.style.setProperty('--bp-delay', (5.85 + i*0.55 + w*0.08) + 's');
-      g.appendChild(c2);
+    g.appendChild(el('polygon', {
+      points: polyStr,
+      fill: 'url(#paper)',
+      stroke: 'hsl(198 70% 35% / 0.55)',
+      'stroke-width': '1',
+    }));
+    g.appendChild(el('polygon', {
+      points: polyStr,
+      fill: 'url(#bp-grid-fine)',
+      opacity: 0.55,
+    }));
+    g.appendChild(el('polygon', {
+      points: polyStr,
+      fill: 'url(#bp-grid-major)',
+      opacity: 0.55,
+    }));
+
+    if (blueprintOpacity > 0.05) {
+      const tb = [
+        [W/2 - 5, 0, D/2 - 5],
+        [W/2 + 95, 0, D/2 - 5],
+        [W/2 + 95, 0, D/2 + 55],
+        [W/2 - 5, 0, D/2 + 55],
+      ];
+      const tbPts = tb.map(c => project3(c, theta));
+      g.appendChild(el('polygon', {
+        points: tbPts.map(p => `${p.sx.toFixed(1)},${p.sy.toFixed(1)}`).join(' '),
+        fill: 'hsl(220 60% 6% / 0.6)',
+        stroke: 'hsl(198 70% 55% / 0.7)',
+        'stroke-width': '0.8',
+        opacity: blueprintOpacity,
+      }));
     }
-    floorsG.appendChild(g);
   }
 
-  // Roof at top of stack
-  const roof = document.getElementById('roof');
-  roof.style.setProperty('--bp-delay', (5.2 + FLOORS * 0.55) + 's');
-  const top = -FLOORS * floorH;
-  const roofPoly = document.createElementNS(SVG_NS, 'polygon');
-  roofPoly.setAttribute('points', `-180,${90+top} 0,${180+top} 180,${90+top} 0,${0+top}`);
-  roofPoly.setAttribute('fill', 'url(#bp-face-top)');
-  roofPoly.setAttribute('stroke', 'hsl(198 93% 90%)');
-  roofPoly.setAttribute('stroke-width', '1');
-  roof.appendChild(roofPoly);
+  function drawBlueprintLines(g, theta, blueprintOpacity, lineProgress) {
+    if (blueprintOpacity < 0.02) return;
+    const draws = [
+      { pts: [[-W/2,0,-D/2],[ W/2,0,-D/2]], color: 'hsl(198 93% 75%)', sw: 1.6, t0: 0.00, t1: 0.10 },
+      { pts: [[ W/2,0,-D/2],[ W/2,0, D/2]], color: 'hsl(198 93% 75%)', sw: 1.6, t0: 0.05, t1: 0.18 },
+      { pts: [[ W/2,0, D/2],[-W/2,0, D/2]], color: 'hsl(198 93% 75%)', sw: 1.6, t0: 0.10, t1: 0.22 },
+      { pts: [[-W/2,0, D/2],[-W/2,0,-D/2]], color: 'hsl(198 93% 75%)', sw: 1.6, t0: 0.15, t1: 0.26 },
+      { pts: [[-W/2,0,0],[ W/2,0,0]],       color: 'hsl(198 93% 70%)', sw: 1.2, t0: 0.28, t1: 0.40 },
+      { pts: [[-80,0,-D/2],[-80,0, D/2]],   color: 'hsl(198 93% 70%)', sw: 1.2, t0: 0.36, t1: 0.46 },
+      { pts: [[ 120,0,-D/2],[ 120,0, D/2]], color: 'hsl(198 93% 70%)', sw: 1.2, t0: 0.42, t1: 0.52 },
+    ];
 
-  // Particles
-  const particles = document.getElementById('particles');
-  for (let p = 0; p < 5; p++) {
-    const c = document.createElementNS(SVG_NS, 'circle');
-    c.setAttribute('cx', -90 + p * 45);
-    c.setAttribute('cy', 0);
-    c.setAttribute('r', 2);
-    c.setAttribute('fill', 'hsl(198 93% 80%)');
-    c.setAttribute('class', 'bp-particle');
-    c.style.setProperty('--bp-delay', (6 + p * 0.4) + 's');
-    particles.appendChild(c);
+    draws.forEach(d => {
+      const a = project3(d.pts[0], theta);
+      const b = project3(d.pts[1], theta);
+      const k = Math.max(0, Math.min(1, (lineProgress - d.t0) / Math.max(0.001, d.t1 - d.t0)));
+      if (k <= 0) return;
+      const ex = a.sx + (b.sx - a.sx) * k;
+      const ey = a.sy + (b.sy - a.sy) * k;
+      g.appendChild(el('line', {
+        x1: a.sx.toFixed(1), y1: a.sy.toFixed(1),
+        x2: ex.toFixed(1),   y2: ey.toFixed(1),
+        stroke: d.color,
+        'stroke-width': d.sw,
+        'stroke-linecap': 'round',
+        opacity: blueprintOpacity,
+      }));
+    });
+
+    if (lineProgress > 0.55) {
+      const op = Math.min(1, (lineProgress - 0.55) / 0.15) * blueprintOpacity;
+      planOpenings.forEach(o => {
+        const ln = planLines[o.line];
+        const x1 = ln[0], z1 = ln[1], x2 = ln[2], z2 = ln[3];
+        const ax = x1 + (x2 - x1) * o.t1;
+        const az = z1 + (z2 - z1) * o.t1;
+        const bx = x1 + (x2 - x1) * o.t2;
+        const bz = z1 + (z2 - z1) * o.t2;
+        const A = project(ax, 0, az, theta);
+        const B = project(bx, 0, bz, theta);
+        if (o.type === 'window') {
+          g.appendChild(el('line', {
+            x1: A.sx, y1: A.sy, x2: B.sx, y2: B.sy,
+            stroke: 'hsl(45 95% 70%)', 'stroke-width': 2.4, opacity: op,
+            'stroke-linecap': 'round',
+          }));
+        } else {
+          const rad = Math.hypot(B.sx - A.sx, B.sy - A.sy) / 2 * 1.6;
+          g.appendChild(el('path', {
+            d: `M ${A.sx.toFixed(1)} ${A.sy.toFixed(1)} A ${rad.toFixed(1)} ${rad.toFixed(1)} 0 0 1 ${B.sx.toFixed(1)} ${B.sy.toFixed(1)}`,
+            stroke: 'hsl(45 95% 70%)', 'stroke-width': 1, fill: 'none', opacity: op * 0.7,
+          }));
+          g.appendChild(el('line', {
+            x1: A.sx, y1: A.sy, x2: B.sx, y2: B.sy,
+            stroke: 'hsl(45 95% 70%)', 'stroke-width': 2.4, opacity: op,
+            'stroke-linecap': 'round',
+          }));
+        }
+      });
+    }
+
+    if (lineProgress > 0.65) {
+      const op = Math.min(1, (lineProgress - 0.65) / 0.15) * blueprintOpacity;
+      const tl = project(-W/2, 0, -D/2 - 30, theta);
+      const tr = project( W/2, 0, -D/2 - 30, theta);
+      g.appendChild(el('line', {
+        x1: tl.sx, y1: tl.sy, x2: tr.sx, y2: tr.sy,
+        stroke: 'hsl(198 70% 80%)', 'stroke-width': 0.6, opacity: op * 0.8,
+      }));
+      const tm = project(0, 0, -D/2 - 35, theta);
+      const txt = el('text', {
+        x: tm.sx, y: tm.sy,
+        'text-anchor': 'middle',
+        'font-family': "'Space Mono', monospace",
+        'font-size': 9,
+        fill: 'hsl(198 80% 85%)',
+        opacity: op,
+      });
+      txt.textContent = '12.40 מ';
+      g.appendChild(txt);
+
+      const sl = project(-W/2 - 30, 0, -D/2, theta);
+      const sb = project(-W/2 - 30, 0,  D/2, theta);
+      g.appendChild(el('line', {
+        x1: sl.sx, y1: sl.sy, x2: sb.sx, y2: sb.sy,
+        stroke: 'hsl(198 70% 80%)', 'stroke-width': 0.6, opacity: op * 0.8,
+      }));
+      const sm = project(-W/2 - 38, 0, 0, theta);
+      const txt2 = el('text', {
+        x: sm.sx, y: sm.sy,
+        'text-anchor': 'middle',
+        'font-family': "'Space Mono', monospace",
+        'font-size': 9,
+        fill: 'hsl(198 80% 85%)',
+        opacity: op,
+        transform: `rotate(-90 ${sm.sx} ${sm.sy})`,
+      });
+      txt2.textContent = '8.20 מ';
+      g.appendChild(txt2);
+    }
+
+    if (lineProgress > 0.45) {
+      const op = Math.min(1, (lineProgress - 0.45) / 0.18) * blueprintOpacity;
+      roomLabels.forEach(r => {
+        const p = project(r.x, 0, r.z, theta);
+        const t = el('text', {
+          x: p.sx, y: p.sy,
+          'text-anchor': 'middle',
+          'font-family': 'Heebo, sans-serif',
+          'font-size': 12,
+          'font-weight': 500,
+          fill: 'hsl(198 80% 88%)',
+          opacity: op,
+        });
+        t.textContent = r.text;
+        g.appendChild(t);
+      });
+    }
+
+    if (lineProgress > 0.7) {
+      const op = Math.min(1, (lineProgress - 0.7) / 0.15) * blueprintOpacity;
+      const a = project(W/2 + 50, 0, -D/2 + 30, theta);
+      const b = project(W/2 + 50, 0, -D/2,      theta);
+      g.appendChild(el('line', {
+        x1: a.sx, y1: a.sy, x2: b.sx, y2: b.sy,
+        stroke: 'hsl(45 95% 65%)', 'stroke-width': 1.5, opacity: op,
+        'stroke-linecap': 'round',
+      }));
+      const t = el('text', {
+        x: b.sx, y: b.sy - 4,
+        'text-anchor': 'middle',
+        'font-family': "'Space Mono', monospace",
+        'font-size': 9,
+        fill: 'hsl(45 95% 75%)',
+        opacity: op,
+      });
+      t.textContent = 'N';
+      g.appendChild(t);
+    }
   }
 
-  // Live counters
+  function buildPolys(theta, wallProg, roofProg) {
+    const polys = [];
+    const Hp = H * wallProg;
+
+    if (wallProg > 0.02) {
+      polys.push({
+        type: 'slab',
+        verts: [
+          [-W/2 - 12, 2, -D/2 - 12],
+          [ W/2 + 12, 2, -D/2 - 12],
+          [ W/2 + 12, 2,  D/2 + 12],
+          [-W/2 - 12, 2,  D/2 + 12],
+        ],
+        fill: 'hsl(220 12% 18%)',
+        stroke: 'hsl(220 18% 28%)',
+        sw: 0.6,
+        opacity: Math.min(1, wallProg * 3),
+      });
+    }
+
+    function addWall(line, faceColor, isInternal) {
+      polys.push({
+        type: 'wall',
+        verts: [
+          [line[0], 0,  line[1]],
+          [line[2], 0,  line[3]],
+          [line[2], Hp, line[3]],
+          [line[0], Hp, line[1]],
+        ],
+        fill: faceColor,
+        stroke: 'hsl(220 15% 8% / 0.6)',
+        sw: 0.4,
+        line,
+        isInternal,
+      });
+    }
+
+    addWall(planLines[0], 'url(#wall-front)',     false);
+    addWall(planLines[1], 'url(#wall-side-light)',false);
+    addWall(planLines[2], 'url(#wall-back)',      false);
+    addWall(planLines[3], 'url(#wall-side-shade)',false);
+    addWall(planLines[4], 'url(#wall-internal)',  true);
+    addWall(planLines[5], 'url(#wall-internal)',  true);
+    addWall(planLines[6], 'url(#wall-internal)',  true);
+
+    if (roofProg > 0.001) {
+      const rDrop = (1 - roofProg) * 60;
+      const rH = H + ROOF_H * roofProg;
+      const eo = 18;
+      polys.push({
+        type: 'roof',
+        verts: [
+          [-W/2 - eo, H - rDrop, -D/2 - eo],
+          [ W/2 + eo, H - rDrop, -D/2 - eo],
+          [ W/2 + eo, rH - rDrop, 0],
+          [-W/2 - eo, rH - rDrop, 0],
+        ],
+        fill: 'url(#roof-front)',
+        stroke: 'hsl(15 35% 16%)',
+        sw: 0.6,
+        opacity: roofProg,
+      });
+      polys.push({
+        type: 'roof',
+        verts: [
+          [ W/2 + eo, H - rDrop,  D/2 + eo],
+          [-W/2 - eo, H - rDrop,  D/2 + eo],
+          [-W/2 - eo, rH - rDrop, 0],
+          [ W/2 + eo, rH - rDrop, 0],
+        ],
+        fill: 'url(#roof-back)',
+        stroke: 'hsl(15 35% 12%)',
+        sw: 0.6,
+        opacity: roofProg,
+      });
+      polys.push({
+        type: 'roof',
+        verts: [
+          [-W/2, H - rDrop, -D/2],
+          [-W/2, rH - rDrop, 0],
+          [-W/2, H - rDrop,  D/2],
+        ],
+        fill: 'url(#roof-gable)',
+        stroke: 'hsl(15 35% 14%)',
+        sw: 0.6,
+        opacity: roofProg,
+      });
+      polys.push({
+        type: 'roof',
+        verts: [
+          [ W/2, H - rDrop, -D/2],
+          [ W/2, H - rDrop,  D/2],
+          [ W/2, rH - rDrop, 0],
+        ],
+        fill: 'url(#roof-gable)',
+        stroke: 'hsl(15 35% 14%)',
+        sw: 0.6,
+        opacity: roofProg,
+      });
+      polys.push({
+        type: 'ridge',
+        verts: [
+          [-W/2 - eo, rH - rDrop, 0],
+          [ W/2 + eo, rH - rDrop, 0],
+        ],
+        stroke: 'hsl(20 60% 55%)',
+        sw: 1.2,
+        opacity: roofProg * 0.9,
+      });
+    }
+
+    return polys;
+  }
+
+  function avgDepth(poly, theta) {
+    let s = 0;
+    poly.verts.forEach(v => { s += project3(v, theta).depth; });
+    return s / poly.verts.length;
+  }
+
+  function renderFrame(state) {
+    const { theta, blueprintOpacity, lineProgress, wallProg, roofProg, windowsLit, glow } = state;
+    clear(world);
+
+    const gFloor = el('g', {});
+    drawPaperFloor(gFloor, theta, blueprintOpacity);
+    world.appendChild(gFloor);
+
+    const gPlan = el('g', {});
+    drawBlueprintLines(gPlan, theta, blueprintOpacity, lineProgress);
+    world.appendChild(gPlan);
+
+    const polys = buildPolys(theta, wallProg, roofProg);
+    polys.forEach(p => p._depth = avgDepth(p, theta));
+    polys.sort((a, b) => a._depth - b._depth);
+
+    const gBuilding = el('g', {});
+
+    polys.forEach(p => {
+      if (p.type === 'ridge') {
+        const a = project3(p.verts[0], theta);
+        const b = project3(p.verts[1], theta);
+        gBuilding.appendChild(el('line', {
+          x1: a.sx.toFixed(1), y1: a.sy.toFixed(1),
+          x2: b.sx.toFixed(1), y2: b.sy.toFixed(1),
+          stroke: p.stroke, 'stroke-width': p.sw,
+          opacity: p.opacity ?? 1,
+          'stroke-linecap': 'round',
+        }));
+        return;
+      }
+      const projected = p.verts.map(v => project3(v, theta));
+      const pts = projected.map(q => `${q.sx.toFixed(1)},${q.sy.toFixed(1)}`).join(' ');
+      gBuilding.appendChild(el('polygon', {
+        points: pts,
+        fill: p.fill,
+        stroke: p.stroke,
+        'stroke-width': p.sw,
+        opacity: p.opacity ?? 1,
+        'stroke-linejoin': 'miter',
+      }));
+
+      if (p.type === 'wall' && p.line && !p.isInternal && wallProg > 0.55) {
+        const opacityOpening = Math.min(1, (wallProg - 0.55) / 0.25);
+        const lineIdx = planLines.indexOf(p.line);
+        planOpenings.forEach(o => {
+          if (o.line !== lineIdx) return;
+          const ln = p.line;
+          const x1 = ln[0], z1 = ln[1], x2 = ln[2], z2 = ln[3];
+          const ax = x1 + (x2 - x1) * o.t1;
+          const az = z1 + (z2 - z1) * o.t1;
+          const bx = x1 + (x2 - x1) * o.t2;
+          const bz = z1 + (z2 - z1) * o.t2;
+
+          const isDoor = o.type === 'door';
+          const yLow = isDoor ? 4 : 30;
+          const wallTop = H * wallProg;
+          const yHigh = isDoor ? Math.min(wallTop, H - 22) : Math.min(wallTop, H - 28);
+          if (yHigh - yLow < 6) return;
+
+          const Apt = project(ax, yLow,  az, theta);
+          const Bpt = project(bx, yLow,  bz, theta);
+          const Cpt = project(bx, yHigh, bz, theta);
+          const Dpt = project(ax, yHigh, az, theta);
+          const ptsStr = `${Apt.sx},${Apt.sy} ${Bpt.sx},${Bpt.sy} ${Cpt.sx},${Cpt.sy} ${Dpt.sx},${Dpt.sy}`;
+
+          if (isDoor) {
+            gBuilding.appendChild(el('polygon', {
+              points: ptsStr,
+              fill: 'hsl(28 55% 22%)',
+              stroke: 'hsl(28 55% 14%)',
+              'stroke-width': 0.6,
+              opacity: opacityOpening,
+            }));
+            const knobX = Apt.sx + (Bpt.sx - Apt.sx) * 0.75;
+            const knobY = Apt.sy + (Dpt.sy - Apt.sy) * 0.55;
+            gBuilding.appendChild(el('circle', {
+              cx: knobX, cy: knobY, r: 1.5,
+              fill: 'hsl(45 80% 60%)', opacity: opacityOpening,
+            }));
+            const cl = project(ax - 6, yHigh + 4, az, theta);
+            const cr = project(bx + 6, yHigh + 4, bz, theta);
+            const cl2 = project(ax - 6, yHigh + 9, az, theta);
+            const cr2 = project(bx + 6, yHigh + 9, bz, theta);
+            gBuilding.appendChild(el('polygon', {
+              points: `${cl.sx},${cl.sy} ${cr.sx},${cr.sy} ${cr2.sx},${cr2.sy} ${cl2.sx},${cl2.sy}`,
+              fill: 'hsl(15 40% 28%)', stroke: 'hsl(15 40% 16%)', 'stroke-width': 0.6,
+              opacity: opacityOpening,
+            }));
+          } else {
+            const lit = windowsLit;
+            const fillStyle = lit ? 'url(#window-lit)' : 'hsl(210 35% 22%)';
+            gBuilding.appendChild(el('polygon', {
+              points: ptsStr,
+              fill: fillStyle,
+              stroke: 'hsl(30 25% 18%)',
+              'stroke-width': 1,
+              opacity: opacityOpening,
+            }));
+            const Mh1 = project((ax + bx) / 2, yLow,  (az + bz) / 2, theta);
+            const Mh2 = project((ax + bx) / 2, yHigh, (az + bz) / 2, theta);
+            const Mv1 = project(ax, (yLow + yHigh) / 2, az, theta);
+            const Mv2 = project(bx, (yLow + yHigh) / 2, bz, theta);
+            gBuilding.appendChild(el('line', {
+              x1: Mh1.sx, y1: Mh1.sy, x2: Mh2.sx, y2: Mh2.sy,
+              stroke: 'hsl(30 30% 18%)', 'stroke-width': 1, opacity: opacityOpening,
+            }));
+            gBuilding.appendChild(el('line', {
+              x1: Mv1.sx, y1: Mv1.sy, x2: Mv2.sx, y2: Mv2.sy,
+              stroke: 'hsl(30 30% 18%)', 'stroke-width': 1, opacity: opacityOpening,
+            }));
+            const sa = project(ax - 3, yLow - 2, az, theta);
+            const sb = project(bx + 3, yLow - 2, bz, theta);
+            const sc = project(bx + 3, yLow,    bz, theta);
+            const sd = project(ax - 3, yLow,    az, theta);
+            gBuilding.appendChild(el('polygon', {
+              points: `${sa.sx},${sa.sy} ${sb.sx},${sb.sy} ${sc.sx},${sc.sy} ${sd.sx},${sd.sy}`,
+              fill: 'hsl(30 25% 50%)', stroke: 'hsl(25 22% 28%)', 'stroke-width': 0.5,
+              opacity: opacityOpening,
+            }));
+          }
+        });
+      }
+    });
+
+    world.appendChild(gBuilding);
+  }
+
   const LOOP_MS = 24000;
-  const start = performance.now();
-  const elProgress = document.getElementById('progress');
-  const elBar = document.getElementById('bar');
-  const elFloor = document.getElementById('floor');
-  const elTasks = document.getElementById('tasks');
+
+  function easeInOut(t) { return t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2; }
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function clamp01(x) { return Math.max(0, Math.min(1, x)); }
+
+  function timeline(t) {
+    // theta is rotation around X-axis. theta=π/2 is true top-down (looking
+    // straight down at the floor); theta=π/3 (~60°) gives an isometric feel
+    // where wall height is half-compressed on screen.
+    // Negative angles tilt the building toward the viewer so +z is screen up
+    // (north-up plan convention; building front faces the camera in iso view).
+    const TOP = -Math.PI / 2;
+    const ISO = -Math.PI / 3;
+    const ISO_NEAR = lerp(TOP, ISO, 0.85);
+
+    let theta, wallProg, roofProg, blueprintOpacity, lineProgress, windowsLit, glow;
+
+    if (t < 0.20) {
+      const k = t / 0.20;
+      theta = TOP;
+      wallProg = 0;
+      roofProg = 0;
+      blueprintOpacity = clamp01(t / 0.04);
+      lineProgress = clamp01(k);
+      windowsLit = false;
+      glow = 0;
+    } else if (t < 0.32) {
+      const k = (t - 0.20) / 0.12;
+      theta = lerp(TOP, ISO_NEAR, easeInOut(k));
+      wallProg = lerp(0, 0.4, easeInOut(k));
+      roofProg = 0;
+      blueprintOpacity = lerp(1, 0.4, easeInOut(k));
+      lineProgress = 1;
+      windowsLit = false;
+      glow = 0;
+    } else if (t < 0.46) {
+      const k = (t - 0.32) / 0.14;
+      theta = lerp(ISO_NEAR, ISO, easeInOut(k));
+      wallProg = lerp(0.4, 1, easeInOut(k));
+      roofProg = clamp01((k - 0.45) / 0.55);
+      blueprintOpacity = lerp(0.4, 0, k);
+      lineProgress = 1;
+      windowsLit = false;
+      glow = 0;
+    } else if (t < 0.55) {
+      const k = (t - 0.46) / 0.09;
+      theta = ISO;
+      wallProg = 1;
+      roofProg = 1;
+      blueprintOpacity = 0;
+      lineProgress = 1;
+      windowsLit = k > 0.3;
+      glow = clamp01((k - 0.3) / 0.7);
+    } else if (t < 0.70) {
+      const k = (t - 0.55) / 0.15;
+      theta = ISO + Math.sin(k * Math.PI) * 0.04;
+      wallProg = 1;
+      roofProg = 1;
+      blueprintOpacity = 0;
+      lineProgress = 1;
+      windowsLit = true;
+      glow = 1;
+    } else if (t < 0.83) {
+      const k = (t - 0.70) / 0.13;
+      theta = lerp(ISO, ISO_NEAR, easeInOut(k));
+      roofProg = clamp01(1 - k * 1.6);
+      wallProg = lerp(1, 0.2, clamp01((k - 0.3) / 0.7));
+      blueprintOpacity = lerp(0, 0.5, easeInOut(k));
+      lineProgress = 1;
+      windowsLit = k < 0.2;
+      glow = clamp01(1 - k * 1.6);
+    } else if (t < 0.95) {
+      const k = (t - 0.83) / 0.12;
+      theta = lerp(ISO_NEAR, TOP, easeInOut(k));
+      wallProg = lerp(0.2, 0, easeInOut(k));
+      roofProg = 0;
+      blueprintOpacity = lerp(0.5, 1, easeInOut(k));
+      lineProgress = 1;
+      windowsLit = false;
+      glow = 0;
+    } else {
+      theta = TOP;
+      wallProg = 0;
+      roofProg = 0;
+      blueprintOpacity = 1;
+      lineProgress = 1;
+      windowsLit = false;
+      glow = 0;
+    }
+
+    return { theta, wallProg, roofProg, blueprintOpacity, lineProgress, windowsLit, glow };
+  }
+
+  function phaseLabel(t) {
+    if (t < 0.20) return '— SCHEMATIC / שרטוט —';
+    if (t < 0.32) return '— EXTRUDE / הקמת קירות —';
+    if (t < 0.46) return '— ROOFING / גג —';
+    if (t < 0.70) return '— BUILT / בנוי —';
+    if (t < 0.85) return '— DECONSTRUCT / פירוק —';
+    return '— SCHEMATIC / שרטוט —';
+  }
+
+  function setProgressDots(t) {
+    const phaseEnds = [0.20, 0.46, 0.70, 1.00];
+    for (let i = 1; i <= 4; i++) {
+      const dot = document.getElementById('dot-' + i);
+      const start = i === 1 ? 0 : phaseEnds[i - 2];
+      const end = phaseEnds[i - 1];
+      const k = clamp01((t - start) / Math.max(0.0001, end - start));
+      let inner = dot.firstElementChild;
+      if (!inner) {
+        inner = document.createElement('i');
+        inner.style.display = 'block';
+        inner.style.height = '100%';
+        inner.style.background = 'linear-gradient(90deg, hsl(198 93% 70%), hsl(45 95% 65%))';
+        dot.appendChild(inner);
+      }
+      inner.style.width = (k * 100).toFixed(1) + '%';
+    }
+  }
+
+  let startTime = null;
   function tick(now) {
-    const elapsed = ((now - start) % LOOP_MS) / LOOP_MS;
-    const pct = Math.round(elapsed * 100);
-    elProgress.textContent = pct;
-    elBar.style.width = pct + '%';
-    elFloor.textContent = Math.min(FLOORS, Math.max(1, Math.ceil(elapsed * FLOORS)));
-    elTasks.textContent = 8 + Math.round(Math.sin(elapsed * Math.PI * 2) * 5 + 5);
+    if (startTime === null) startTime = now;
+    const t = ((now - startTime) % LOOP_MS) / LOOP_MS;
+    const state = timeline(t);
+    renderFrame(state);
+    document.getElementById('phaseLabel').textContent = phaseLabel(t);
+    setProgressDots(t);
     requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
 
-  // Toolbar toggles
-  const stage = document.getElementById('stage');
-  const overlays = document.getElementById('overlays');
-  document.getElementById('btnDim').addEventListener('click', (e) => {
-    stage.classList.toggle('dimmed');
-    e.currentTarget.textContent = stage.classList.contains('dimmed') ? 'מלא' : 'עמום';
-  });
-  document.getElementById('btnOverlays').addEventListener('click', (e) => {
-    overlays.classList.toggle('hidden');
-    e.currentTarget.textContent = overlays.classList.contains('hidden') ? 'הצג ווידג׳טים' : 'הסתר ווידג׳טים';
-  });
+})();
 </script>
 </body>
 </html>
