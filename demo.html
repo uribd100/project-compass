@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Project Compass · משרטוט לבניין</title>
+<title>Project Compass · Blueprint to Building</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -11,39 +11,38 @@
   * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%;
-    background: #0a1322;
+    background: #050a14;
     font-family: 'Heebo', system-ui, sans-serif;
     color: #fff;
     overflow: hidden;
   }
-  .stage {
-    position: fixed; inset: 0;
-    overflow: hidden;
-    background:
-      radial-gradient(ellipse at 50% 30%, hsl(215 50% 18%) 0%, hsl(220 60% 8%) 70%);
-  }
-  .sky-stars {
-    position: absolute; inset: 0;
-    background-image:
-      radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,0.6), transparent),
-      radial-gradient(1px 1px at 78% 22%, rgba(255,255,255,0.5), transparent),
-      radial-gradient(1px 1px at 35% 12%, rgba(255,255,255,0.4), transparent),
-      radial-gradient(1px 1px at 88% 8%, rgba(255,255,255,0.7), transparent),
-      radial-gradient(1px 1px at 22% 35%, rgba(255,255,255,0.3), transparent),
-      radial-gradient(1px 1px at 60% 32%, rgba(255,255,255,0.5), transparent),
-      radial-gradient(1px 1px at 5% 28%, rgba(255,255,255,0.4), transparent),
-      radial-gradient(2px 2px at 95% 38%, rgba(180,210,255,0.5), transparent);
-    opacity: 0.55;
-  }
-  svg.scene {
-    position: absolute; inset: 0;
-    width: 100%; height: 100%;
-    display: block;
-  }
+  canvas { display: block; }
 
-  /* Top toolbar - minimal */
+  #loader {
+    position: fixed; inset: 0;
+    background: #050a14;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 12px;
+    color: rgba(255,255,255,0.6);
+    z-index: 100;
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+  }
+  #loader.hidden { opacity: 0; pointer-events: none; transition: opacity 600ms; }
+  .spinner {
+    width: 28px; height: 28px;
+    border: 2px solid rgba(125,211,252,0.15);
+    border-top-color: hsl(198 93% 70%);
+    border-radius: 50%;
+    animation: spin 800ms linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
   .toolbar {
-    position: absolute; top: 16px; right: 20px; left: 20px; z-index: 5;
+    position: fixed; top: 16px; right: 20px; left: 20px;
+    z-index: 5;
     display: flex; align-items: center; justify-content: space-between;
     gap: 12px;
     pointer-events: none;
@@ -64,11 +63,7 @@
     text-transform: uppercase;
     font-family: 'Space Mono', monospace;
   }
-  .brand .big {
-    font-weight: 600;
-    font-size: 14px;
-    margin-top: 2px;
-  }
+  .brand .big { font-weight: 600; font-size: 14px; margin-top: 2px; }
 
   .phase-label {
     background: rgba(0,0,0,0.45);
@@ -82,10 +77,11 @@
     font-family: 'Space Mono', monospace;
     letter-spacing: 0.1em;
     pointer-events: auto;
+    transition: opacity 300ms;
   }
 
   .progress {
-    position: absolute; bottom: 18px; left: 50%;
+    position: fixed; bottom: 18px; left: 50%;
     transform: translateX(-50%);
     display: flex; gap: 6px;
     z-index: 5;
@@ -93,79 +89,41 @@
   }
   .progress span {
     display: block;
-    width: 32px; height: 3px;
-    background: rgba(255,255,255,0.12);
+    width: 36px; height: 3px;
+    background: rgba(255,255,255,0.10);
     border-radius: 2px;
     overflow: hidden;
+  }
+  .progress span i {
+    display: block; height: 100%; width: 0;
+    background: linear-gradient(90deg, hsl(198 93% 70%), hsl(45 95% 65%));
+  }
+
+  .vignette {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%);
+    z-index: 4;
+  }
+
+  .error {
+    position: fixed; inset: 0;
+    background: #050a14;
+    color: rgba(255,255,255,0.7);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200;
+    padding: 32px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.6;
   }
 </style>
 </head>
 <body>
-<div class="stage">
-  <div class="sky-stars"></div>
-
-  <svg class="scene" id="scene" viewBox="-500 -350 1000 700" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <pattern id="bp-grid-fine" width="20" height="20" patternUnits="userSpaceOnUse">
-        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="hsl(200 80% 50% / 0.13)" stroke-width="0.5"/>
-      </pattern>
-      <pattern id="bp-grid-major" width="100" height="100" patternUnits="userSpaceOnUse">
-        <path d="M 100 0 L 0 0 0 100" fill="none" stroke="hsl(200 80% 60% / 0.22)" stroke-width="0.8"/>
-      </pattern>
-
-      <linearGradient id="wall-front" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="hsl(35 35% 80%)"/>
-        <stop offset="100%" stop-color="hsl(30 30% 60%)"/>
-      </linearGradient>
-      <linearGradient id="wall-side-light" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="hsl(35 30% 70%)"/>
-        <stop offset="100%" stop-color="hsl(30 25% 52%)"/>
-      </linearGradient>
-      <linearGradient id="wall-side-shade" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="hsl(30 25% 48%)"/>
-        <stop offset="100%" stop-color="hsl(25 20% 32%)"/>
-      </linearGradient>
-      <linearGradient id="wall-back" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="hsl(30 22% 42%)"/>
-        <stop offset="100%" stop-color="hsl(25 18% 28%)"/>
-      </linearGradient>
-      <linearGradient id="wall-internal" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="hsl(30 18% 60%)"/>
-        <stop offset="100%" stop-color="hsl(25 15% 42%)"/>
-      </linearGradient>
-
-      <linearGradient id="roof-front" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="hsl(15 50% 38%)"/>
-        <stop offset="100%" stop-color="hsl(12 45% 26%)"/>
-      </linearGradient>
-      <linearGradient id="roof-back" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="hsl(12 40% 24%)"/>
-        <stop offset="100%" stop-color="hsl(10 35% 16%)"/>
-      </linearGradient>
-      <linearGradient id="roof-gable" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="hsl(15 45% 32%)"/>
-        <stop offset="100%" stop-color="hsl(12 40% 22%)"/>
-      </linearGradient>
-
-      <radialGradient id="window-lit" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="hsl(48 100% 88%)"/>
-        <stop offset="60%" stop-color="hsl(45 95% 68%)"/>
-        <stop offset="100%" stop-color="hsl(40 80% 50%)"/>
-      </radialGradient>
-
-      <linearGradient id="paper" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="hsl(218 50% 14%)"/>
-        <stop offset="100%" stop-color="hsl(220 55% 9%)"/>
-      </linearGradient>
-
-      <radialGradient id="ground-shadow" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="rgba(0,0,0,0.55)"/>
-        <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
-      </radialGradient>
-    </defs>
-
-    <g id="world"></g>
-  </svg>
+  <div id="loader">
+    <div class="spinner"></div>
+    <div>טוען סצנה תלת-מימדית</div>
+  </div>
 
   <div class="toolbar">
     <div class="brand">
@@ -176,652 +134,1038 @@
   </div>
 
   <div class="progress">
-    <span id="dot-1"></span>
-    <span id="dot-2"></span>
-    <span id="dot-3"></span>
-    <span id="dot-4"></span>
+    <span><i id="dot-1"></i></span>
+    <span><i id="dot-2"></i></span>
+    <span><i id="dot-3"></i></span>
+    <span><i id="dot-4"></i></span>
   </div>
-</div>
 
-<script>
-(function () {
-  'use strict';
+  <div class="vignette"></div>
 
-  // Building footprint (X) x depth (Z), centered at origin. Wall height H.
-  const W = 480, D = 280, H = 130, ROOF_H = 90;
-
-  // Plan-view wall lines (centered): used both for the blueprint and as
-  // bases of 3D walls. Each entry: [x1, z1, x2, z2, kind]
-  const planLines = [
-    [-W/2, -D/2,  W/2, -D/2, 'outer'], // 0: south (front)
-    [ W/2, -D/2,  W/2,  D/2, 'outer'], // 1: east  (right)
-    [ W/2,  D/2, -W/2,  D/2, 'outer'], // 2: north (back)
-    [-W/2,  D/2, -W/2, -D/2, 'outer'], // 3: west  (left)
-    [-W/2, 0,     W/2, 0,    'internal'],
-    [-80, -D/2,  -80,  D/2,  'internal'],
-    [ 120, -D/2,  120, D/2,  'internal'],
-  ];
-
-  const planOpenings = [
-    { line: 0, t1: 0.46, t2: 0.54, type: 'door' },
-    { line: 0, t1: 0.18, t2: 0.30, type: 'window' },
-    { line: 0, t1: 0.70, t2: 0.82, type: 'window' },
-    { line: 2, t1: 0.18, t2: 0.30, type: 'window' },
-    { line: 2, t1: 0.70, t2: 0.82, type: 'window' },
-    { line: 1, t1: 0.20, t2: 0.32, type: 'window' },
-    { line: 1, t1: 0.68, t2: 0.80, type: 'window' },
-    { line: 3, t1: 0.20, t2: 0.32, type: 'window' },
-    { line: 3, t1: 0.68, t2: 0.80, type: 'window' },
-  ];
-
-  const roomLabels = [
-    { x: -160, z: -70, text: 'סלון' },
-    { x:   20, z: -70, text: 'מטבח' },
-    { x:  180, z: -70, text: 'מרפסת' },
-    { x: -160, z:  70, text: 'חדר שינה' },
-    { x:   20, z:  70, text: 'חדר עבודה' },
-    { x:  180, z:  70, text: 'שירותים' },
-  ];
-
-  // Rotate around X-axis by angle theta (camera tilt).
-  // theta = 0 => top-down (looking straight down at floor)
-  function project(x, y, z, theta) {
-    const cy = Math.cos(theta), sy = Math.sin(theta);
-    const ry = y * cy - z * sy;
-    const rz = y * sy + z * cy;
-    return { sx: x, sy: -ry, depth: rz };
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
   }
-  function project3(p, theta) { return project(p[0], p[1], p[2], theta); }
+}
+</script>
 
-  const SVG_NS = 'http://www.w3.org/2000/svg';
-  const world = document.getElementById('world');
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
-  function el(tag, attrs) {
-    const e = document.createElementNS(SVG_NS, tag);
-    for (const k in attrs) e.setAttribute(k, attrs[k]);
-    return e;
+(async function () {
+
+  // ===== Renderer =====
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.05;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  document.body.insertBefore(renderer.domElement, document.body.firstChild);
+
+  // ===== Scene + Camera =====
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x0a1424, 0.012);
+
+  const camera = new THREE.PerspectiveCamera(
+    32, window.innerWidth / window.innerHeight, 0.1, 600
+  );
+
+  // ===== Sky (gradient sphere) =====
+  const skyMat = new THREE.ShaderMaterial({
+    uniforms: {
+      topColor:    { value: new THREE.Color(0x0a1428) },
+      midColor:    { value: new THREE.Color(0x1a2a4a) },
+      bottomColor: { value: new THREE.Color(0x4060a0) },
+      offset:      { value: 30 },
+      exponent:    { value: 0.5 },
+    },
+    vertexShader: `
+      varying vec3 vWorldPos;
+      void main() {
+        vec4 wp = modelMatrix * vec4(position, 1.0);
+        vWorldPos = wp.xyz;
+        gl_Position = projectionMatrix * viewMatrix * wp;
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 topColor; uniform vec3 midColor; uniform vec3 bottomColor;
+      uniform float offset; uniform float exponent;
+      varying vec3 vWorldPos;
+      void main() {
+        float h = normalize(vWorldPos + vec3(0.0, offset, 0.0)).y;
+        float t = clamp(h, 0.0, 1.0);
+        vec3 c = mix(bottomColor, midColor, smoothstep(0.0, 0.55, t));
+        c = mix(c, topColor, smoothstep(0.4, 1.0, pow(t, exponent)));
+        gl_FragColor = vec4(c, 1.0);
+      }
+    `,
+    side: THREE.BackSide,
+    depthWrite: false,
+  });
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(300, 32, 16), skyMat);
+  scene.add(sky);
+
+  // ===== Stars =====
+  const starGeom = new THREE.BufferGeometry();
+  const starCount = 2400;
+  const starPos = new Float32Array(starCount * 3);
+  for (let i = 0; i < starCount; i++) {
+    const r = 250;
+    const phi = Math.acos(1 - Math.random() * 1.05); // bias toward upper hemisphere
+    const theta = 2 * Math.PI * Math.random();
+    starPos[i*3]     = r * Math.sin(phi) * Math.cos(theta);
+    starPos[i*3 + 1] = r * Math.cos(phi);
+    starPos[i*3 + 2] = r * Math.sin(phi) * Math.sin(theta);
   }
-  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+  starGeom.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+  const starMat = new THREE.PointsMaterial({
+    color: 0xffffff, size: 1.4, sizeAttenuation: false,
+    transparent: true, opacity: 0, depthWrite: false,
+  });
+  const stars = new THREE.Points(starGeom, starMat);
+  scene.add(stars);
 
-  function drawPaperFloor(g, theta, blueprintOpacity) {
-    const pad = 110;
-    const corners = [
-      [-W/2 - pad, 0, -D/2 - pad],
-      [ W/2 + pad, 0, -D/2 - pad],
-      [ W/2 + pad, 0,  D/2 + pad],
-      [-W/2 - pad, 0,  D/2 + pad],
-    ];
-    const pts = corners.map(c => project3(c, theta));
-    const polyStr = pts.map(p => `${p.sx.toFixed(1)},${p.sy.toFixed(1)}`).join(' ');
+  // ===== Lights =====
+  const sun = new THREE.DirectionalLight(0xfff1d6, 2.2);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.camera.near = 0.5;
+  sun.shadow.camera.far = 120;
+  sun.shadow.camera.left = -30;
+  sun.shadow.camera.right = 30;
+  sun.shadow.camera.top = 30;
+  sun.shadow.camera.bottom = -30;
+  sun.shadow.bias = -0.0002;
+  sun.shadow.radius = 3;
+  scene.add(sun);
+  scene.add(sun.target);
 
-    g.appendChild(el('ellipse', {
-      cx: 0,
-      cy: -D/2 * Math.sin(theta) * 0.5 + 30,
-      rx: (W/2 + 80),
-      ry: (D/2 + 60) * Math.cos(theta),
-      fill: 'url(#ground-shadow)',
-      opacity: 0.65,
-    }));
+  const hemi = new THREE.HemisphereLight(0x90b8e8, 0x202028, 0.6);
+  scene.add(hemi);
 
-    g.appendChild(el('polygon', {
-      points: polyStr,
-      fill: 'url(#paper)',
-      stroke: 'hsl(198 70% 35% / 0.55)',
-      'stroke-width': '1',
-    }));
-    g.appendChild(el('polygon', {
-      points: polyStr,
-      fill: 'url(#bp-grid-fine)',
-      opacity: 0.55,
-    }));
-    g.appendChild(el('polygon', {
-      points: polyStr,
-      fill: 'url(#bp-grid-major)',
-      opacity: 0.55,
-    }));
+  // Subtle moonlight (active at night)
+  const moon = new THREE.DirectionalLight(0x8fa9d6, 0);
+  moon.position.set(-15, 18, -10);
+  scene.add(moon);
 
-    if (blueprintOpacity > 0.05) {
-      const tb = [
-        [W/2 - 5, 0, D/2 - 5],
-        [W/2 + 95, 0, D/2 - 5],
-        [W/2 + 95, 0, D/2 + 55],
-        [W/2 - 5, 0, D/2 + 55],
-      ];
-      const tbPts = tb.map(c => project3(c, theta));
-      g.appendChild(el('polygon', {
-        points: tbPts.map(p => `${p.sx.toFixed(1)},${p.sy.toFixed(1)}`).join(' '),
-        fill: 'hsl(220 60% 6% / 0.6)',
-        stroke: 'hsl(198 70% 55% / 0.7)',
-        'stroke-width': '0.8',
-        opacity: blueprintOpacity,
-      }));
+  // ===== Ground =====
+  const groundMat = new THREE.MeshStandardMaterial({
+    color: 0x3d5034, roughness: 0.95, metalness: 0,
+  });
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(220, 220), groundMat);
+  ground.rotation.x = -Math.PI / 2;
+  ground.receiveShadow = true;
+  scene.add(ground);
+
+  // ===== Blueprint plane (canvas texture overlay on the ground) =====
+  const W = 24, D = 14;        // building footprint in world units
+  const wallH = 4;
+  const PLAN_W = 36, PLAN_D = 22; // visible blueprint paper
+
+  function makeBlueprintCanvas(progress) {
+    const C_W = 2048, C_H = 1280;
+    const canvas = document.createElement('canvas');
+    canvas.width = C_W; canvas.height = C_H;
+    const ctx = canvas.getContext('2d');
+
+    const grad = ctx.createRadialGradient(C_W/2, C_H/2, 100, C_W/2, C_H/2, C_W/1.5);
+    grad.addColorStop(0, '#152844');
+    grad.addColorStop(1, '#0a1730');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, C_W, C_H);
+
+    const cx = C_W / 2, cy = C_H / 2;
+    const px = C_W / PLAN_W;
+    const py = C_H / PLAN_D;
+
+    ctx.strokeStyle = 'rgba(125, 211, 252, 0.10)';
+    ctx.lineWidth = 1;
+    for (let x = 0; x <= C_W; x += 28) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, C_H); ctx.stroke();
     }
-  }
+    for (let y = 0; y <= C_H; y += 28) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(C_W, y); ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(125, 211, 252, 0.22)';
+    ctx.lineWidth = 1.4;
+    for (let x = 0; x <= C_W; x += 140) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, C_H); ctx.stroke();
+    }
+    for (let y = 0; y <= C_H; y += 140) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(C_W, y); ctx.stroke();
+    }
 
-  function drawBlueprintLines(g, theta, blueprintOpacity, lineProgress) {
-    if (blueprintOpacity < 0.02) return;
-    const draws = [
-      { pts: [[-W/2,0,-D/2],[ W/2,0,-D/2]], color: 'hsl(198 93% 75%)', sw: 1.6, t0: 0.00, t1: 0.10 },
-      { pts: [[ W/2,0,-D/2],[ W/2,0, D/2]], color: 'hsl(198 93% 75%)', sw: 1.6, t0: 0.05, t1: 0.18 },
-      { pts: [[ W/2,0, D/2],[-W/2,0, D/2]], color: 'hsl(198 93% 75%)', sw: 1.6, t0: 0.10, t1: 0.22 },
-      { pts: [[-W/2,0, D/2],[-W/2,0,-D/2]], color: 'hsl(198 93% 75%)', sw: 1.6, t0: 0.15, t1: 0.26 },
-      { pts: [[-W/2,0,0],[ W/2,0,0]],       color: 'hsl(198 93% 70%)', sw: 1.2, t0: 0.28, t1: 0.40 },
-      { pts: [[-80,0,-D/2],[-80,0, D/2]],   color: 'hsl(198 93% 70%)', sw: 1.2, t0: 0.36, t1: 0.46 },
-      { pts: [[ 120,0,-D/2],[ 120,0, D/2]], color: 'hsl(198 93% 70%)', sw: 1.2, t0: 0.42, t1: 0.52 },
+    // Frame
+    ctx.strokeStyle = 'rgba(125, 211, 252, 0.55)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(40, 40, C_W - 80, C_H - 80);
+
+    // Title block
+    ctx.fillStyle = 'rgba(8, 22, 44, 0.85)';
+    ctx.strokeStyle = 'rgba(125, 211, 252, 0.7)';
+    ctx.lineWidth = 1.5;
+    ctx.fillRect(C_W - 380, C_H - 200, 320, 140);
+    ctx.strokeRect(C_W - 380, C_H - 200, 320, 140);
+    ctx.fillStyle = 'rgba(189, 230, 253, 0.85)';
+    ctx.font = 'bold 22px "Space Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText('PROJECT COMPASS', C_W - 360, C_H - 165);
+    ctx.font = '16px "Space Mono", monospace';
+    ctx.fillStyle = 'rgba(189, 230, 253, 0.55)';
+    ctx.fillText('A-101 / FLOOR PLAN', C_W - 360, C_H - 138);
+    ctx.fillText('SCALE 1:50', C_W - 360, C_H - 116);
+    ctx.fillText('הרצליה · 2026', C_W - 360, C_H - 92);
+
+    function L(x1, z1, x2, z2) {
+      ctx.beginPath();
+      ctx.moveTo(cx + x1*px, cy + z1*py);
+      ctx.lineTo(cx + x2*px, cy + z2*py);
+      ctx.stroke();
+    }
+    function partialL(x1, z1, x2, z2, k) {
+      const X1 = cx + x1*px, Y1 = cy + z1*py;
+      const X2 = cx + x2*px, Y2 = cy + z2*py;
+      ctx.beginPath();
+      ctx.moveTo(X1, Y1);
+      ctx.lineTo(X1 + (X2-X1)*k, Y1 + (Y2-Y1)*k);
+      ctx.stroke();
+    }
+
+    const lines = [
+      // Outer (with door gap will be drawn separately)
+      { from: [-W/2, -D/2], to: [ W/2, -D/2], t0: 0.00, t1: 0.10, w: 6, color: '#7dd3fc' },
+      { from: [ W/2, -D/2], to: [ W/2,  D/2], t0: 0.05, t1: 0.18, w: 6, color: '#7dd3fc' },
+      { from: [ W/2,  D/2], to: [-W/2,  D/2], t0: 0.10, t1: 0.22, w: 6, color: '#7dd3fc' },
+      { from: [-W/2,  D/2], to: [-W/2, -D/2], t0: 0.15, t1: 0.26, w: 6, color: '#7dd3fc' },
+      // Internal
+      { from: [-W/2, 0], to: [ W/2, 0], t0: 0.30, t1: 0.42, w: 4, color: '#7dd3fc' },
+      { from: [-4, -D/2], to: [-4,  D/2], t0: 0.36, t1: 0.46, w: 4, color: '#7dd3fc' },
+      { from: [ 6, -D/2], to: [ 6,  D/2], t0: 0.40, t1: 0.50, w: 4, color: '#7dd3fc' },
     ];
-
-    draws.forEach(d => {
-      const a = project3(d.pts[0], theta);
-      const b = project3(d.pts[1], theta);
-      const k = Math.max(0, Math.min(1, (lineProgress - d.t0) / Math.max(0.001, d.t1 - d.t0)));
+    ctx.lineCap = 'round';
+    lines.forEach(l => {
+      const k = Math.max(0, Math.min(1, (progress - l.t0) / Math.max(0.001, l.t1 - l.t0)));
       if (k <= 0) return;
-      const ex = a.sx + (b.sx - a.sx) * k;
-      const ey = a.sy + (b.sy - a.sy) * k;
-      g.appendChild(el('line', {
-        x1: a.sx.toFixed(1), y1: a.sy.toFixed(1),
-        x2: ex.toFixed(1),   y2: ey.toFixed(1),
-        stroke: d.color,
-        'stroke-width': d.sw,
-        'stroke-linecap': 'round',
-        opacity: blueprintOpacity,
-      }));
+      ctx.lineWidth = l.w; ctx.strokeStyle = l.color;
+      partialL(l.from[0], l.from[1], l.to[0], l.to[1], k);
     });
 
-    if (lineProgress > 0.55) {
-      const op = Math.min(1, (lineProgress - 0.55) / 0.15) * blueprintOpacity;
-      planOpenings.forEach(o => {
-        const ln = planLines[o.line];
-        const x1 = ln[0], z1 = ln[1], x2 = ln[2], z2 = ln[3];
-        const ax = x1 + (x2 - x1) * o.t1;
-        const az = z1 + (z2 - z1) * o.t1;
-        const bx = x1 + (x2 - x1) * o.t2;
-        const bz = z1 + (z2 - z1) * o.t2;
-        const A = project(ax, 0, az, theta);
-        const B = project(bx, 0, bz, theta);
-        if (o.type === 'window') {
-          g.appendChild(el('line', {
-            x1: A.sx, y1: A.sy, x2: B.sx, y2: B.sy,
-            stroke: 'hsl(45 95% 70%)', 'stroke-width': 2.4, opacity: op,
-            'stroke-linecap': 'round',
-          }));
+    // Door & windows symbols on outer wall (after walls drawn)
+    if (progress > 0.55) {
+      const op = Math.min(1, (progress - 0.55) / 0.10);
+      ctx.globalAlpha = op;
+      ctx.strokeStyle = '#fde68a';
+      ctx.fillStyle = '#fde68a';
+      ctx.lineWidth = 5;
+      // Front door at center bottom (z = -D/2), 1.8m wide
+      const dy = cy - D/2 * py;
+      // Door swing arc + leaf
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(cx - 0.9 * px, dy);
+      ctx.lineTo(cx + 0.9 * px, dy);
+      ctx.stroke();
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(cx - 0.9 * px, dy, 1.8 * px, -Math.PI/2, 0);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(cx - 0.9 * px, dy);
+      ctx.lineTo(cx - 0.9 * px, dy + 1.8 * py);
+      ctx.stroke();
+      // Windows: small rectangles on each wall
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#fde68a';
+      const winSpec = [
+        // [x, z, length, isHorizontal]
+        [-8, -D/2, 1.6, true],
+        [ 8, -D/2, 1.6, true],
+        [-8,  D/2, 1.6, true],
+        [ 1,  D/2, 1.6, true],
+        [ 8,  D/2, 1.6, true],
+        [-W/2, -3.5, 1.6, false],
+        [-W/2,  3.5, 1.6, false],
+        [ W/2, -3.5, 1.6, false],
+        [ W/2,  3.5, 1.6, false],
+      ];
+      winSpec.forEach(([x, z, len, horiz]) => {
+        ctx.beginPath();
+        if (horiz) {
+          ctx.moveTo(cx + (x - len/2)*px, cy + z*py);
+          ctx.lineTo(cx + (x + len/2)*px, cy + z*py);
         } else {
-          const rad = Math.hypot(B.sx - A.sx, B.sy - A.sy) / 2 * 1.6;
-          g.appendChild(el('path', {
-            d: `M ${A.sx.toFixed(1)} ${A.sy.toFixed(1)} A ${rad.toFixed(1)} ${rad.toFixed(1)} 0 0 1 ${B.sx.toFixed(1)} ${B.sy.toFixed(1)}`,
-            stroke: 'hsl(45 95% 70%)', 'stroke-width': 1, fill: 'none', opacity: op * 0.7,
-          }));
-          g.appendChild(el('line', {
-            x1: A.sx, y1: A.sy, x2: B.sx, y2: B.sy,
-            stroke: 'hsl(45 95% 70%)', 'stroke-width': 2.4, opacity: op,
-            'stroke-linecap': 'round',
-          }));
+          ctx.moveTo(cx + x*px, cy + (z - len/2)*py);
+          ctx.lineTo(cx + x*px, cy + (z + len/2)*py);
         }
+        ctx.stroke();
       });
+      ctx.globalAlpha = 1;
     }
 
-    if (lineProgress > 0.65) {
-      const op = Math.min(1, (lineProgress - 0.65) / 0.15) * blueprintOpacity;
-      const tl = project(-W/2, 0, -D/2 - 30, theta);
-      const tr = project( W/2, 0, -D/2 - 30, theta);
-      g.appendChild(el('line', {
-        x1: tl.sx, y1: tl.sy, x2: tr.sx, y2: tr.sy,
-        stroke: 'hsl(198 70% 80%)', 'stroke-width': 0.6, opacity: op * 0.8,
-      }));
-      const tm = project(0, 0, -D/2 - 35, theta);
-      const txt = el('text', {
-        x: tm.sx, y: tm.sy,
-        'text-anchor': 'middle',
-        'font-family': "'Space Mono', monospace",
-        'font-size': 9,
-        fill: 'hsl(198 80% 85%)',
-        opacity: op,
+    // Room labels
+    if (progress > 0.55) {
+      const op = Math.min(1, (progress - 0.55) / 0.18);
+      ctx.globalAlpha = op;
+      ctx.fillStyle = 'rgba(186, 230, 253, 0.95)';
+      ctx.font = '600 30px Heebo, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const labels = [
+        ['סלון',     -8, -3.5],
+        ['מטבח',      1, -3.5],
+        ['מרפסת',     9, -3.5],
+        ['חדר שינה', -8,  3.5],
+        ['חדר עבודה', 1,  3.5],
+        ['שירותים',   9,  3.5],
+      ];
+      labels.forEach(([txt, x, z]) => {
+        ctx.fillText(txt, cx + x*px, cy + z*py);
       });
-      txt.textContent = '12.40 מ';
-      g.appendChild(txt);
-
-      const sl = project(-W/2 - 30, 0, -D/2, theta);
-      const sb = project(-W/2 - 30, 0,  D/2, theta);
-      g.appendChild(el('line', {
-        x1: sl.sx, y1: sl.sy, x2: sb.sx, y2: sb.sy,
-        stroke: 'hsl(198 70% 80%)', 'stroke-width': 0.6, opacity: op * 0.8,
-      }));
-      const sm = project(-W/2 - 38, 0, 0, theta);
-      const txt2 = el('text', {
-        x: sm.sx, y: sm.sy,
-        'text-anchor': 'middle',
-        'font-family': "'Space Mono', monospace",
-        'font-size': 9,
-        fill: 'hsl(198 80% 85%)',
-        opacity: op,
-        transform: `rotate(-90 ${sm.sx} ${sm.sy})`,
-      });
-      txt2.textContent = '8.20 מ';
-      g.appendChild(txt2);
+      ctx.globalAlpha = 1;
     }
 
-    if (lineProgress > 0.45) {
-      const op = Math.min(1, (lineProgress - 0.45) / 0.18) * blueprintOpacity;
-      roomLabels.forEach(r => {
-        const p = project(r.x, 0, r.z, theta);
-        const t = el('text', {
-          x: p.sx, y: p.sy,
-          'text-anchor': 'middle',
-          'font-family': 'Heebo, sans-serif',
-          'font-size': 12,
-          'font-weight': 500,
-          fill: 'hsl(198 80% 88%)',
-          opacity: op,
-        });
-        t.textContent = r.text;
-        g.appendChild(t);
-      });
+    // Dimensions
+    if (progress > 0.7) {
+      const op = Math.min(1, (progress - 0.7) / 0.15);
+      ctx.globalAlpha = op;
+      ctx.strokeStyle = 'rgba(189, 230, 253, 0.7)';
+      ctx.fillStyle = 'rgba(253, 230, 138, 0.95)';
+      ctx.lineWidth = 1.2;
+      ctx.font = '600 22px "Space Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      // Top dim line
+      const dimY = cy - (D/2 + 1.2) * py;
+      ctx.beginPath();
+      ctx.moveTo(cx - W/2 * px, dimY);
+      ctx.lineTo(cx + W/2 * px, dimY);
+      ctx.stroke();
+      ctx.fillText('12.40 מ', cx, dimY - 18);
+      // Side dim
+      const dimX = cx - (W/2 + 1.2) * px;
+      ctx.beginPath();
+      ctx.moveTo(dimX, cy - D/2 * py);
+      ctx.lineTo(dimX, cy + D/2 * py);
+      ctx.stroke();
+      ctx.save();
+      ctx.translate(dimX - 18, cy);
+      ctx.rotate(-Math.PI/2);
+      ctx.fillText('8.20 מ', 0, 0);
+      ctx.restore();
+      ctx.globalAlpha = 1;
     }
 
-    if (lineProgress > 0.7) {
-      const op = Math.min(1, (lineProgress - 0.7) / 0.15) * blueprintOpacity;
-      const a = project(W/2 + 50, 0, -D/2 + 30, theta);
-      const b = project(W/2 + 50, 0, -D/2,      theta);
-      g.appendChild(el('line', {
-        x1: a.sx, y1: a.sy, x2: b.sx, y2: b.sy,
-        stroke: 'hsl(45 95% 65%)', 'stroke-width': 1.5, opacity: op,
-        'stroke-linecap': 'round',
-      }));
-      const t = el('text', {
-        x: b.sx, y: b.sy - 4,
-        'text-anchor': 'middle',
-        'font-family': "'Space Mono', monospace",
-        'font-size': 9,
-        fill: 'hsl(45 95% 75%)',
-        opacity: op,
-      });
-      t.textContent = 'N';
-      g.appendChild(t);
+    // North arrow
+    if (progress > 0.75) {
+      const op = Math.min(1, (progress - 0.75) / 0.15);
+      ctx.globalAlpha = op;
+      ctx.strokeStyle = 'rgba(253, 230, 138, 0.85)';
+      ctx.fillStyle = 'rgba(253, 230, 138, 0.85)';
+      ctx.lineWidth = 2;
+      const ax = cx + (W/2 + 4) * px;
+      const ay = cy;
+      ctx.beginPath();
+      ctx.arc(ax, ay, 26, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(ax, ay - 22);
+      ctx.lineTo(ax - 8, ay + 8);
+      ctx.lineTo(ax, ay);
+      ctx.lineTo(ax + 8, ay + 8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.font = 'bold 20px "Space Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('N', ax, ay - 38);
+      ctx.globalAlpha = 1;
     }
+
+    return canvas;
   }
 
-  function buildPolys(theta, wallProg, roofProg) {
-    const polys = [];
-    const Hp = H * wallProg;
+  const blueprintCanvasEl = makeBlueprintCanvas(1);
+  const blueprintTex = new THREE.CanvasTexture(blueprintCanvasEl);
+  blueprintTex.colorSpace = THREE.SRGBColorSpace;
+  blueprintTex.minFilter = THREE.LinearFilter;
+  blueprintTex.magFilter = THREE.LinearFilter;
+  blueprintTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
-    if (wallProg > 0.02) {
-      polys.push({
-        type: 'slab',
-        verts: [
-          [-W/2 - 12, 2, -D/2 - 12],
-          [ W/2 + 12, 2, -D/2 - 12],
-          [ W/2 + 12, 2,  D/2 + 12],
-          [-W/2 - 12, 2,  D/2 + 12],
-        ],
-        fill: 'hsl(220 12% 18%)',
-        stroke: 'hsl(220 18% 28%)',
-        sw: 0.6,
-        opacity: Math.min(1, wallProg * 3),
-      });
-    }
+  const blueprintMat = new THREE.MeshBasicMaterial({
+    map: blueprintTex, transparent: true, opacity: 1,
+    depthWrite: false, side: THREE.DoubleSide,
+  });
+  const blueprint = new THREE.Mesh(new THREE.PlaneGeometry(PLAN_W, PLAN_D), blueprintMat);
+  blueprint.rotation.x = -Math.PI / 2;
+  blueprint.position.y = 0.02;
+  scene.add(blueprint);
 
-    function addWall(line, faceColor, isInternal) {
-      polys.push({
-        type: 'wall',
-        verts: [
-          [line[0], 0,  line[1]],
-          [line[2], 0,  line[3]],
-          [line[2], Hp, line[3]],
-          [line[0], Hp, line[1]],
-        ],
-        fill: faceColor,
-        stroke: 'hsl(220 15% 8% / 0.6)',
-        sw: 0.4,
-        line,
-        isInternal,
-      });
-    }
-
-    addWall(planLines[0], 'url(#wall-front)',     false);
-    addWall(planLines[1], 'url(#wall-side-light)',false);
-    addWall(planLines[2], 'url(#wall-back)',      false);
-    addWall(planLines[3], 'url(#wall-side-shade)',false);
-    addWall(planLines[4], 'url(#wall-internal)',  true);
-    addWall(planLines[5], 'url(#wall-internal)',  true);
-    addWall(planLines[6], 'url(#wall-internal)',  true);
-
-    if (roofProg > 0.001) {
-      const rDrop = (1 - roofProg) * 60;
-      const rH = H + ROOF_H * roofProg;
-      const eo = 18;
-      polys.push({
-        type: 'roof',
-        verts: [
-          [-W/2 - eo, H - rDrop, -D/2 - eo],
-          [ W/2 + eo, H - rDrop, -D/2 - eo],
-          [ W/2 + eo, rH - rDrop, 0],
-          [-W/2 - eo, rH - rDrop, 0],
-        ],
-        fill: 'url(#roof-front)',
-        stroke: 'hsl(15 35% 16%)',
-        sw: 0.6,
-        opacity: roofProg,
-      });
-      polys.push({
-        type: 'roof',
-        verts: [
-          [ W/2 + eo, H - rDrop,  D/2 + eo],
-          [-W/2 - eo, H - rDrop,  D/2 + eo],
-          [-W/2 - eo, rH - rDrop, 0],
-          [ W/2 + eo, rH - rDrop, 0],
-        ],
-        fill: 'url(#roof-back)',
-        stroke: 'hsl(15 35% 12%)',
-        sw: 0.6,
-        opacity: roofProg,
-      });
-      polys.push({
-        type: 'roof',
-        verts: [
-          [-W/2, H - rDrop, -D/2],
-          [-W/2, rH - rDrop, 0],
-          [-W/2, H - rDrop,  D/2],
-        ],
-        fill: 'url(#roof-gable)',
-        stroke: 'hsl(15 35% 14%)',
-        sw: 0.6,
-        opacity: roofProg,
-      });
-      polys.push({
-        type: 'roof',
-        verts: [
-          [ W/2, H - rDrop, -D/2],
-          [ W/2, H - rDrop,  D/2],
-          [ W/2, rH - rDrop, 0],
-        ],
-        fill: 'url(#roof-gable)',
-        stroke: 'hsl(15 35% 14%)',
-        sw: 0.6,
-        opacity: roofProg,
-      });
-      polys.push({
-        type: 'ridge',
-        verts: [
-          [-W/2 - eo, rH - rDrop, 0],
-          [ W/2 + eo, rH - rDrop, 0],
-        ],
-        stroke: 'hsl(20 60% 55%)',
-        sw: 1.2,
-        opacity: roofProg * 0.9,
-      });
-    }
-
-    return polys;
+  let lastBlueprintProgress = -1;
+  function updateBlueprintProgress(p) {
+    if (Math.abs(p - lastBlueprintProgress) < 0.005) return;
+    lastBlueprintProgress = p;
+    const c = makeBlueprintCanvas(p);
+    blueprintTex.image = c;
+    blueprintTex.needsUpdate = true;
   }
 
-  function avgDepth(poly, theta) {
-    let s = 0;
-    poly.verts.forEach(v => { s += project3(v, theta).depth; });
-    return s / poly.verts.length;
+  // ===== Building =====
+  const buildingGroup = new THREE.Group();
+  scene.add(buildingGroup);
+
+  // Foundation (always-on once built)
+  const foundationMat = new THREE.MeshStandardMaterial({
+    color: 0x3a3d44, roughness: 0.9, metalness: 0.05,
+  });
+  const foundation = new THREE.Mesh(
+    new THREE.BoxGeometry(W + 1.2, 0.45, D + 1.2),
+    foundationMat
+  );
+  foundation.position.y = 0.225;
+  foundation.castShadow = true; foundation.receiveShadow = true;
+  buildingGroup.add(foundation);
+
+  // Walls — group whose scale.y animates from 0 (collapsed) to 1 (full)
+  // Pivot at y = 0.45 (top of foundation) so walls grow upward.
+  const wallsGroup = new THREE.Group();
+  wallsGroup.position.y = 0.45;
+  buildingGroup.add(wallsGroup);
+
+  const wallMatFront = new THREE.MeshStandardMaterial({
+    color: 0xd6c4a8, roughness: 0.85,
+  });
+  const wallMatSide = new THREE.MeshStandardMaterial({
+    color: 0xc4b095, roughness: 0.88,
+  });
+  const wallMatBack = new THREE.MeshStandardMaterial({
+    color: 0xb09a7d, roughness: 0.9,
+  });
+  const wallMatInner = new THREE.MeshStandardMaterial({
+    color: 0xc8b9a5, roughness: 0.85,
+  });
+  const wallT = 0.3;
+
+  // Each wall is centered at its midpoint with bottom at y=0 (in walls-group local).
+  function addWall(geom, x, z, mat) {
+    const m = new THREE.Mesh(geom, mat);
+    m.position.set(x, wallH / 2, z);
+    m.castShadow = true; m.receiveShadow = true;
+    wallsGroup.add(m);
+    return m;
+  }
+  // Outer walls
+  addWall(new THREE.BoxGeometry(W + wallT, wallH, wallT),    0, -D/2, wallMatFront);
+  addWall(new THREE.BoxGeometry(W + wallT, wallH, wallT),    0,  D/2, wallMatBack);
+  addWall(new THREE.BoxGeometry(wallT, wallH, D + wallT),  -W/2,  0,  wallMatSide);
+  addWall(new THREE.BoxGeometry(wallT, wallH, D + wallT),   W/2,  0,  wallMatSide);
+  // Internal walls (slightly thinner)
+  const wallTi = 0.18;
+  addWall(new THREE.BoxGeometry(W, wallH, wallTi),     0, 0,    wallMatInner);
+  addWall(new THREE.BoxGeometry(wallTi, wallH, D),    -4, 0,    wallMatInner);
+  addWall(new THREE.BoxGeometry(wallTi, wallH, D),     6, 0,    wallMatInner);
+
+  // Roof
+  const roofGroup = new THREE.Group();
+  buildingGroup.add(roofGroup);
+  const roofMat = new THREE.MeshStandardMaterial({
+    color: 0x6e3422, roughness: 0.7,
+  });
+  const overhang = 0.7;
+  const ridgeY = wallH + 1.7;
+  const wallTop = wallH + 0.45;
+  const Wp = W/2 + overhang;
+  const Dp = D/2 + overhang;
+  const roofGeom = new THREE.BufferGeometry();
+  const positions = new Float32Array([
+    // front slope
+    -Wp, wallTop, -Dp,
+     Wp, wallTop, -Dp,
+     Wp, ridgeY,  0,
+    -Wp, ridgeY,  0,
+    // back slope
+     Wp, wallTop,  Dp,
+    -Wp, wallTop,  Dp,
+    -Wp, ridgeY,  0,
+     Wp, ridgeY,  0,
+    // left gable triangle (inside the eaves)
+    -W/2 - 0.05, wallTop, -D/2 - 0.05,
+    -W/2 - 0.05, ridgeY,  0,
+    -W/2 - 0.05, wallTop,  D/2 + 0.05,
+    // right gable triangle
+     W/2 + 0.05, wallTop, -D/2 - 0.05,
+     W/2 + 0.05, wallTop,  D/2 + 0.05,
+     W/2 + 0.05, ridgeY,  0,
+  ]);
+  roofGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  roofGeom.setIndex([
+    0,1,2, 0,2,3,
+    4,5,6, 4,6,7,
+    8,9,10,
+    11,12,13,
+  ]);
+  roofGeom.computeVertexNormals();
+  const roofMesh = new THREE.Mesh(roofGeom, roofMat);
+  roofMesh.castShadow = true; roofMesh.receiveShadow = true;
+  roofGroup.add(roofMesh);
+
+  // Ridge beam highlight
+  const ridgeBeam = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.07, 0.07, 2 * Wp, 8),
+    new THREE.MeshStandardMaterial({ color: 0x8b4530, roughness: 0.6 })
+  );
+  ridgeBeam.rotation.z = Math.PI / 2;
+  ridgeBeam.position.y = ridgeY;
+  ridgeBeam.castShadow = true;
+  roofGroup.add(ridgeBeam);
+
+  // Chimney for character
+  const chimney = new THREE.Mesh(
+    new THREE.BoxGeometry(0.7, 1.4, 0.7),
+    new THREE.MeshStandardMaterial({ color: 0xb0a89c, roughness: 0.8 })
+  );
+  chimney.position.set(W/2 - 4, ridgeY + 0.4, 0.4);
+  chimney.castShadow = true; chimney.receiveShadow = true;
+  roofGroup.add(chimney);
+
+  roofGroup.position.y = 0;
+  roofGroup.scale.set(1, 1, 1);
+
+  // Windows (separate so we can scale them in after walls finish)
+  const windowsGroup = new THREE.Group();
+  buildingGroup.add(windowsGroup);
+
+  const winGlassMat = new THREE.MeshStandardMaterial({
+    color: 0x2a3848, emissive: 0xffd680, emissiveIntensity: 0,
+    roughness: 0.2, metalness: 0.3,
+  });
+  const winFrameMat = new THREE.MeshStandardMaterial({
+    color: 0x4a3826, roughness: 0.8,
+  });
+  const sillMat = new THREE.MeshStandardMaterial({
+    color: 0x8a8a8a, roughness: 0.7,
+  });
+
+  function addWindow(x, y, z, rotY, w, h) {
+    const g = new THREE.Group();
+    // Glass
+    const glass = new THREE.Mesh(
+      new THREE.PlaneGeometry(w, h),
+      winGlassMat.clone()
+    );
+    glass.position.z = 0.04;
+    g.add(glass);
+    // Frame
+    const fr = 0.08;
+    const fThk = 0.06;
+    // Top, bottom, left, right of frame
+    g.add(makeFrameSlat(w + fr*2, fThk, fThk, 0, h/2 + fr/2, 0));
+    g.add(makeFrameSlat(w + fr*2, fThk, fThk, 0, -h/2 - fr/2, 0));
+    g.add(makeFrameSlat(fThk, h, fThk, -w/2 - fr/2, 0, 0));
+    g.add(makeFrameSlat(fThk, h, fThk,  w/2 + fr/2, 0, 0));
+    // Cross
+    g.add(makeFrameSlat(w, fThk*0.6, fThk*0.6, 0, 0, 0.01));
+    g.add(makeFrameSlat(fThk*0.6, h, fThk*0.6, 0, 0, 0.01));
+    // Sill
+    const sill = new THREE.Mesh(
+      new THREE.BoxGeometry(w + fr*4, 0.1, 0.32),
+      sillMat
+    );
+    sill.position.set(0, -h/2 - 0.12, 0.12);
+    sill.castShadow = true;
+    g.add(sill);
+    g.position.set(x, y, z);
+    g.rotation.y = rotY;
+    g.userData.glass = glass;
+    windowsGroup.add(g);
+    return g;
+  }
+  function makeFrameSlat(w, h, d, x, y, z) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), winFrameMat);
+    m.position.set(x, y, z);
+    m.castShadow = true;
+    return m;
   }
 
-  function renderFrame(state) {
-    const { theta, blueprintOpacity, lineProgress, wallProg, roofProg, windowsLit, glow } = state;
-    clear(world);
+  const wins = [];
+  const winY = 2.0, winW = 1.6, winH = 1.4;
+  // Front (faces -Z)
+  wins.push(addWindow(-8, winY, -D/2 - 0.16, 0, winW, winH));
+  wins.push(addWindow( 8, winY, -D/2 - 0.16, 0, winW, winH));
+  // Back (faces +Z)
+  wins.push(addWindow(-8, winY,  D/2 + 0.16, Math.PI, winW, winH));
+  wins.push(addWindow( 1, winY,  D/2 + 0.16, Math.PI, winW, winH));
+  wins.push(addWindow( 8, winY,  D/2 + 0.16, Math.PI, winW, winH));
+  // Left (faces -X)
+  wins.push(addWindow(-W/2 - 0.16, winY, -3.5, -Math.PI/2, winW, winH));
+  wins.push(addWindow(-W/2 - 0.16, winY,  3.5, -Math.PI/2, winW, winH));
+  // Right (faces +X)
+  wins.push(addWindow( W/2 + 0.16, winY, -3.5,  Math.PI/2, winW, winH));
+  wins.push(addWindow( W/2 + 0.16, winY,  3.5,  Math.PI/2, winW, winH));
 
-    const gFloor = el('g', {});
-    drawPaperFloor(gFloor, theta, blueprintOpacity);
-    world.appendChild(gFloor);
+  // Door
+  const doorGroup = new THREE.Group();
+  buildingGroup.add(doorGroup);
+  const doorWidth = 1.8, doorHeight = 2.6;
+  const doorLeaf = new THREE.Mesh(
+    new THREE.BoxGeometry(doorWidth, doorHeight, 0.08),
+    new THREE.MeshStandardMaterial({ color: 0x3a2410, roughness: 0.75 })
+  );
+  doorLeaf.position.set(0, 0.45 + doorHeight/2, -D/2 - 0.18);
+  doorLeaf.castShadow = true;
+  doorGroup.add(doorLeaf);
+  const knob = new THREE.Mesh(
+    new THREE.SphereGeometry(0.07, 12, 12),
+    new THREE.MeshStandardMaterial({ color: 0xc89a3a, roughness: 0.3, metalness: 0.7 })
+  );
+  knob.position.set(0.65, 0.45 + doorHeight*0.5, -D/2 - 0.24);
+  doorGroup.add(knob);
+  const canopy = new THREE.Mesh(
+    new THREE.BoxGeometry(2.6, 0.18, 0.9),
+    new THREE.MeshStandardMaterial({ color: 0x4d2a1c, roughness: 0.7 })
+  );
+  canopy.position.set(0, 0.45 + doorHeight + 0.4, -D/2 - 0.5);
+  canopy.castShadow = true;
+  doorGroup.add(canopy);
+  // Pathway
+  const path = new THREE.Mesh(
+    new THREE.BoxGeometry(2.0, 0.06, 5),
+    new THREE.MeshStandardMaterial({ color: 0x6a6862, roughness: 0.95 })
+  );
+  path.position.set(0, 0.04, -D/2 - 3);
+  path.receiveShadow = true;
+  doorGroup.add(path);
 
-    const gPlan = el('g', {});
-    drawBlueprintLines(gPlan, theta, blueprintOpacity, lineProgress);
-    world.appendChild(gPlan);
-
-    const polys = buildPolys(theta, wallProg, roofProg);
-    polys.forEach(p => p._depth = avgDepth(p, theta));
-    polys.sort((a, b) => a._depth - b._depth);
-
-    const gBuilding = el('g', {});
-
-    polys.forEach(p => {
-      if (p.type === 'ridge') {
-        const a = project3(p.verts[0], theta);
-        const b = project3(p.verts[1], theta);
-        gBuilding.appendChild(el('line', {
-          x1: a.sx.toFixed(1), y1: a.sy.toFixed(1),
-          x2: b.sx.toFixed(1), y2: b.sy.toFixed(1),
-          stroke: p.stroke, 'stroke-width': p.sw,
-          opacity: p.opacity ?? 1,
-          'stroke-linecap': 'round',
-        }));
-        return;
-      }
-      const projected = p.verts.map(v => project3(v, theta));
-      const pts = projected.map(q => `${q.sx.toFixed(1)},${q.sy.toFixed(1)}`).join(' ');
-      gBuilding.appendChild(el('polygon', {
-        points: pts,
-        fill: p.fill,
-        stroke: p.stroke,
-        'stroke-width': p.sw,
-        opacity: p.opacity ?? 1,
-        'stroke-linejoin': 'miter',
-      }));
-
-      if (p.type === 'wall' && p.line && !p.isInternal && wallProg > 0.55) {
-        const opacityOpening = Math.min(1, (wallProg - 0.55) / 0.25);
-        const lineIdx = planLines.indexOf(p.line);
-        planOpenings.forEach(o => {
-          if (o.line !== lineIdx) return;
-          const ln = p.line;
-          const x1 = ln[0], z1 = ln[1], x2 = ln[2], z2 = ln[3];
-          const ax = x1 + (x2 - x1) * o.t1;
-          const az = z1 + (z2 - z1) * o.t1;
-          const bx = x1 + (x2 - x1) * o.t2;
-          const bz = z1 + (z2 - z1) * o.t2;
-
-          const isDoor = o.type === 'door';
-          const yLow = isDoor ? 4 : 30;
-          const wallTop = H * wallProg;
-          const yHigh = isDoor ? Math.min(wallTop, H - 22) : Math.min(wallTop, H - 28);
-          if (yHigh - yLow < 6) return;
-
-          const Apt = project(ax, yLow,  az, theta);
-          const Bpt = project(bx, yLow,  bz, theta);
-          const Cpt = project(bx, yHigh, bz, theta);
-          const Dpt = project(ax, yHigh, az, theta);
-          const ptsStr = `${Apt.sx},${Apt.sy} ${Bpt.sx},${Bpt.sy} ${Cpt.sx},${Cpt.sy} ${Dpt.sx},${Dpt.sy}`;
-
-          if (isDoor) {
-            gBuilding.appendChild(el('polygon', {
-              points: ptsStr,
-              fill: 'hsl(28 55% 22%)',
-              stroke: 'hsl(28 55% 14%)',
-              'stroke-width': 0.6,
-              opacity: opacityOpening,
-            }));
-            const knobX = Apt.sx + (Bpt.sx - Apt.sx) * 0.75;
-            const knobY = Apt.sy + (Dpt.sy - Apt.sy) * 0.55;
-            gBuilding.appendChild(el('circle', {
-              cx: knobX, cy: knobY, r: 1.5,
-              fill: 'hsl(45 80% 60%)', opacity: opacityOpening,
-            }));
-            const cl = project(ax - 6, yHigh + 4, az, theta);
-            const cr = project(bx + 6, yHigh + 4, bz, theta);
-            const cl2 = project(ax - 6, yHigh + 9, az, theta);
-            const cr2 = project(bx + 6, yHigh + 9, bz, theta);
-            gBuilding.appendChild(el('polygon', {
-              points: `${cl.sx},${cl.sy} ${cr.sx},${cr.sy} ${cr2.sx},${cr2.sy} ${cl2.sx},${cl2.sy}`,
-              fill: 'hsl(15 40% 28%)', stroke: 'hsl(15 40% 16%)', 'stroke-width': 0.6,
-              opacity: opacityOpening,
-            }));
-          } else {
-            const lit = windowsLit;
-            const fillStyle = lit ? 'url(#window-lit)' : 'hsl(210 35% 22%)';
-            gBuilding.appendChild(el('polygon', {
-              points: ptsStr,
-              fill: fillStyle,
-              stroke: 'hsl(30 25% 18%)',
-              'stroke-width': 1,
-              opacity: opacityOpening,
-            }));
-            const Mh1 = project((ax + bx) / 2, yLow,  (az + bz) / 2, theta);
-            const Mh2 = project((ax + bx) / 2, yHigh, (az + bz) / 2, theta);
-            const Mv1 = project(ax, (yLow + yHigh) / 2, az, theta);
-            const Mv2 = project(bx, (yLow + yHigh) / 2, bz, theta);
-            gBuilding.appendChild(el('line', {
-              x1: Mh1.sx, y1: Mh1.sy, x2: Mh2.sx, y2: Mh2.sy,
-              stroke: 'hsl(30 30% 18%)', 'stroke-width': 1, opacity: opacityOpening,
-            }));
-            gBuilding.appendChild(el('line', {
-              x1: Mv1.sx, y1: Mv1.sy, x2: Mv2.sx, y2: Mv2.sy,
-              stroke: 'hsl(30 30% 18%)', 'stroke-width': 1, opacity: opacityOpening,
-            }));
-            const sa = project(ax - 3, yLow - 2, az, theta);
-            const sb = project(bx + 3, yLow - 2, bz, theta);
-            const sc = project(bx + 3, yLow,    bz, theta);
-            const sd = project(ax - 3, yLow,    az, theta);
-            gBuilding.appendChild(el('polygon', {
-              points: `${sa.sx},${sa.sy} ${sb.sx},${sb.sy} ${sc.sx},${sc.sy} ${sd.sx},${sd.sy}`,
-              fill: 'hsl(30 25% 50%)', stroke: 'hsl(25 22% 28%)', 'stroke-width': 0.5,
-              opacity: opacityOpening,
-            }));
-          }
-        });
-      }
-    });
-
-    world.appendChild(gBuilding);
+  // Decorative trees (low-poly, give scale)
+  function makeTree(x, z, scale = 1) {
+    const tree = new THREE.Group();
+    const trunk = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.18, 0.22, 1.2, 8),
+      new THREE.MeshStandardMaterial({ color: 0x4a2e1a, roughness: 0.95 })
+    );
+    trunk.position.y = 0.6;
+    trunk.castShadow = true;
+    tree.add(trunk);
+    const leaves = new THREE.Mesh(
+      new THREE.ConeGeometry(0.9, 2.4, 8),
+      new THREE.MeshStandardMaterial({ color: 0x2c5a2c, roughness: 0.9 })
+    );
+    leaves.position.y = 2.0;
+    leaves.castShadow = true;
+    tree.add(leaves);
+    tree.position.set(x, 0, z);
+    tree.scale.setScalar(scale);
+    return tree;
   }
+  scene.add(makeTree(-W/2 - 5, -D/2 - 3, 1.1));
+  scene.add(makeTree(-W/2 - 7, D/2 + 4, 0.9));
+  scene.add(makeTree( W/2 + 6, -D/2 - 5, 1.0));
+  scene.add(makeTree( W/2 + 8,  D/2 + 2, 1.2));
 
+  // Interior lights (lit when night)
+  const interiorLights = [];
+  [
+    [-8, 1.8, -3.5], [ 1, 1.8, -3.5], [ 9, 1.8, -3.5],
+    [-8, 1.8,  3.5], [ 1, 1.8,  3.5], [ 9, 1.8,  3.5],
+  ].forEach(([x, y, z]) => {
+    const l = new THREE.PointLight(0xffd680, 0, 14, 1.4);
+    l.position.set(x, y, z);
+    buildingGroup.add(l);
+    interiorLights.push(l);
+  });
+
+  // Initial state
+  wallsGroup.scale.y = 0;
+  roofGroup.position.y = 12;
+  roofGroup.visible = false;
+  doorGroup.scale.set(0, 0, 0);
+  windowsGroup.children.forEach(w => w.scale.set(0, 0, 0));
+
+  // ===== Post-processing =====
+  const composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  const bloom = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+    0.7, 0.5, 0.55
+  );
+  composer.addPass(bloom);
+  composer.addPass(new OutputPass());
+
+  // ===== Resize =====
+  window.addEventListener('resize', () => {
+    const w = window.innerWidth, h = window.innerHeight;
+    camera.aspect = w/h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+    composer.setSize(w, h);
+    bloom.resolution.set(w, h);
+  });
+
+  // ===== Animation timeline =====
   const LOOP_MS = 24000;
 
-  function easeInOut(t) { return t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t + 2, 2) / 2; }
+  function easeInOut(x) { return x < 0.5 ? 2*x*x : 1 - Math.pow(-2*x + 2, 2) / 2; }
   function lerp(a, b, t) { return a + (b - a) * t; }
   function clamp01(x) { return Math.max(0, Math.min(1, x)); }
-
-  function timeline(t) {
-    // theta is rotation around X-axis. theta=π/2 is true top-down (looking
-    // straight down at the floor); theta=π/3 (~60°) gives an isometric feel
-    // where wall height is half-compressed on screen.
-    // Negative angles tilt the building toward the viewer so +z is screen up
-    // (north-up plan convention; building front faces the camera in iso view).
-    const TOP = -Math.PI / 2;
-    const ISO = -Math.PI / 3;
-    const ISO_NEAR = lerp(TOP, ISO, 0.85);
-
-    let theta, wallProg, roofProg, blueprintOpacity, lineProgress, windowsLit, glow;
-
-    if (t < 0.20) {
-      const k = t / 0.20;
-      theta = TOP;
-      wallProg = 0;
-      roofProg = 0;
-      blueprintOpacity = clamp01(t / 0.04);
-      lineProgress = clamp01(k);
-      windowsLit = false;
-      glow = 0;
-    } else if (t < 0.32) {
-      const k = (t - 0.20) / 0.12;
-      theta = lerp(TOP, ISO_NEAR, easeInOut(k));
-      wallProg = lerp(0, 0.4, easeInOut(k));
-      roofProg = 0;
-      blueprintOpacity = lerp(1, 0.4, easeInOut(k));
-      lineProgress = 1;
-      windowsLit = false;
-      glow = 0;
-    } else if (t < 0.46) {
-      const k = (t - 0.32) / 0.14;
-      theta = lerp(ISO_NEAR, ISO, easeInOut(k));
-      wallProg = lerp(0.4, 1, easeInOut(k));
-      roofProg = clamp01((k - 0.45) / 0.55);
-      blueprintOpacity = lerp(0.4, 0, k);
-      lineProgress = 1;
-      windowsLit = false;
-      glow = 0;
-    } else if (t < 0.55) {
-      const k = (t - 0.46) / 0.09;
-      theta = ISO;
-      wallProg = 1;
-      roofProg = 1;
-      blueprintOpacity = 0;
-      lineProgress = 1;
-      windowsLit = k > 0.3;
-      glow = clamp01((k - 0.3) / 0.7);
-    } else if (t < 0.70) {
-      const k = (t - 0.55) / 0.15;
-      theta = ISO + Math.sin(k * Math.PI) * 0.04;
-      wallProg = 1;
-      roofProg = 1;
-      blueprintOpacity = 0;
-      lineProgress = 1;
-      windowsLit = true;
-      glow = 1;
-    } else if (t < 0.83) {
-      const k = (t - 0.70) / 0.13;
-      theta = lerp(ISO, ISO_NEAR, easeInOut(k));
-      roofProg = clamp01(1 - k * 1.6);
-      wallProg = lerp(1, 0.2, clamp01((k - 0.3) / 0.7));
-      blueprintOpacity = lerp(0, 0.5, easeInOut(k));
-      lineProgress = 1;
-      windowsLit = k < 0.2;
-      glow = clamp01(1 - k * 1.6);
-    } else if (t < 0.95) {
-      const k = (t - 0.83) / 0.12;
-      theta = lerp(ISO_NEAR, TOP, easeInOut(k));
-      wallProg = lerp(0.2, 0, easeInOut(k));
-      roofProg = 0;
-      blueprintOpacity = lerp(0.5, 1, easeInOut(k));
-      lineProgress = 1;
-      windowsLit = false;
-      glow = 0;
-    } else {
-      theta = TOP;
-      wallProg = 0;
-      roofProg = 0;
-      blueprintOpacity = 1;
-      lineProgress = 1;
-      windowsLit = false;
-      glow = 0;
-    }
-
-    return { theta, wallProg, roofProg, blueprintOpacity, lineProgress, windowsLit, glow };
+  function lerpColor(out, a, b, t) {
+    out.r = a.r + (b.r - a.r) * t;
+    out.g = a.g + (b.g - a.g) * t;
+    out.b = a.b + (b.b - a.b) * t;
   }
 
-  function phaseLabel(t) {
-    if (t < 0.20) return '— SCHEMATIC / שרטוט —';
-    if (t < 0.32) return '— EXTRUDE / הקמת קירות —';
-    if (t < 0.46) return '— ROOFING / גג —';
-    if (t < 0.70) return '— BUILT / בנוי —';
-    if (t < 0.85) return '— DECONSTRUCT / פירוק —';
-    return '— SCHEMATIC / שרטוט —';
+  // Sky color presets
+  const skyDay = {
+    top: new THREE.Color(0x4d80c8),
+    mid: new THREE.Color(0x8cb6e0),
+    bot: new THREE.Color(0xc8d8e8),
+  };
+  const skyDusk = {
+    top: new THREE.Color(0x2c3a78),
+    mid: new THREE.Color(0xb86a48),
+    bot: new THREE.Color(0xe89858),
+  };
+  const skyNight = {
+    top: new THREE.Color(0x040816),
+    mid: new THREE.Color(0x0a1430),
+    bot: new THREE.Color(0x1a2444),
+  };
+  const skyBlueprint = {
+    top: new THREE.Color(0x040816),
+    mid: new THREE.Color(0x081428),
+    bot: new THREE.Color(0x102040),
+  };
+
+  function pickSky(phase) {
+    // phase: 0=blueprint, 1=dawn, 2=day, 3=dusk, 4=night
+    if (phase <= 0) return skyBlueprint;
+    if (phase >= 4) return skyNight;
+    // For simplicity, interpolate between two presets
+    return null;
+  }
+
+  let startTime = null;
+  const tmpColorA = new THREE.Color();
+  const tmpColorB = new THREE.Color();
+  const tmpColorC = new THREE.Color();
+
+  function tick(now) {
+    if (startTime === null) startTime = now;
+    const t = ((now - startTime) % LOOP_MS) / LOOP_MS;
+
+    let camMode, blueprintAlpha, planProgress;
+    let wallProg, roofY, roofVisible, doorScl, winScl, winEmiss, lightInt;
+    let sunIntensity, sunDir, hemiInt, moonInt;
+    let skyTop, skyMid, skyBot, starsAlpha, fogD, exposure;
+
+    // Phases:
+    // A: 0.00 - 0.18  Blueprint draws (top-down)
+    // B: 0.18 - 0.32  Camera tilts down + walls extrude
+    // C: 0.32 - 0.42  Roof drops + door + sun rises (dawn)
+    // D: 0.42 - 0.50  Day held; camera orbits
+    // E: 0.50 - 0.62  Sunset; sky turns dusk
+    // F: 0.62 - 0.78  Night; windows lit, slow orbit, stars
+    // G: 0.78 - 0.92  Sunrise → reverse to plan
+    // H: 0.92 - 1.00  Hold blueprint, ready to loop
+
+    if (t < 0.18) {
+      const k = t / 0.18;
+      camMode = { type: 'top', k };
+      blueprintAlpha = clamp01(t * 30);
+      planProgress = clamp01(k);
+      wallProg = 0; roofY = 12; roofVisible = false;
+      doorScl = 0; winScl = 0; winEmiss = 0; lightInt = 0;
+      sunDir = { az: -Math.PI/4, el: 0.10 };
+      sunIntensity = 0.05; hemiInt = 0.45; moonInt = 0.5;
+      skyTop = skyBlueprint.top; skyMid = skyBlueprint.mid; skyBot = skyBlueprint.bot;
+      starsAlpha = 0.7; fogD = 0.012; exposure = 0.95;
+    } else if (t < 0.32) {
+      const k = (t - 0.18) / 0.14;
+      const ek = easeInOut(k);
+      camMode = { type: 'tiltIn', k: ek };
+      blueprintAlpha = lerp(1, 0, ek);
+      planProgress = 1;
+      wallProg = lerp(0, 1, ek);
+      roofY = 12; roofVisible = false;
+      doorScl = clamp01((k - 0.7) / 0.3);
+      winScl = clamp01((k - 0.6) / 0.4);
+      winEmiss = 0; lightInt = 0;
+      sunDir = { az: -Math.PI/3, el: lerp(0.1, 0.32, ek) };
+      sunIntensity = lerp(0.1, 1.4, ek);
+      hemiInt = lerp(0.45, 0.7, ek);
+      moonInt = lerp(0.5, 0.0, ek);
+      lerpColor(tmpColorA, skyBlueprint.top, skyDawn().top, ek);
+      lerpColor(tmpColorB, skyBlueprint.mid, skyDawn().mid, ek);
+      lerpColor(tmpColorC, skyBlueprint.bot, skyDawn().bot, ek);
+      skyTop = tmpColorA; skyMid = tmpColorB; skyBot = tmpColorC;
+      starsAlpha = lerp(0.7, 0.0, ek);
+      fogD = lerp(0.012, 0.005, ek);
+      exposure = lerp(0.95, 1.05, ek);
+    } else if (t < 0.42) {
+      const k = (t - 0.32) / 0.10;
+      const ek = easeInOut(k);
+      camMode = { type: 'orbitLow', k };
+      blueprintAlpha = 0;
+      wallProg = 1;
+      roofVisible = true;
+      roofY = lerp(8, 0, ek);
+      doorScl = 1;
+      winScl = 1;
+      winEmiss = 0; lightInt = 0;
+      sunDir = { az: lerp(-Math.PI/3, -Math.PI/4, k), el: lerp(0.32, 0.55, ek) };
+      sunIntensity = lerp(1.4, 2.4, ek);
+      hemiInt = 0.7;
+      moonInt = 0;
+      const a = skyDawn(), b = skyDay;
+      lerpColor(tmpColorA, a.top, b.top, ek);
+      lerpColor(tmpColorB, a.mid, b.mid, ek);
+      lerpColor(tmpColorC, a.bot, b.bot, ek);
+      skyTop = tmpColorA; skyMid = tmpColorB; skyBot = tmpColorC;
+      starsAlpha = 0;
+      fogD = 0.005; exposure = 1.05;
+    } else if (t < 0.50) {
+      const k = (t - 0.42) / 0.08;
+      camMode = { type: 'orbit', k, base: 0 };
+      blueprintAlpha = 0;
+      wallProg = 1; roofY = 0; roofVisible = true;
+      doorScl = 1; winScl = 1; winEmiss = 0; lightInt = 0;
+      sunDir = { az: lerp(-Math.PI/4, 0, k), el: 0.55 };
+      sunIntensity = 2.4; hemiInt = 0.7; moonInt = 0;
+      skyTop = skyDay.top; skyMid = skyDay.mid; skyBot = skyDay.bot;
+      starsAlpha = 0; fogD = 0.005; exposure = 1.05;
+    } else if (t < 0.62) {
+      const k = (t - 0.50) / 0.12;
+      const ek = easeInOut(k);
+      camMode = { type: 'orbit', k, base: 0.3 };
+      blueprintAlpha = 0;
+      wallProg = 1; roofY = 0; roofVisible = true;
+      doorScl = 1; winScl = 1;
+      winEmiss = clamp01((k - 0.6) / 0.4) * 1.3;
+      lightInt = clamp01((k - 0.6) / 0.4) * 1.2;
+      sunDir = { az: lerp(0, Math.PI/3, k), el: lerp(0.55, 0.05, ek) };
+      sunIntensity = lerp(2.4, 0.05, ek);
+      hemiInt = lerp(0.7, 0.25, ek);
+      moonInt = lerp(0, 0.4, ek);
+      const a = skyDay, b = skyDusk;
+      lerpColor(tmpColorA, a.top, b.top, ek);
+      lerpColor(tmpColorB, a.mid, b.mid, ek);
+      lerpColor(tmpColorC, a.bot, b.bot, ek);
+      skyTop = tmpColorA; skyMid = tmpColorB; skyBot = tmpColorC;
+      starsAlpha = clamp01((k - 0.7) / 0.3) * 0.4;
+      fogD = lerp(0.005, 0.014, ek);
+      exposure = lerp(1.05, 1.0, ek);
+    } else if (t < 0.78) {
+      const k = (t - 0.62) / 0.16;
+      const ek = easeInOut(k);
+      camMode = { type: 'orbit', k, base: 0.7 };
+      blueprintAlpha = 0;
+      wallProg = 1; roofY = 0; roofVisible = true;
+      doorScl = 1; winScl = 1; winEmiss = 1.3; lightInt = 1.2;
+      sunDir = { az: Math.PI/3, el: lerp(0.05, -0.1, ek) };
+      sunIntensity = lerp(0.05, 0, ek);
+      hemiInt = lerp(0.25, 0.18, ek);
+      moonInt = lerp(0.4, 0.5, ek);
+      const a = skyDusk, b = skyNight;
+      lerpColor(tmpColorA, a.top, b.top, ek);
+      lerpColor(tmpColorB, a.mid, b.mid, ek);
+      lerpColor(tmpColorC, a.bot, b.bot, ek);
+      skyTop = tmpColorA; skyMid = tmpColorB; skyBot = tmpColorC;
+      starsAlpha = lerp(0.4, 0.85, ek);
+      fogD = lerp(0.014, 0.018, ek);
+      exposure = lerp(1.0, 0.95, ek);
+    } else if (t < 0.92) {
+      const k = (t - 0.78) / 0.14;
+      const ek = easeInOut(k);
+      camMode = { type: 'tiltOut', k: ek };
+      blueprintAlpha = lerp(0, 1, clamp01((k - 0.5) * 2));
+      planProgress = 1;
+      wallProg = lerp(1, 0, clamp01((k - 0.3) / 0.5));
+      roofVisible = ek < 0.4;
+      roofY = lerp(0, 12, clamp01((k) / 0.4));
+      doorScl = lerp(1, 0, clamp01((k - 0.2) / 0.3));
+      winScl = lerp(1, 0, clamp01((k - 0.15) / 0.3));
+      winEmiss = lerp(1.3, 0, clamp01(k * 2));
+      lightInt = lerp(1.2, 0, clamp01(k * 2));
+      sunDir = { az: -Math.PI/3, el: lerp(-0.1, 0.1, ek) };
+      sunIntensity = lerp(0, 0.1, ek);
+      hemiInt = lerp(0.18, 0.45, ek);
+      moonInt = lerp(0.5, 0.5, ek);
+      const a = skyNight, b = skyBlueprint;
+      lerpColor(tmpColorA, a.top, b.top, ek);
+      lerpColor(tmpColorB, a.mid, b.mid, ek);
+      lerpColor(tmpColorC, a.bot, b.bot, ek);
+      skyTop = tmpColorA; skyMid = tmpColorB; skyBot = tmpColorC;
+      starsAlpha = lerp(0.85, 0.7, ek);
+      fogD = lerp(0.018, 0.012, ek);
+      exposure = lerp(0.95, 0.95, ek);
+    } else {
+      camMode = { type: 'top', k: 1 };
+      blueprintAlpha = 1; planProgress = 1;
+      wallProg = 0; roofY = 12; roofVisible = false;
+      doorScl = 0; winScl = 0; winEmiss = 0; lightInt = 0;
+      sunDir = { az: -Math.PI/4, el: 0.10 }; sunIntensity = 0.05;
+      hemiInt = 0.45; moonInt = 0.5;
+      skyTop = skyBlueprint.top; skyMid = skyBlueprint.mid; skyBot = skyBlueprint.bot;
+      starsAlpha = 0.7; fogD = 0.012; exposure = 0.95;
+    }
+
+    // ----- Camera path -----
+    const orbitAngle = (typeof camMode.base === 'number')
+      ? (camMode.base + camMode.k) * Math.PI * 2 * 0.18
+      : 0;
+    if (camMode.type === 'top') {
+      const k = camMode.k;
+      // Pure top-down look at origin
+      const dist = lerp(38, 38, k);
+      camera.position.set(0.001, dist, 0.001); // tiny offset to avoid up-vector singularity
+      camera.lookAt(0, 0, 0);
+    } else if (camMode.type === 'tiltIn') {
+      const k = camMode.k;
+      // From (0, 38, 0) top-down to (~22, 18, 22) iso angle
+      const dist = lerp(38, 28, k);
+      const elev = lerp(Math.PI/2, Math.PI/2 - 0.85, k); // from 90° down toward iso
+      const azim = lerp(0, -Math.PI/4, k); // start centered, swing slightly to right
+      const x = Math.cos(elev) * Math.cos(azim) * dist;
+      const z = Math.cos(elev) * Math.sin(azim) * dist;
+      const y = Math.sin(elev) * dist;
+      camera.position.set(x, y + 2, z);
+      camera.lookAt(0, 2 + k * 1, 0);
+    } else if (camMode.type === 'orbitLow') {
+      const k = camMode.k;
+      const elev = lerp(Math.PI/2 - 0.85, Math.PI/2 - 1.0, k);
+      const azim = -Math.PI/4 - k * 0.3;
+      const dist = lerp(28, 26, k);
+      camera.position.set(
+        Math.cos(elev) * Math.cos(azim) * dist,
+        Math.sin(elev) * dist + 3,
+        Math.cos(elev) * Math.sin(azim) * dist
+      );
+      camera.lookAt(0, 3, 0);
+    } else if (camMode.type === 'orbit') {
+      const k = camMode.k;
+      const baseAng = camMode.base ?? 0;
+      const elev = Math.PI/2 - 1.05;
+      const azim = baseAng * Math.PI * 2 - Math.PI/4 - k * 0.4;
+      const dist = 26;
+      camera.position.set(
+        Math.cos(elev) * Math.cos(azim) * dist,
+        Math.sin(elev) * dist + 3.2,
+        Math.cos(elev) * Math.sin(azim) * dist
+      );
+      camera.lookAt(0, 3, 0);
+    } else if (camMode.type === 'tiltOut') {
+      const k = camMode.k;
+      const elev = lerp(Math.PI/2 - 1.0, Math.PI/2, k);
+      const azim = lerp(-Math.PI/2, 0, k);
+      const dist = lerp(26, 38, k);
+      const ec = Math.cos(elev), es = Math.sin(elev);
+      camera.position.set(
+        ec * Math.cos(azim) * dist + 0.001,
+        es * dist + 2 * (1 - k),
+        ec * Math.sin(azim) * dist + 0.001
+      );
+      camera.lookAt(0, lerp(3, 0, k), 0);
+    }
+
+    // ----- Apply scene state -----
+    blueprint.material.opacity = blueprintAlpha;
+    if (planProgress !== undefined && blueprintAlpha > 0.01) {
+      updateBlueprintProgress(planProgress);
+    }
+
+    wallsGroup.scale.y = Math.max(0.0001, wallProg);
+    wallsGroup.visible = wallProg > 0.01;
+
+    roofGroup.position.y = roofY;
+    roofGroup.visible = roofVisible;
+
+    doorGroup.scale.setScalar(doorScl);
+    doorGroup.visible = doorScl > 0.01;
+
+    windowsGroup.children.forEach(g => {
+      g.scale.setScalar(winScl);
+      if (g.userData.glass) {
+        g.userData.glass.material.emissiveIntensity = winEmiss;
+      }
+    });
+    interiorLights.forEach(l => l.intensity = lightInt);
+
+    // Sun position from spherical (az, el)
+    const sx = Math.cos(sunDir.el) * Math.cos(sunDir.az) * 50;
+    const sy = Math.sin(sunDir.el) * 50;
+    const sz = Math.cos(sunDir.el) * Math.sin(sunDir.az) * 50;
+    sun.position.set(sx, Math.max(sy, -5), sz);
+    sun.target.position.set(0, 0, 0);
+    sun.intensity = sunIntensity;
+    hemi.intensity = hemiInt;
+    moon.intensity = moonInt;
+
+    skyMat.uniforms.topColor.value.copy(skyTop);
+    skyMat.uniforms.midColor.value.copy(skyMid);
+    skyMat.uniforms.bottomColor.value.copy(skyBot);
+    starMat.opacity = starsAlpha;
+    scene.fog.density = fogD;
+    renderer.toneMappingExposure = exposure;
+
+    // Update HUD
+    setPhaseLabel(t);
+    setProgressDots(t);
+
+    composer.render();
+    requestAnimationFrame(tick);
+  }
+
+  function skyDawn() {
+    return {
+      top: new THREE.Color(0x2c3a78),
+      mid: new THREE.Color(0x8e7e9c),
+      bot: new THREE.Color(0xd6a070),
+    };
+  }
+
+  function setPhaseLabel(t) {
+    const el = document.getElementById('phaseLabel');
+    let txt;
+    if (t < 0.18) txt = '— SCHEMATIC / שרטוט —';
+    else if (t < 0.32) txt = '— EXTRUDE / הקמת קירות —';
+    else if (t < 0.42) txt = '— ROOFING / גג —';
+    else if (t < 0.50) txt = '— DAYLIGHT / יום —';
+    else if (t < 0.62) txt = '— SUNSET / שקיעה —';
+    else if (t < 0.78) txt = '— NIGHT / לילה —';
+    else if (t < 0.92) txt = '— DAWN / שחר —';
+    else txt = '— SCHEMATIC / שרטוט —';
+    if (el.textContent !== txt) el.textContent = txt;
   }
 
   function setProgressDots(t) {
-    const phaseEnds = [0.20, 0.46, 0.70, 1.00];
+    const phaseEnds = [0.18, 0.42, 0.78, 1.00];
     for (let i = 1; i <= 4; i++) {
-      const dot = document.getElementById('dot-' + i);
+      const inner = document.getElementById('dot-' + i);
       const start = i === 1 ? 0 : phaseEnds[i - 2];
       const end = phaseEnds[i - 1];
       const k = clamp01((t - start) / Math.max(0.0001, end - start));
-      let inner = dot.firstElementChild;
-      if (!inner) {
-        inner = document.createElement('i');
-        inner.style.display = 'block';
-        inner.style.height = '100%';
-        inner.style.background = 'linear-gradient(90deg, hsl(198 93% 70%), hsl(45 95% 65%))';
-        dot.appendChild(inner);
-      }
       inner.style.width = (k * 100).toFixed(1) + '%';
     }
   }
 
-  let startTime = null;
-  function tick(now) {
-    if (startTime === null) startTime = now;
-    const t = ((now - startTime) % LOOP_MS) / LOOP_MS;
-    const state = timeline(t);
-    renderFrame(state);
-    document.getElementById('phaseLabel').textContent = phaseLabel(t);
-    setProgressDots(t);
-    requestAnimationFrame(tick);
-  }
+  // Hide loader, start
+  document.getElementById('loader').classList.add('hidden');
   requestAnimationFrame(tick);
 
-})();
+})().catch(err => {
+  console.error(err);
+  const e = document.createElement('div');
+  e.className = 'error';
+  e.innerHTML = '<div>אירעה שגיאה בטעינת הסצנה התלת־מימדית.<br/>פרטים בקונסולת הדפדפן.</div>';
+  document.body.appendChild(e);
+});
 </script>
 </body>
 </html>
