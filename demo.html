@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Project Compass · Blueprint to Building</title>
+<title>Project Compass · Tower 12 — Blueprint to Building</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -122,13 +122,13 @@
 <body>
   <div id="loader">
     <div class="spinner"></div>
-    <div>טוען סצנה תלת-מימדית</div>
+    <div>טוען מגדל 12 קומות</div>
   </div>
 
   <div class="toolbar">
     <div class="brand">
-      <div class="small">Project Compass</div>
-      <div class="big">משרטוט · אל · בניין</div>
+      <div class="small">Project Compass · Tower 12</div>
+      <div class="big">משרטוט אדריכלי · אל · מגדל מגורים</div>
     </div>
     <div class="phase-label" id="phaseLabel">— SCHEMATIC —</div>
   </div>
@@ -159,8 +159,21 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
 (async function () {
+  // ============================================================
+  // Constants
+  // ============================================================
+  const FLOORS = 12;
+  const FLOOR_H = 3.2;
+  const TOTAL_H = FLOORS * FLOOR_H;   // 38.4 m
+  const W = 30;                        // building width (X)
+  const D = 16;                        // building depth (Z)
+  const PLAN_W = 44;                   // visible blueprint paper width
+  const PLAN_D = 26;                   // visible blueprint paper depth
+  const LOOP_MS = 24000;
 
-  // ===== Renderer =====
+  // ============================================================
+  // Renderer
+  // ============================================================
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -169,17 +182,22 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.05;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.localClippingEnabled = true;
   document.body.insertBefore(renderer.domElement, document.body.firstChild);
 
-  // ===== Scene + Camera =====
+  // ============================================================
+  // Scene + Camera
+  // ============================================================
   const scene = new THREE.Scene();
-  scene.fog = new THREE.FogExp2(0x0a1424, 0.012);
+  scene.fog = new THREE.FogExp2(0x0a1424, 0.008);
 
   const camera = new THREE.PerspectiveCamera(
-    32, window.innerWidth / window.innerHeight, 0.1, 600
+    32, window.innerWidth / window.innerHeight, 0.1, 800
   );
 
-  // ===== Sky (gradient sphere) =====
+  // ============================================================
+  // Sky
+  // ============================================================
   const skyMat = new THREE.ShaderMaterial({
     uniforms: {
       topColor:    { value: new THREE.Color(0x0a1428) },
@@ -211,16 +229,16 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     side: THREE.BackSide,
     depthWrite: false,
   });
-  const sky = new THREE.Mesh(new THREE.SphereGeometry(300, 32, 16), skyMat);
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(380, 32, 16), skyMat);
   scene.add(sky);
 
-  // ===== Stars =====
+  // Stars
   const starGeom = new THREE.BufferGeometry();
-  const starCount = 2400;
+  const starCount = 2800;
   const starPos = new Float32Array(starCount * 3);
   for (let i = 0; i < starCount; i++) {
-    const r = 250;
-    const phi = Math.acos(1 - Math.random() * 1.05); // bias toward upper hemisphere
+    const r = 320;
+    const phi = Math.acos(1 - Math.random() * 1.05);
     const theta = 2 * Math.PI * Math.random();
     starPos[i*3]     = r * Math.sin(phi) * Math.cos(theta);
     starPos[i*3 + 1] = r * Math.cos(phi);
@@ -228,22 +246,24 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
   }
   starGeom.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
   const starMat = new THREE.PointsMaterial({
-    color: 0xffffff, size: 1.4, sizeAttenuation: false,
+    color: 0xffffff, size: 1.5, sizeAttenuation: false,
     transparent: true, opacity: 0, depthWrite: false,
   });
   const stars = new THREE.Points(starGeom, starMat);
   scene.add(stars);
 
-  // ===== Lights =====
+  // ============================================================
+  // Lights
+  // ============================================================
   const sun = new THREE.DirectionalLight(0xfff1d6, 2.2);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
   sun.shadow.camera.near = 0.5;
-  sun.shadow.camera.far = 120;
-  sun.shadow.camera.left = -30;
-  sun.shadow.camera.right = 30;
-  sun.shadow.camera.top = 30;
-  sun.shadow.camera.bottom = -30;
+  sun.shadow.camera.far = 180;
+  sun.shadow.camera.left = -50;
+  sun.shadow.camera.right = 50;
+  sun.shadow.camera.top = 60;
+  sun.shadow.camera.bottom = -50;
   sun.shadow.bias = -0.0002;
   sun.shadow.radius = 3;
   scene.add(sun);
@@ -252,31 +272,102 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
   const hemi = new THREE.HemisphereLight(0x90b8e8, 0x202028, 0.6);
   scene.add(hemi);
 
-  // Subtle moonlight (active at night)
   const moon = new THREE.DirectionalLight(0x8fa9d6, 0);
-  moon.position.set(-15, 18, -10);
+  moon.position.set(-25, 30, -15);
   scene.add(moon);
 
-  // ===== Ground =====
+  // ============================================================
+  // Ground (street + sidewalk + grass)
+  // ============================================================
+  function makeGroundCanvas() {
+    const c = document.createElement('canvas');
+    c.width = 2048; c.height = 2048;
+    const ctx = c.getContext('2d');
+    // Grass base
+    ctx.fillStyle = '#3d5034';
+    ctx.fillRect(0, 0, c.width, c.height);
+    // Subtle noise via tiny colored squares
+    for (let i = 0; i < 4000; i++) {
+      const x = Math.random() * c.width;
+      const y = Math.random() * c.height;
+      const r = 1 + Math.random() * 2;
+      ctx.fillStyle = `rgba(${50 + Math.random()*40}, ${80 + Math.random()*40}, ${50 + Math.random()*30}, 0.6)`;
+      ctx.fillRect(x, y, r, r);
+    }
+    // Sidewalk ring around building footprint (centered, building is 30x16)
+    // Mapping: ground plane is 200x200 m centered, canvas is 2048x2048
+    // pixels per meter: 2048/200 = 10.24
+    const pm = c.width / 200;
+    const cx = c.width/2, cy = c.height/2;
+    // Sidewalk: 4m wide ring around building footprint
+    ctx.fillStyle = '#aaaaaa';
+    const halfW = (W/2 + 5) * pm, halfD = (D/2 + 5) * pm;
+    ctx.fillRect(cx - halfW, cy - halfD, halfW*2, halfD*2);
+    // Sidewalk noise
+    ctx.fillStyle = 'rgba(160, 160, 160, 0.55)';
+    ctx.fillRect(cx - halfW, cy - halfD, halfW*2, halfD*2);
+    for (let i = 0; i < 600; i++) {
+      const x = cx - halfW + Math.random() * halfW*2;
+      const y = cy - halfD + Math.random() * halfD*2;
+      ctx.fillStyle = `rgba(${130 + Math.random()*40}, ${130 + Math.random()*40}, ${130 + Math.random()*40}, 0.5)`;
+      ctx.fillRect(x, y, 2, 2);
+    }
+    // Building footprint cutout (replaced by foundation later)
+    ctx.fillStyle = '#2a2c30';
+    const halfWB = (W/2 + 0.6) * pm, halfDB = (D/2 + 0.6) * pm;
+    ctx.fillRect(cx - halfWB, cy - halfDB, halfWB*2, halfDB*2);
+    // Sidewalk tile lines
+    ctx.strokeStyle = 'rgba(95, 95, 95, 0.55)';
+    ctx.lineWidth = 1.5;
+    for (let x = -50; x <= 50; x += 4) {
+      const sx = cx + x * pm;
+      if (Math.abs(x) < W/2 + 0.6) continue;
+      ctx.beginPath(); ctx.moveTo(sx, cy - halfD); ctx.lineTo(sx, cy + halfD); ctx.stroke();
+    }
+    for (let z = -30; z <= 30; z += 4) {
+      const sy = cy + z * pm;
+      if (Math.abs(z) < D/2 + 0.6) continue;
+      ctx.beginPath(); ctx.moveTo(cx - halfW, sy); ctx.lineTo(cx + halfW, sy); ctx.stroke();
+    }
+    // Asphalt streets along edges
+    ctx.fillStyle = '#1f2024';
+    ctx.fillRect(0, cy - halfD - 22*pm, c.width, 18*pm);
+    ctx.fillRect(0, cy + halfD + 4*pm, c.width, 18*pm);
+    ctx.fillRect(cx - halfW - 22*pm, 0, 18*pm, c.height);
+    ctx.fillRect(cx + halfW + 4*pm, 0, 18*pm, c.height);
+    // Lane markings
+    ctx.strokeStyle = '#e6e6e6';
+    ctx.setLineDash([20, 30]);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(0, cy - halfD - 13*pm); ctx.lineTo(c.width, cy - halfD - 13*pm);
+    ctx.moveTo(0, cy + halfD + 13*pm); ctx.lineTo(c.width, cy + halfD + 13*pm);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    return c;
+  }
+  const groundTex = new THREE.CanvasTexture(makeGroundCanvas());
+  groundTex.colorSpace = THREE.SRGBColorSpace;
+  groundTex.minFilter = THREE.LinearFilter;
+  groundTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
   const groundMat = new THREE.MeshStandardMaterial({
-    color: 0x3d5034, roughness: 0.95, metalness: 0,
+    map: groundTex, roughness: 0.95, metalness: 0,
   });
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(220, 220), groundMat);
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), groundMat);
   ground.rotation.x = -Math.PI / 2;
   ground.receiveShadow = true;
   scene.add(ground);
 
-  // ===== Blueprint plane (canvas texture overlay on the ground) =====
-  const W = 24, D = 14;        // building footprint in world units
-  const wallH = 4;
-  const PLAN_W = 36, PLAN_D = 22; // visible blueprint paper
-
-  function makeBlueprintCanvas(progress) {
-    const C_W = 2048, C_H = 1280;
+  // ============================================================
+  // Architectural plan (canvas) with FURNITURE
+  // ============================================================
+  function makePlanCanvas(progress) {
+    const C_W = 4096, C_H = 2400;
     const canvas = document.createElement('canvas');
     canvas.width = C_W; canvas.height = C_H;
     const ctx = canvas.getContext('2d');
 
+    // Paper background
     const grad = ctx.createRadialGradient(C_W/2, C_H/2, 100, C_W/2, C_H/2, C_W/1.5);
     grad.addColorStop(0, '#152844');
     grad.addColorStop(1, '#0a1730');
@@ -284,522 +375,1020 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     ctx.fillRect(0, 0, C_W, C_H);
 
     const cx = C_W / 2, cy = C_H / 2;
-    const px = C_W / PLAN_W;
-    const py = C_H / PLAN_D;
+    const px = C_W / PLAN_W;     // pixels per meter X
+    const py = C_H / PLAN_D;     // pixels per meter Z
 
+    // Helpers
+    function wx(x) { return cx + x * px; }
+    function wy(z) { return cy + z * py; }
+    function W2P(x, z) { return [wx(x), wy(z)]; }
+
+    // Grid (fine + major)
     ctx.strokeStyle = 'rgba(125, 211, 252, 0.10)';
     ctx.lineWidth = 1;
-    for (let x = 0; x <= C_W; x += 28) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, C_H); ctx.stroke();
+    const fine = 0.5;  // 0.5m
+    for (let x = -PLAN_W/2; x <= PLAN_W/2; x += fine) {
+      ctx.beginPath(); ctx.moveTo(wx(x), 0); ctx.lineTo(wx(x), C_H); ctx.stroke();
     }
-    for (let y = 0; y <= C_H; y += 28) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(C_W, y); ctx.stroke();
+    for (let z = -PLAN_D/2; z <= PLAN_D/2; z += fine) {
+      ctx.beginPath(); ctx.moveTo(0, wy(z)); ctx.lineTo(C_W, wy(z)); ctx.stroke();
     }
     ctx.strokeStyle = 'rgba(125, 211, 252, 0.22)';
     ctx.lineWidth = 1.4;
-    for (let x = 0; x <= C_W; x += 140) {
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, C_H); ctx.stroke();
+    for (let x = -PLAN_W/2; x <= PLAN_W/2; x += 2.5) {
+      ctx.beginPath(); ctx.moveTo(wx(x), 0); ctx.lineTo(wx(x), C_H); ctx.stroke();
     }
-    for (let y = 0; y <= C_H; y += 140) {
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(C_W, y); ctx.stroke();
+    for (let z = -PLAN_D/2; z <= PLAN_D/2; z += 2.5) {
+      ctx.beginPath(); ctx.moveTo(0, wy(z)); ctx.lineTo(C_W, wy(z)); ctx.stroke();
     }
-
-    // Frame
+    // Outer frame
     ctx.strokeStyle = 'rgba(125, 211, 252, 0.55)';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(40, 40, C_W - 80, C_H - 80);
+    ctx.lineWidth = 3;
+    ctx.strokeRect(60, 60, C_W - 120, C_H - 120);
 
     // Title block
     ctx.fillStyle = 'rgba(8, 22, 44, 0.85)';
     ctx.strokeStyle = 'rgba(125, 211, 252, 0.7)';
-    ctx.lineWidth = 1.5;
-    ctx.fillRect(C_W - 380, C_H - 200, 320, 140);
-    ctx.strokeRect(C_W - 380, C_H - 200, 320, 140);
-    ctx.fillStyle = 'rgba(189, 230, 253, 0.85)';
-    ctx.font = 'bold 22px "Space Mono", monospace';
+    ctx.lineWidth = 2;
+    ctx.fillRect(C_W - 720, C_H - 320, 640, 240);
+    ctx.strokeRect(C_W - 720, C_H - 320, 640, 240);
+    ctx.fillStyle = 'rgba(189, 230, 253, 0.92)';
+    ctx.font = 'bold 38px "Space Mono", monospace';
     ctx.textAlign = 'left';
-    ctx.fillText('PROJECT COMPASS', C_W - 360, C_H - 165);
-    ctx.font = '16px "Space Mono", monospace';
-    ctx.fillStyle = 'rgba(189, 230, 253, 0.55)';
-    ctx.fillText('A-101 / FLOOR PLAN', C_W - 360, C_H - 138);
-    ctx.fillText('SCALE 1:50', C_W - 360, C_H - 116);
-    ctx.fillText('הרצליה · 2026', C_W - 360, C_H - 92);
+    ctx.fillText('PROJECT COMPASS', C_W - 690, C_H - 260);
+    ctx.font = '24px "Space Mono", monospace';
+    ctx.fillStyle = 'rgba(189, 230, 253, 0.6)';
+    ctx.fillText('A-201 / TYPICAL FLOOR PLAN', C_W - 690, C_H - 220);
+    ctx.fillText('SCALE 1:50    UNITS: METERS', C_W - 690, C_H - 188);
+    ctx.fillText('TOWER 12 · 12 LEVELS · 72 UNITS', C_W - 690, C_H - 156);
+    ctx.font = 'bold 26px Heebo, sans-serif';
+    ctx.fillStyle = 'rgba(253, 230, 138, 0.92)';
+    ctx.fillText('הרצליה · 2026', C_W - 690, C_H - 116);
 
-    function L(x1, z1, x2, z2) {
-      ctx.beginPath();
-      ctx.moveTo(cx + x1*px, cy + z1*py);
-      ctx.lineTo(cx + x2*px, cy + z2*py);
-      ctx.stroke();
-    }
-    function partialL(x1, z1, x2, z2, k) {
-      const X1 = cx + x1*px, Y1 = cy + z1*py;
-      const X2 = cx + x2*px, Y2 = cy + z2*py;
-      ctx.beginPath();
-      ctx.moveTo(X1, Y1);
-      ctx.lineTo(X1 + (X2-X1)*k, Y1 + (Y2-Y1)*k);
-      ctx.stroke();
-    }
-
-    const lines = [
-      // Outer (with door gap will be drawn separately)
-      { from: [-W/2, -D/2], to: [ W/2, -D/2], t0: 0.00, t1: 0.10, w: 6, color: '#7dd3fc' },
-      { from: [ W/2, -D/2], to: [ W/2,  D/2], t0: 0.05, t1: 0.18, w: 6, color: '#7dd3fc' },
-      { from: [ W/2,  D/2], to: [-W/2,  D/2], t0: 0.10, t1: 0.22, w: 6, color: '#7dd3fc' },
-      { from: [-W/2,  D/2], to: [-W/2, -D/2], t0: 0.15, t1: 0.26, w: 6, color: '#7dd3fc' },
-      // Internal
-      { from: [-W/2, 0], to: [ W/2, 0], t0: 0.30, t1: 0.42, w: 4, color: '#7dd3fc' },
-      { from: [-4, -D/2], to: [-4,  D/2], t0: 0.36, t1: 0.46, w: 4, color: '#7dd3fc' },
-      { from: [ 6, -D/2], to: [ 6,  D/2], t0: 0.40, t1: 0.50, w: 4, color: '#7dd3fc' },
-    ];
     ctx.lineCap = 'round';
-    lines.forEach(l => {
-      const k = Math.max(0, Math.min(1, (progress - l.t0) / Math.max(0.001, l.t1 - l.t0)));
-      if (k <= 0) return;
-      ctx.lineWidth = l.w; ctx.strokeStyle = l.color;
-      partialL(l.from[0], l.from[1], l.to[0], l.to[1], k);
-    });
 
-    // Door & windows symbols on outer wall (after walls drawn)
-    if (progress > 0.55) {
-      const op = Math.min(1, (progress - 0.55) / 0.10);
-      ctx.globalAlpha = op;
-      ctx.strokeStyle = '#fde68a';
-      ctx.fillStyle = '#fde68a';
-      ctx.lineWidth = 5;
-      // Front door at center bottom (z = -D/2), 1.8m wide
-      const dy = cy - D/2 * py;
-      // Door swing arc + leaf
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.moveTo(cx - 0.9 * px, dy);
-      ctx.lineTo(cx + 0.9 * px, dy);
-      ctx.stroke();
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.arc(cx - 0.9 * px, dy, 1.8 * px, -Math.PI/2, 0);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(cx - 0.9 * px, dy);
-      ctx.lineTo(cx - 0.9 * px, dy + 1.8 * py);
-      ctx.stroke();
-      // Windows: small rectangles on each wall
-      ctx.lineWidth = 4;
-      ctx.strokeStyle = '#fde68a';
-      const winSpec = [
-        // [x, z, length, isHorizontal]
-        [-8, -D/2, 1.6, true],
-        [ 8, -D/2, 1.6, true],
-        [-8,  D/2, 1.6, true],
-        [ 1,  D/2, 1.6, true],
-        [ 8,  D/2, 1.6, true],
-        [-W/2, -3.5, 1.6, false],
-        [-W/2,  3.5, 1.6, false],
-        [ W/2, -3.5, 1.6, false],
-        [ W/2,  3.5, 1.6, false],
+    // === Building outer walls (drawn progressively) ===
+    function drawOuter(p, t0, t1, color, w) {
+      const k = clamp01((p - t0) / Math.max(0.001, t1 - t0));
+      if (k <= 0) return;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = w;
+      // outer rectangle = building footprint
+      const segs = [
+        [[-W/2, -D/2], [ W/2, -D/2]],
+        [[ W/2, -D/2], [ W/2,  D/2]],
+        [[ W/2,  D/2], [-W/2,  D/2]],
+        [[-W/2,  D/2], [-W/2, -D/2]],
       ];
-      winSpec.forEach(([x, z, len, horiz]) => {
+      const segK = k * segs.length;
+      for (let i = 0; i < segs.length; i++) {
+        const seg = segs[i];
+        const localK = clamp01(segK - i);
+        if (localK <= 0) continue;
+        const [a, b] = seg;
         ctx.beginPath();
-        if (horiz) {
-          ctx.moveTo(cx + (x - len/2)*px, cy + z*py);
-          ctx.lineTo(cx + (x + len/2)*px, cy + z*py);
-        } else {
-          ctx.moveTo(cx + x*px, cy + (z - len/2)*py);
-          ctx.lineTo(cx + x*px, cy + (z + len/2)*py);
-        }
+        ctx.moveTo(wx(a[0]), wy(a[1]));
+        ctx.lineTo(wx(a[0] + (b[0] - a[0]) * localK), wy(a[1] + (b[1] - a[1]) * localK));
         ctx.stroke();
+      }
+    }
+    drawOuter(progress, 0.00, 0.20, '#7dd3fc', 8);
+
+    // === Apartment partitions (drawn after outer walls) ===
+    function drawPartitions(p, t0, t1) {
+      const k = clamp01((p - t0) / Math.max(0.001, t1 - t0));
+      if (k <= 0) return;
+      ctx.strokeStyle = '#7dd3fc';
+      ctx.lineWidth = 5;
+
+      // Central corridor walls (along x-axis at z = -1 and z = 1)
+      // Stairwell + elevator core in the middle
+      const partitions = [
+        // Corridor side walls
+        [[-W/2, -1.5], [W/2, -1.5]],
+        [[-W/2,  1.5], [W/2,  1.5]],
+        // Vertical partitions between apartments (top side)
+        [[-5, -D/2], [-5, -1.5]],
+        [[ 5, -D/2], [ 5, -1.5]],
+        // Vertical partitions between apartments (bottom side)
+        [[-5,  1.5], [-5,  D/2]],
+        [[ 5,  1.5], [ 5,  D/2]],
+      ];
+      const segK = k * partitions.length;
+      for (let i = 0; i < partitions.length; i++) {
+        const seg = partitions[i];
+        const localK = clamp01(segK - i);
+        if (localK <= 0) continue;
+        const [a, b] = seg;
+        ctx.beginPath();
+        ctx.moveTo(wx(a[0]), wy(a[1]));
+        ctx.lineTo(wx(a[0] + (b[0] - a[0]) * localK), wy(a[1] + (b[1] - a[1]) * localK));
+        ctx.stroke();
+      }
+    }
+    drawPartitions(progress, 0.20, 0.32);
+
+    // === Apartment-internal walls (drawn after partitions) ===
+    function drawInternalWalls(p, t0, t1) {
+      const k = clamp01((p - t0) / Math.max(0.001, t1 - t0));
+      if (k <= 0) return;
+      ctx.strokeStyle = '#7dd3fc';
+      ctx.lineWidth = 4;
+
+      // Internal layout for each apartment
+      // Apartments are at: top side X centers -10, 0, +10 (10m wide each)
+      //                    bottom side X centers -10, 0, +10 (mirrored)
+      // Each apartment is 10m wide, depth 6.5m (z -8 to -1.5 or 1.5 to 8)
+      // Layout in each top apartment:
+      //   - Living + Kitchen + Dining: front (z = -8 to -5), full width
+      //   - Bedroom: back-left (z = -5 to -3, x = center-5 to center-1)
+      //   - Bathroom: back-right (z = -5 to -3, x = center-1 to center+2)
+      //   - Foyer / hallway: z = -3 to -1.5
+      const localWalls = [
+        // Wall between living and bedroom/bath
+        [-5, -5,  5, -5],
+        // Wall between bedroom and bathroom
+        [-1, -5, -1, -3],
+        // Wall between bath and second bedroom
+        [ 2, -5,  2, -3],
+        // Hallway walls
+        [-5, -3,  -1, -3],
+        [ 2, -3,  5, -3],
+      ];
+      const apartmentCenters = [-10, 0, 10];
+
+      const allSegs = [];
+      apartmentCenters.forEach(cx0 => {
+        // Top apartments
+        localWalls.forEach(([x1, z1, x2, z2]) => {
+          allSegs.push([[cx0 + x1, z1], [cx0 + x2, z2]]);
+        });
+        // Bottom apartments (mirrored: z negated, walls in z=1.5..8 zone)
+        localWalls.forEach(([x1, z1, x2, z2]) => {
+          allSegs.push([[cx0 + x1, -z1], [cx0 + x2, -z2]]);
+        });
       });
+      const segK = k * allSegs.length;
+      for (let i = 0; i < allSegs.length; i++) {
+        const localK = clamp01(segK - i);
+        if (localK <= 0) continue;
+        const [a, b] = allSegs[i];
+        ctx.beginPath();
+        ctx.moveTo(wx(a[0]), wy(a[1]));
+        ctx.lineTo(wx(a[0] + (b[0] - a[0]) * localK), wy(a[1] + (b[1] - a[1]) * localK));
+        ctx.stroke();
+      }
+    }
+    drawInternalWalls(progress, 0.32, 0.45);
+
+    // === Furniture & symbols (appear after walls done) ===
+    if (progress > 0.45) {
+      const furnK = clamp01((progress - 0.45) / 0.18);
+      ctx.globalAlpha = furnK;
+
+      const apartmentCenters = [-10, 0, 10];
+
+      // Helpers: drawing furniture symbols in plan view
+      function rectAt(cx0, cz, w, d, fillStyle, strokeStyle, lw) {
+        ctx.beginPath();
+        ctx.fillStyle = fillStyle;
+        ctx.strokeStyle = strokeStyle;
+        ctx.lineWidth = lw || 1.4;
+        const x = wx(cx0 - w/2), y = wy(cz - d/2);
+        ctx.fillRect(x, y, w * px, d * py);
+        ctx.strokeRect(x, y, w * px, d * py);
+      }
+      function lineSeg(x1, z1, x2, z2, color, lw) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lw || 1.5;
+        ctx.beginPath();
+        ctx.moveTo(wx(x1), wy(z1));
+        ctx.lineTo(wx(x2), wy(z2));
+        ctx.stroke();
+      }
+      function circleAt(cx0, cz, r, fill, stroke, lw) {
+        ctx.beginPath();
+        ctx.fillStyle = fill;
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = lw || 1.2;
+        ctx.arc(wx(cx0), wy(cz), r * px, 0, Math.PI*2);
+        if (fill) ctx.fill();
+        if (stroke) ctx.stroke();
+      }
+      // Sofa (3-seater): cx,cz center; width along X, depth along Z; back at -Z
+      function sofa(cx0, cz, rotated) {
+        const w = rotated ? 0.95 : 2.4;
+        const d = rotated ? 2.4 : 0.95;
+        rectAt(cx0, cz, w, d, '#0d2748', '#bae6fd', 1.6);
+        // Cushion divisions
+        ctx.strokeStyle = '#7dd3fc';
+        ctx.lineWidth = 1.0;
+        if (!rotated) {
+          for (let i = 1; i < 3; i++) {
+            const x = cx0 - w/2 + (w * i) / 3;
+            lineSeg(x, cz - d/2 + 0.05, x, cz + d/2 - 0.05, '#7dd3fc', 1.1);
+          }
+        } else {
+          for (let i = 1; i < 3; i++) {
+            const z = cz - d/2 + (d * i) / 3;
+            lineSeg(cx0 - w/2 + 0.05, z, cx0 + w/2 - 0.05, z, '#7dd3fc', 1.1);
+          }
+        }
+      }
+      // Coffee table
+      function coffeeTable(cx0, cz) {
+        rectAt(cx0, cz, 1.0, 0.55, '#0d2748', '#bae6fd', 1.4);
+      }
+      // TV unit
+      function tvUnit(cx0, cz, vertical) {
+        if (vertical) rectAt(cx0, cz, 0.4, 1.6, '#0d2748', '#bae6fd', 1.4);
+        else          rectAt(cx0, cz, 1.6, 0.4, '#0d2748', '#bae6fd', 1.4);
+      }
+      // Dining table (oval) + chairs
+      function diningSet(cx0, cz, rot) {
+        ctx.fillStyle = '#0d2748';
+        ctx.strokeStyle = '#bae6fd';
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        ctx.ellipse(wx(cx0), wy(cz), (rot ? 0.7 : 1.1) * px, (rot ? 1.1 : 0.7) * py, 0, 0, Math.PI*2);
+        ctx.fill(); ctx.stroke();
+        const chairs = rot
+          ? [[0, -1.4], [0, 1.4], [-1.0, -0.6], [-1.0, 0.6], [1.0, -0.6], [1.0, 0.6]]
+          : [[-1.4, 0], [1.4, 0], [-0.6, -1.0], [0.6, -1.0], [-0.6, 1.0], [0.6, 1.0]];
+        chairs.forEach(([dx, dz]) => {
+          circleAt(cx0 + dx, cz + dz, 0.22, '#10355f', '#bae6fd', 1.0);
+        });
+      }
+      // Kitchen: counter L + sink + stove + fridge
+      function kitchen(cx0, cz, dir) {
+        // Counter: thin rectangle along the wall
+        rectAt(cx0, cz, 3.5, 0.6, '#0d2748', '#bae6fd', 1.4);
+        // Sink (rectangle with double-circle for basin)
+        rectAt(cx0 - 1.1, cz, 0.6, 0.45, '#10355f', '#bae6fd', 1.0);
+        circleAt(cx0 - 1.1, cz, 0.18, null, '#7dd3fc', 1.0);
+        // Stove (square with 4 burners)
+        rectAt(cx0, cz, 0.6, 0.55, '#10355f', '#bae6fd', 1.0);
+        const burners = [[-0.18, -0.13], [0.18, -0.13], [-0.18, 0.13], [0.18, 0.13]];
+        burners.forEach(([dx, dz]) => {
+          circleAt(cx0 + dx, cz + dz, 0.07, null, '#fde68a', 1.0);
+        });
+        // Fridge (taller rectangle)
+        rectAt(cx0 + 1.3, cz, 0.7, 0.65, '#10355f', '#bae6fd', 1.2);
+        ctx.font = 'bold 18px "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(189, 230, 253, 0.9)';
+        ctx.textAlign = 'center';
+      }
+      // Double bed (with pillows)
+      function bedDouble(cx0, cz, rot) {
+        const w = rot ? 1.5 : 1.7;
+        const d = rot ? 1.7 : 1.5;
+        rectAt(cx0, cz, w, d, '#0d2748', '#bae6fd', 1.6);
+        // Pillows at the head
+        ctx.fillStyle = '#7dd3fc';
+        ctx.strokeStyle = '#bae6fd';
+        ctx.lineWidth = 1;
+        if (rot) {
+          // head at -X
+          ctx.fillRect(wx(cx0 - w/2 + 0.05), wy(cz - d/2 + 0.1), 0.35*px, (d - 0.2)*py * 0.4);
+          ctx.fillRect(wx(cx0 - w/2 + 0.05), wy(cz + d/2 - 0.1 - (d - 0.2) * 0.4), 0.35*px, (d - 0.2)*py * 0.4);
+        } else {
+          // head at -Z
+          ctx.fillRect(wx(cx0 - w/2 + 0.1), wy(cz - d/2 + 0.05), (w - 0.2)*px * 0.4, 0.35*py);
+          ctx.fillRect(wx(cx0 + w/2 - 0.1 - (w - 0.2) * 0.4), wy(cz - d/2 + 0.05), (w - 0.2)*px * 0.4, 0.35*py);
+        }
+      }
+      // Single bed
+      function bedSingle(cx0, cz, rot) {
+        const w = rot ? 0.9 : 1.9;
+        const d = rot ? 1.9 : 0.9;
+        rectAt(cx0, cz, w, d, '#0d2748', '#bae6fd', 1.4);
+        // One pillow
+        ctx.fillStyle = '#7dd3fc';
+        if (rot) ctx.fillRect(wx(cx0 - w/2 + 0.05), wy(cz - d/2 + 0.1), 0.25*px, 0.55*py);
+        else     ctx.fillRect(wx(cx0 - w/2 + 0.1), wy(cz - d/2 + 0.05), 0.55*px, 0.25*py);
+      }
+      // Wardrobe (with X marking)
+      function wardrobe(cx0, cz, w, d) {
+        rectAt(cx0, cz, w, d, '#0d2748', '#bae6fd', 1.4);
+        ctx.strokeStyle = '#7dd3fc';
+        ctx.lineWidth = 0.8;
+        const x1 = wx(cx0 - w/2 + 0.05), y1 = wy(cz - d/2 + 0.05);
+        const x2 = wx(cx0 + w/2 - 0.05), y2 = wy(cz + d/2 - 0.05);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x2, y1); ctx.lineTo(x1, y2); ctx.stroke();
+      }
+      // Toilet
+      function toilet(cx0, cz, rot) {
+        ctx.fillStyle = '#0d2748';
+        ctx.strokeStyle = '#bae6fd';
+        ctx.lineWidth = 1.4;
+        ctx.save();
+        ctx.translate(wx(cx0), wy(cz));
+        if (rot) ctx.rotate(Math.PI/2);
+        ctx.beginPath();
+        ctx.ellipse(0, 0.05*py, 0.30*px, 0.40*py, 0, 0, Math.PI*2);
+        ctx.fill(); ctx.stroke();
+        ctx.fillRect(-0.36*px, -0.45*py, 0.72*px, 0.18*py);
+        ctx.strokeRect(-0.36*px, -0.45*py, 0.72*px, 0.18*py);
+        ctx.restore();
+      }
+      // Bath sink
+      function bathSink(cx0, cz, rot) {
+        rectAt(cx0, cz, rot ? 0.45 : 0.7, rot ? 0.7 : 0.45, '#10355f', '#bae6fd', 1.2);
+        circleAt(cx0, cz, 0.18, null, '#7dd3fc', 1.0);
+      }
+      // Bathtub
+      function bathtub(cx0, cz, rot) {
+        const w = rot ? 0.75 : 1.7, d = rot ? 1.7 : 0.75;
+        rectAt(cx0, cz, w, d, '#0d2748', '#bae6fd', 1.4);
+        ctx.strokeStyle = '#7dd3fc';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.ellipse(wx(cx0), wy(cz), (rot ? 0.30 : 0.75) * px, (rot ? 0.75 : 0.30) * py, 0, 0, Math.PI*2);
+        ctx.stroke();
+      }
+      // Door arc (door inside wall)
+      function doorArc(hingeX, hingeZ, leafLen, startAngle, endAngle) {
+        ctx.strokeStyle = '#fde68a';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(wx(hingeX), wy(hingeZ), leafLen * px, startAngle, endAngle);
+        ctx.stroke();
+        // Leaf
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(wx(hingeX), wy(hingeZ));
+        ctx.lineTo(wx(hingeX) + Math.cos(endAngle) * leafLen * px,
+                   wy(hingeZ) + Math.sin(endAngle) * leafLen * py);
+        ctx.stroke();
+      }
+      // Window symbol (triple line)
+      function winSym(x1, z1, x2, z2) {
+        const dx = x2 - x1, dz = z2 - z1;
+        const len = Math.hypot(dx, dz);
+        const nx = -dz / len, nz = dx / len;
+        ctx.strokeStyle = '#fde68a';
+        ctx.lineWidth = 3;
+        // Center line
+        lineSeg(x1, z1, x2, z2, '#fde68a', 3);
+        // Two sill lines
+        const o = 0.06;
+        lineSeg(x1 + nx*o, z1 + nz*o, x2 + nx*o, z2 + nz*o, '#fde68a', 1.4);
+        lineSeg(x1 - nx*o, z1 - nz*o, x2 - nx*o, z2 - nz*o, '#fde68a', 1.4);
+      }
+      // Plant
+      function plant(cx0, cz) {
+        ctx.fillStyle = '#7dd3fc';
+        circleAt(cx0, cz, 0.25, '#10355f', '#7dd3fc', 1.2);
+        ctx.font = 'bold 14px "Space Mono", monospace';
+        ctx.fillStyle = '#7dd3fc';
+        ctx.fillText('🌿', wx(cx0), wy(cz));
+      }
+
+      // For each top apartment (apartments at z=-8 to z=-1.5):
+      // Living/Kitchen/Dining: z=-8 to -5, full width 10m, centered at cx0
+      // Bedroom (master): z=-5 to -3, x = cx0-5..cx0-1 (4m wide, 2m deep)
+      // Bathroom: z=-5 to -3, x = cx0-1..cx0+2 (3m wide, 2m deep)
+      // Bedroom 2 (small): z=-5 to -3, x = cx0+2..cx0+5 (3m wide, 2m deep)
+      // Hallway: z=-3 to -1.5, central
+      function topApartment(cx0, mirror) {
+        const m = mirror ? -1 : 1;
+        // Living: sofa against rear wall (z=-8), facing in
+        sofa(cx0 - 1.6, -7.4 * m, false);
+        coffeeTable(cx0 - 1.6, -6.5 * m);
+        tvUnit(cx0 - 1.6, -5.3 * m, false);
+        // Dining + kitchen
+        diningSet(cx0 + 2.8, -7 * m, false);
+        // Kitchen counter near interior wall
+        kitchen(cx0 + 2.5, -5.4 * m, 'in');
+        // Master bedroom (cx0-3, z=-4 m)
+        bedDouble(cx0 - 3, -4 * m, false);
+        wardrobe(cx0 - 4.6, -3.4 * m, 0.6, 1.0);
+        // Bathroom (cx0+0.5, z=-4 m)
+        toilet(cx0 + 1.6, -3.4 * m, false);
+        bathSink(cx0 + 0.0, -3.4 * m, false);
+        bathtub(cx0 + 1.0, -4.5 * m, false);
+        // Second bedroom
+        bedSingle(cx0 + 3.5, -4 * m, false);
+        wardrobe(cx0 + 4.6, -3.3 * m, 0.6, 0.8);
+        // Doors:
+        // Apartment entry from corridor (z=-1.5 to z=-3 hallway opens)
+        doorArc(cx0, -1.5 * m, 0.9, mirror ? Math.PI/2 : -Math.PI/2, mirror ? Math.PI : 0);
+        // Master bedroom door
+        doorArc(cx0 - 1.0, -3 * m, 0.8, mirror ? Math.PI : 0, mirror ? Math.PI*1.5 : Math.PI/2);
+        // Bathroom door
+        doorArc(cx0 + 1.5, -3 * m, 0.7, mirror ? Math.PI : 0, mirror ? Math.PI*1.5 : Math.PI/2);
+        // Second bedroom door
+        doorArc(cx0 + 3.5, -3 * m, 0.7, mirror ? Math.PI : 0, mirror ? Math.PI*1.5 : Math.PI/2);
+        // Living window (front, z=-D/2)
+        winSym(cx0 - 4, -D/2, cx0 - 1, -D/2);
+        winSym(cx0 + 1, -D/2, cx0 + 4, -D/2);
+        // Side windows on outermost apartments
+        if (cx0 === -10) {
+          winSym(-W/2, -7, -W/2, -5);
+          winSym(-W/2, -4, -W/2, -2);
+        } else if (cx0 === 10) {
+          winSym(W/2, -7, W/2, -5);
+          winSym(W/2, -4, W/2, -2);
+        }
+        // Plant near entry
+        plant(cx0 - 4.4, -1.8 * m);
+      }
+
+      apartmentCenters.forEach(c => topApartment(c, false));   // top side
+      apartmentCenters.forEach(c => topApartment(c, true));    // bottom side (mirrored)
+
+      // Central core: stairs + elevator + corridor labels
+      // Stairs: parallel lines with arrow
+      ctx.strokeStyle = '#fde68a';
+      ctx.lineWidth = 1.4;
+      const stairX = -W/2 + 1.5;
+      for (let i = 0; i < 8; i++) {
+        const sz = -1.0 + i * 0.25;
+        lineSeg(stairX, sz, stairX + 1.6, sz, '#fde68a', 1.0);
+      }
+      // Stairs frame
+      ctx.lineWidth = 2;
+      lineSeg(stairX, -1.2, stairX + 1.6, -1.2, '#fde68a', 2);
+      lineSeg(stairX, 1.2, stairX + 1.6, 1.2, '#fde68a', 2);
+      lineSeg(stairX, -1.2, stairX, 1.2, '#fde68a', 2);
+      lineSeg(stairX + 1.6, -1.2, stairX + 1.6, 1.2, '#fde68a', 2);
+      // Stairs label
+      ctx.font = 'bold 22px Heebo';
+      ctx.fillStyle = '#fde68a';
+      ctx.textAlign = 'center';
+      ctx.fillText('מדרגות', wx(stairX + 0.8), wy(-1.4));
+      // Elevator (square with X)
+      const elevX = -W/2 + 4;
+      rectAt(elevX, 0, 1.5, 1.5, '#0d2748', '#fde68a', 2);
+      lineSeg(elevX - 0.7, -0.7, elevX + 0.7, 0.7, '#fde68a', 1.5);
+      lineSeg(elevX + 0.7, -0.7, elevX - 0.7, 0.7, '#fde68a', 1.5);
+      ctx.fillStyle = '#fde68a';
+      ctx.fillText('מעלית', wx(elevX), wy(-1.0));
+
+      // Corridor label
+      ctx.font = 'bold 24px Heebo';
+      ctx.fillStyle = 'rgba(186, 230, 253, 0.95)';
+      ctx.fillText('פרוזדור', wx(W/2 - 4), wy(-0.05));
+
       ctx.globalAlpha = 1;
     }
 
-    // Room labels
+    // === Room labels (with apartment IDs) ===
     if (progress > 0.55) {
-      const op = Math.min(1, (progress - 0.55) / 0.18);
-      ctx.globalAlpha = op;
+      const labK = clamp01((progress - 0.55) / 0.15);
+      ctx.globalAlpha = labK;
       ctx.fillStyle = 'rgba(186, 230, 253, 0.95)';
-      ctx.font = '600 30px Heebo, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      const labels = [
-        ['סלון',     -8, -3.5],
-        ['מטבח',      1, -3.5],
-        ['מרפסת',     9, -3.5],
-        ['חדר שינה', -8,  3.5],
-        ['חדר עבודה', 1,  3.5],
-        ['שירותים',   9,  3.5],
-      ];
-      labels.forEach(([txt, x, z]) => {
-        ctx.fillText(txt, cx + x*px, cy + z*py);
+
+      // Apartment ID label, room labels
+      const apartmentCenters = [-10, 0, 10];
+      apartmentCenters.forEach((c, i) => {
+        // top side
+        ctx.font = 'bold 22px "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(253, 230, 138, 0.85)';
+        ctx.fillText(`UNIT 0${i*2 + 1}`, wx(c), wy(-0.7));
+        ctx.font = 'bold 26px Heebo';
+        ctx.fillStyle = 'rgba(186, 230, 253, 0.95)';
+        ctx.fillText('סלון·מטבח', wx(c - 1.3), wy(-6.3));
+        ctx.font = '20px Heebo';
+        ctx.fillText('חדר שינה', wx(c - 3), wy(-4));
+        ctx.fillText('מקלחת', wx(c + 1), wy(-3.7));
+        ctx.fillText('חדר 2', wx(c + 3.6), wy(-4));
+
+        ctx.font = 'bold 22px "Space Mono", monospace';
+        ctx.fillStyle = 'rgba(253, 230, 138, 0.85)';
+        ctx.fillText(`UNIT 0${i*2 + 2}`, wx(c), wy(0.7));
+        ctx.font = 'bold 26px Heebo';
+        ctx.fillStyle = 'rgba(186, 230, 253, 0.95)';
+        ctx.fillText('סלון·מטבח', wx(c - 1.3), wy(6.3));
+        ctx.font = '20px Heebo';
+        ctx.fillText('חדר שינה', wx(c - 3), wy(4));
+        ctx.fillText('מקלחת', wx(c + 1), wy(3.7));
+        ctx.fillText('חדר 2', wx(c + 3.6), wy(4));
       });
       ctx.globalAlpha = 1;
     }
 
-    // Dimensions
+    // === Dimensions ===
     if (progress > 0.7) {
-      const op = Math.min(1, (progress - 0.7) / 0.15);
-      ctx.globalAlpha = op;
+      const dimK = clamp01((progress - 0.7) / 0.15);
+      ctx.globalAlpha = dimK;
       ctx.strokeStyle = 'rgba(189, 230, 253, 0.7)';
       ctx.fillStyle = 'rgba(253, 230, 138, 0.95)';
       ctx.lineWidth = 1.2;
-      ctx.font = '600 22px "Space Mono", monospace';
+      ctx.font = '600 30px "Space Mono", monospace';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       // Top dim line
-      const dimY = cy - (D/2 + 1.2) * py;
+      const dimY1 = wy(-D/2 - 1.4);
+      const dimY2 = wy(-D/2 - 1.0);
       ctx.beginPath();
-      ctx.moveTo(cx - W/2 * px, dimY);
-      ctx.lineTo(cx + W/2 * px, dimY);
+      ctx.moveTo(wx(-W/2), dimY1); ctx.lineTo(wx(W/2), dimY1);
+      ctx.moveTo(wx(-W/2), dimY1 - 12); ctx.lineTo(wx(-W/2), dimY1 + 12);
+      ctx.moveTo(wx(W/2), dimY1 - 12); ctx.lineTo(wx(W/2), dimY1 + 12);
       ctx.stroke();
-      ctx.fillText('12.40 מ', cx, dimY - 18);
+      ctx.fillText('30.00 מ', wx(0), dimY1 - 22);
       // Side dim
-      const dimX = cx - (W/2 + 1.2) * px;
+      const dimX1 = wx(-W/2 - 1.4);
       ctx.beginPath();
-      ctx.moveTo(dimX, cy - D/2 * py);
-      ctx.lineTo(dimX, cy + D/2 * py);
+      ctx.moveTo(dimX1, wy(-D/2)); ctx.lineTo(dimX1, wy(D/2));
+      ctx.moveTo(dimX1 - 12, wy(-D/2)); ctx.lineTo(dimX1 + 12, wy(-D/2));
+      ctx.moveTo(dimX1 - 12, wy(D/2)); ctx.lineTo(dimX1 + 12, wy(D/2));
       ctx.stroke();
       ctx.save();
-      ctx.translate(dimX - 18, cy);
+      ctx.translate(dimX1 - 28, wy(0));
       ctx.rotate(-Math.PI/2);
-      ctx.fillText('8.20 מ', 0, 0);
+      ctx.fillText('16.00 מ', 0, 0);
       ctx.restore();
       ctx.globalAlpha = 1;
     }
 
-    // North arrow
-    if (progress > 0.75) {
-      const op = Math.min(1, (progress - 0.75) / 0.15);
+    // === North arrow ===
+    if (progress > 0.78) {
+      const op = clamp01((progress - 0.78) / 0.12);
       ctx.globalAlpha = op;
       ctx.strokeStyle = 'rgba(253, 230, 138, 0.85)';
       ctx.fillStyle = 'rgba(253, 230, 138, 0.85)';
       ctx.lineWidth = 2;
-      const ax = cx + (W/2 + 4) * px;
-      const ay = cy;
+      const ax = wx(W/2 + 4);
+      const ay = wy(0);
       ctx.beginPath();
-      ctx.arc(ax, ay, 26, 0, Math.PI*2);
+      ctx.arc(ax, ay, 50, 0, Math.PI*2);
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(ax, ay - 22);
-      ctx.lineTo(ax - 8, ay + 8);
+      ctx.moveTo(ax, ay - 42);
+      ctx.lineTo(ax - 14, ay + 16);
       ctx.lineTo(ax, ay);
-      ctx.lineTo(ax + 8, ay + 8);
+      ctx.lineTo(ax + 14, ay + 16);
       ctx.closePath();
       ctx.fill();
-      ctx.font = 'bold 20px "Space Mono", monospace';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('N', ax, ay - 38);
+      ctx.font = 'bold 28px "Space Mono", monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('N', ax, ay - 70);
       ctx.globalAlpha = 1;
     }
 
     return canvas;
+
+    function clamp01(v) { return Math.max(0, Math.min(1, v)); }
   }
 
-  const blueprintCanvasEl = makeBlueprintCanvas(1);
-  const blueprintTex = new THREE.CanvasTexture(blueprintCanvasEl);
-  blueprintTex.colorSpace = THREE.SRGBColorSpace;
-  blueprintTex.minFilter = THREE.LinearFilter;
-  blueprintTex.magFilter = THREE.LinearFilter;
-  blueprintTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
-
-  const blueprintMat = new THREE.MeshBasicMaterial({
-    map: blueprintTex, transparent: true, opacity: 1,
+  const planCanvasEl = makePlanCanvas(1);
+  const planTex = new THREE.CanvasTexture(planCanvasEl);
+  planTex.colorSpace = THREE.SRGBColorSpace;
+  planTex.minFilter = THREE.LinearFilter;
+  planTex.magFilter = THREE.LinearFilter;
+  planTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  const planMat = new THREE.MeshBasicMaterial({
+    map: planTex, transparent: true, opacity: 1,
     depthWrite: false, side: THREE.DoubleSide,
   });
-  const blueprint = new THREE.Mesh(new THREE.PlaneGeometry(PLAN_W, PLAN_D), blueprintMat);
-  blueprint.rotation.x = -Math.PI / 2;
-  blueprint.position.y = 0.02;
-  scene.add(blueprint);
+  const planMesh = new THREE.Mesh(new THREE.PlaneGeometry(PLAN_W, PLAN_D), planMat);
+  planMesh.rotation.x = -Math.PI / 2;
+  planMesh.position.y = 0.03;
+  scene.add(planMesh);
 
-  let lastBlueprintProgress = -1;
-  function updateBlueprintProgress(p) {
-    if (Math.abs(p - lastBlueprintProgress) < 0.005) return;
-    lastBlueprintProgress = p;
-    const c = makeBlueprintCanvas(p);
-    blueprintTex.image = c;
-    blueprintTex.needsUpdate = true;
+  let lastPlanProgress = -1;
+  function updatePlanProgress(p) {
+    if (Math.abs(p - lastPlanProgress) < 0.005) return;
+    lastPlanProgress = p;
+    const c = makePlanCanvas(p);
+    planTex.image = c;
+    planTex.needsUpdate = true;
   }
 
-  // ===== Building =====
+  // ============================================================
+  // BUILDING (12-floor tower)
+  // ============================================================
+  // Clipping plane for floor-by-floor reveal
+  const clipPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0);
+  // points where dot(N,P)-C > 0 are visible:  -y - C > 0 → y < -C.
+  // Initial: -C = 0 → y < 0 visible → nothing visible above ground.
+  clipPlane.constant = 0;
+
   const buildingGroup = new THREE.Group();
   scene.add(buildingGroup);
+  const buildingMaterials = [];
+  function applyClipping(mat) {
+    mat.clippingPlanes = [clipPlane];
+    mat.clipShadows = true;
+    buildingMaterials.push(mat);
+  }
 
-  // Foundation (always-on once built)
+  // Foundation
   const foundationMat = new THREE.MeshStandardMaterial({
-    color: 0x3a3d44, roughness: 0.9, metalness: 0.05,
+    color: 0x33363d, roughness: 0.9,
   });
   const foundation = new THREE.Mesh(
-    new THREE.BoxGeometry(W + 1.2, 0.45, D + 1.2),
+    new THREE.BoxGeometry(W + 2.0, 0.6, D + 2.0),
     foundationMat
   );
-  foundation.position.y = 0.225;
-  foundation.castShadow = true; foundation.receiveShadow = true;
+  foundation.position.y = 0.3;
+  foundation.castShadow = true;
+  foundation.receiveShadow = true;
   buildingGroup.add(foundation);
 
-  // Walls — group whose scale.y animates from 0 (collapsed) to 1 (full)
-  // Pivot at y = 0.45 (top of foundation) so walls grow upward.
-  const wallsGroup = new THREE.Group();
-  wallsGroup.position.y = 0.45;
-  buildingGroup.add(wallsGroup);
-
-  const wallMatFront = new THREE.MeshStandardMaterial({
-    color: 0xd6c4a8, roughness: 0.85,
+  // === Outer walls (full-tall single mesh, clipped by plane) ===
+  const wallMatA = new THREE.MeshStandardMaterial({
+    color: 0xc9c0b4, roughness: 0.85, metalness: 0.02,
   });
-  const wallMatSide = new THREE.MeshStandardMaterial({
-    color: 0xc4b095, roughness: 0.88,
+  const wallMatB = new THREE.MeshStandardMaterial({
+    color: 0xb6ad9f, roughness: 0.88, metalness: 0.02,
   });
-  const wallMatBack = new THREE.MeshStandardMaterial({
-    color: 0xb09a7d, roughness: 0.9,
-  });
-  const wallMatInner = new THREE.MeshStandardMaterial({
-    color: 0xc8b9a5, roughness: 0.85,
-  });
-  const wallT = 0.3;
+  applyClipping(wallMatA);
+  applyClipping(wallMatB);
 
-  // Each wall is centered at its midpoint with bottom at y=0 (in walls-group local).
-  function addWall(geom, x, z, mat) {
-    const m = new THREE.Mesh(geom, mat);
-    m.position.set(x, wallH / 2, z);
-    m.castShadow = true; m.receiveShadow = true;
-    wallsGroup.add(m);
-    return m;
-  }
-  // Outer walls
-  addWall(new THREE.BoxGeometry(W + wallT, wallH, wallT),    0, -D/2, wallMatFront);
-  addWall(new THREE.BoxGeometry(W + wallT, wallH, wallT),    0,  D/2, wallMatBack);
-  addWall(new THREE.BoxGeometry(wallT, wallH, D + wallT),  -W/2,  0,  wallMatSide);
-  addWall(new THREE.BoxGeometry(wallT, wallH, D + wallT),   W/2,  0,  wallMatSide);
-  // Internal walls (slightly thinner)
-  const wallTi = 0.18;
-  addWall(new THREE.BoxGeometry(W, wallH, wallTi),     0, 0,    wallMatInner);
-  addWall(new THREE.BoxGeometry(wallTi, wallH, D),    -4, 0,    wallMatInner);
-  addWall(new THREE.BoxGeometry(wallTi, wallH, D),     6, 0,    wallMatInner);
-
-  // Roof
-  const roofGroup = new THREE.Group();
-  buildingGroup.add(roofGroup);
-  const roofMat = new THREE.MeshStandardMaterial({
-    color: 0x6e3422, roughness: 0.7,
-  });
-  const overhang = 0.7;
-  const ridgeY = wallH + 1.7;
-  const wallTop = wallH + 0.45;
-  const Wp = W/2 + overhang;
-  const Dp = D/2 + overhang;
-  const roofGeom = new THREE.BufferGeometry();
-  const positions = new Float32Array([
-    // front slope
-    -Wp, wallTop, -Dp,
-     Wp, wallTop, -Dp,
-     Wp, ridgeY,  0,
-    -Wp, ridgeY,  0,
-    // back slope
-     Wp, wallTop,  Dp,
-    -Wp, wallTop,  Dp,
-    -Wp, ridgeY,  0,
-     Wp, ridgeY,  0,
-    // left gable triangle (inside the eaves)
-    -W/2 - 0.05, wallTop, -D/2 - 0.05,
-    -W/2 - 0.05, ridgeY,  0,
-    -W/2 - 0.05, wallTop,  D/2 + 0.05,
-    // right gable triangle
-     W/2 + 0.05, wallTop, -D/2 - 0.05,
-     W/2 + 0.05, wallTop,  D/2 + 0.05,
-     W/2 + 0.05, ridgeY,  0,
-  ]);
-  roofGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  roofGeom.setIndex([
-    0,1,2, 0,2,3,
-    4,5,6, 4,6,7,
-    8,9,10,
-    11,12,13,
-  ]);
-  roofGeom.computeVertexNormals();
-  const roofMesh = new THREE.Mesh(roofGeom, roofMat);
-  roofMesh.castShadow = true; roofMesh.receiveShadow = true;
-  roofGroup.add(roofMesh);
-
-  // Ridge beam highlight
-  const ridgeBeam = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.07, 0.07, 2 * Wp, 8),
-    new THREE.MeshStandardMaterial({ color: 0x8b4530, roughness: 0.6 })
-  );
-  ridgeBeam.rotation.z = Math.PI / 2;
-  ridgeBeam.position.y = ridgeY;
-  ridgeBeam.castShadow = true;
-  roofGroup.add(ridgeBeam);
-
-  // Chimney for character
-  const chimney = new THREE.Mesh(
-    new THREE.BoxGeometry(0.7, 1.4, 0.7),
-    new THREE.MeshStandardMaterial({ color: 0xb0a89c, roughness: 0.8 })
-  );
-  chimney.position.set(W/2 - 4, ridgeY + 0.4, 0.4);
-  chimney.castShadow = true; chimney.receiveShadow = true;
-  roofGroup.add(chimney);
-
-  roofGroup.position.y = 0;
-  roofGroup.scale.set(1, 1, 1);
-
-  // Windows (separate so we can scale them in after walls finish)
-  const windowsGroup = new THREE.Group();
-  buildingGroup.add(windowsGroup);
-
-  const winGlassMat = new THREE.MeshStandardMaterial({
-    color: 0x2a3848, emissive: 0xffd680, emissiveIntensity: 0,
-    roughness: 0.2, metalness: 0.3,
-  });
-  const winFrameMat = new THREE.MeshStandardMaterial({
-    color: 0x4a3826, roughness: 0.8,
-  });
-  const sillMat = new THREE.MeshStandardMaterial({
-    color: 0x8a8a8a, roughness: 0.7,
-  });
-
-  function addWindow(x, y, z, rotY, w, h) {
-    const g = new THREE.Group();
-    // Glass
-    const glass = new THREE.Mesh(
-      new THREE.PlaneGeometry(w, h),
-      winGlassMat.clone()
-    );
-    glass.position.z = 0.04;
-    g.add(glass);
-    // Frame
-    const fr = 0.08;
-    const fThk = 0.06;
-    // Top, bottom, left, right of frame
-    g.add(makeFrameSlat(w + fr*2, fThk, fThk, 0, h/2 + fr/2, 0));
-    g.add(makeFrameSlat(w + fr*2, fThk, fThk, 0, -h/2 - fr/2, 0));
-    g.add(makeFrameSlat(fThk, h, fThk, -w/2 - fr/2, 0, 0));
-    g.add(makeFrameSlat(fThk, h, fThk,  w/2 + fr/2, 0, 0));
-    // Cross
-    g.add(makeFrameSlat(w, fThk*0.6, fThk*0.6, 0, 0, 0.01));
-    g.add(makeFrameSlat(fThk*0.6, h, fThk*0.6, 0, 0, 0.01));
-    // Sill
-    const sill = new THREE.Mesh(
-      new THREE.BoxGeometry(w + fr*4, 0.1, 0.32),
-      sillMat
-    );
-    sill.position.set(0, -h/2 - 0.12, 0.12);
-    sill.castShadow = true;
-    g.add(sill);
-    g.position.set(x, y, z);
-    g.rotation.y = rotY;
-    g.userData.glass = glass;
-    windowsGroup.add(g);
-    return g;
-  }
-  function makeFrameSlat(w, h, d, x, y, z) {
-    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), winFrameMat);
+  const wallT = 0.35;
+  function makeOuterWall(w, h, d, x, y, z, mat) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
     m.position.set(x, y, z);
     m.castShadow = true;
+    m.receiveShadow = true;
+    buildingGroup.add(m);
     return m;
   }
+  // Walls span 0.6 (top of foundation) to TOTAL_H + 0.6
+  const wallY = 0.6 + TOTAL_H / 2;
+  makeOuterWall(W + wallT, TOTAL_H, wallT,    0,   wallY, -D/2, wallMatA); // front
+  makeOuterWall(W + wallT, TOTAL_H, wallT,    0,   wallY,  D/2, wallMatB); // back
+  makeOuterWall(wallT, TOTAL_H, D + wallT, -W/2, wallY,    0, wallMatA); // left
+  makeOuterWall(wallT, TOTAL_H, D + wallT,  W/2, wallY,    0, wallMatA); // right
 
-  const wins = [];
-  const winY = 2.0, winW = 1.6, winH = 1.4;
-  // Front (faces -Z)
-  wins.push(addWindow(-8, winY, -D/2 - 0.16, 0, winW, winH));
-  wins.push(addWindow( 8, winY, -D/2 - 0.16, 0, winW, winH));
-  // Back (faces +Z)
-  wins.push(addWindow(-8, winY,  D/2 + 0.16, Math.PI, winW, winH));
-  wins.push(addWindow( 1, winY,  D/2 + 0.16, Math.PI, winW, winH));
-  wins.push(addWindow( 8, winY,  D/2 + 0.16, Math.PI, winW, winH));
-  // Left (faces -X)
-  wins.push(addWindow(-W/2 - 0.16, winY, -3.5, -Math.PI/2, winW, winH));
-  wins.push(addWindow(-W/2 - 0.16, winY,  3.5, -Math.PI/2, winW, winH));
-  // Right (faces +X)
-  wins.push(addWindow( W/2 + 0.16, winY, -3.5,  Math.PI/2, winW, winH));
-  wins.push(addWindow( W/2 + 0.16, winY,  3.5,  Math.PI/2, winW, winH));
+  // === Floor slabs + cornices ===
+  const slabMat = new THREE.MeshStandardMaterial({
+    color: 0x6e6358, roughness: 0.85,
+  });
+  applyClipping(slabMat);
+  const corniceMat = new THREE.MeshStandardMaterial({
+    color: 0xe8e0d3, roughness: 0.7,
+  });
+  applyClipping(corniceMat);
 
-  // Door
-  const doorGroup = new THREE.Group();
-  buildingGroup.add(doorGroup);
-  const doorWidth = 1.8, doorHeight = 2.6;
-  const doorLeaf = new THREE.Mesh(
-    new THREE.BoxGeometry(doorWidth, doorHeight, 0.08),
-    new THREE.MeshStandardMaterial({ color: 0x3a2410, roughness: 0.75 })
+  for (let f = 1; f <= FLOORS; f++) {
+    const y = 0.6 + f * FLOOR_H;
+    // Floor slab (visible only on the inside through windows; mostly aesthetic)
+    // Actually we keep the cornice as a thin band on the outside for floor delineation
+    const cornice = new THREE.Mesh(
+      new THREE.BoxGeometry(W + wallT + 0.2, 0.18, D + wallT + 0.2),
+      corniceMat
+    );
+    cornice.position.set(0, y - 0.09, 0);
+    cornice.castShadow = true;
+    cornice.receiveShadow = true;
+    buildingGroup.add(cornice);
+  }
+
+  // === Windows (InstancedMesh — frame and glass) ===
+  // Window grid:
+  // Front/back: 8 columns per floor (every 3.5m roughly)
+  // Sides: 4 columns
+  // 12 floors → total = (8 + 8 + 4 + 4) * 12 = 288 windows
+
+  const winW = 1.6, winH = 1.6;
+  const sillH = 1.0;            // height from floor to bottom of window
+
+  // Frame geometry: a thin "picture frame" — a flat box with a slightly
+  // smaller emissive glass inside. We'll use two instanced meshes.
+  const frameOuterGeom = new THREE.BoxGeometry(winW + 0.2, winH + 0.2, 0.08);
+  const frameMat = new THREE.MeshStandardMaterial({
+    color: 0x1c1f23, roughness: 0.6, metalness: 0.4,
+  });
+  applyClipping(frameMat);
+
+  const glassGeom = new THREE.BoxGeometry(winW, winH, 0.04);
+  const glassMat = new THREE.MeshStandardMaterial({
+    color: 0x223040, emissive: 0xffd680, emissiveIntensity: 0,
+    roughness: 0.18, metalness: 0.55,
+  });
+  applyClipping(glassMat);
+
+  // Window cross (mullions): horizontal + vertical thin boxes per window
+  // Use one instanced mesh: 2 mullions per window. To keep things simpler,
+  // we'll add mullions as separate instanced meshes.
+  const mullionVertGeom = new THREE.BoxGeometry(0.05, winH, 0.05);
+  const mullionHorzGeom = new THREE.BoxGeometry(winW, 0.05, 0.05);
+  const mullionMat = new THREE.MeshStandardMaterial({
+    color: 0x2a2d33, roughness: 0.6, metalness: 0.3,
+  });
+  applyClipping(mullionMat);
+
+  const sillGeom = new THREE.BoxGeometry(winW + 0.4, 0.08, 0.18);
+  const sillMat = new THREE.MeshStandardMaterial({
+    color: 0xc8c0b3, roughness: 0.7,
+  });
+  applyClipping(sillMat);
+
+  // Compute window positions
+  const windowSpecs = [];
+  for (let f = 0; f < FLOORS; f++) {
+    const baseY = 0.6 + f * FLOOR_H + sillH + winH / 2;
+    // Front (z = -D/2)
+    for (let c = 0; c < 8; c++) {
+      const x = -W/2 + (c + 0.5) * (W / 8);
+      windowSpecs.push({ x, y: baseY, z: -D/2 - wallT/2 - 0.05, rotY: 0 });
+    }
+    // Back (z = +D/2)
+    for (let c = 0; c < 8; c++) {
+      const x = -W/2 + (c + 0.5) * (W / 8);
+      windowSpecs.push({ x, y: baseY, z:  D/2 + wallT/2 + 0.05, rotY: Math.PI });
+    }
+    // Left (x = -W/2)
+    for (let c = 0; c < 4; c++) {
+      const z = -D/2 + (c + 0.5) * (D / 4);
+      windowSpecs.push({ x: -W/2 - wallT/2 - 0.05, y: baseY, z, rotY: -Math.PI/2 });
+    }
+    // Right
+    for (let c = 0; c < 4; c++) {
+      const z = -D/2 + (c + 0.5) * (D / 4);
+      windowSpecs.push({ x:  W/2 + wallT/2 + 0.05, y: baseY, z, rotY:  Math.PI/2 });
+    }
+  }
+  const N_WINDOWS = windowSpecs.length;
+
+  function makeInstanced(geom, mat, count) {
+    const m = new THREE.InstancedMesh(geom, mat, count);
+    m.castShadow = true; m.receiveShadow = true;
+    return m;
+  }
+  const framesInst   = makeInstanced(frameOuterGeom, frameMat, N_WINDOWS);
+  const glassInst    = makeInstanced(glassGeom, glassMat, N_WINDOWS);
+  const mullionsVert = makeInstanced(mullionVertGeom, mullionMat, N_WINDOWS);
+  const mullionsHorz = makeInstanced(mullionHorzGeom, mullionMat, N_WINDOWS);
+  const sillsInst    = makeInstanced(sillGeom, sillMat, N_WINDOWS);
+
+  const m4 = new THREE.Matrix4();
+  const eu = new THREE.Euler();
+  const v3 = new THREE.Vector3();
+  const q4 = new THREE.Quaternion();
+  const sc = new THREE.Vector3(1, 1, 1);
+  const v3sill = new THREE.Vector3();
+  for (let i = 0; i < N_WINDOWS; i++) {
+    const s = windowSpecs[i];
+    eu.set(0, s.rotY, 0);
+    q4.setFromEuler(eu);
+    v3.set(s.x, s.y, s.z);
+    m4.compose(v3, q4, sc);
+    framesInst.setMatrixAt(i, m4);
+    glassInst.setMatrixAt(i, m4);
+    mullionsVert.setMatrixAt(i, m4);
+    mullionsHorz.setMatrixAt(i, m4);
+    // Sill is just below
+    v3sill.set(s.x, s.y - winH/2 - 0.08, s.z);
+    m4.compose(v3sill, q4, sc);
+    sillsInst.setMatrixAt(i, m4);
+  }
+  framesInst.instanceMatrix.needsUpdate = true;
+  glassInst.instanceMatrix.needsUpdate = true;
+  mullionsVert.instanceMatrix.needsUpdate = true;
+  mullionsHorz.instanceMatrix.needsUpdate = true;
+  sillsInst.instanceMatrix.needsUpdate = true;
+  buildingGroup.add(framesInst);
+  buildingGroup.add(glassInst);
+  buildingGroup.add(mullionsVert);
+  buildingGroup.add(mullionsHorz);
+  buildingGroup.add(sillsInst);
+
+  // Ground-floor lobby entrance (double-height glass)
+  const lobbyMat = new THREE.MeshStandardMaterial({
+    color: 0x1a2535, emissive: 0xffe7b0, emissiveIntensity: 0.0,
+    roughness: 0.15, metalness: 0.6,
+  });
+  applyClipping(lobbyMat);
+  const lobbyW = 6, lobbyH = FLOOR_H * 1.6;
+  const lobby = new THREE.Mesh(
+    new THREE.BoxGeometry(lobbyW, lobbyH, 0.2),
+    lobbyMat
   );
-  doorLeaf.position.set(0, 0.45 + doorHeight/2, -D/2 - 0.18);
-  doorLeaf.castShadow = true;
-  doorGroup.add(doorLeaf);
-  const knob = new THREE.Mesh(
-    new THREE.SphereGeometry(0.07, 12, 12),
-    new THREE.MeshStandardMaterial({ color: 0xc89a3a, roughness: 0.3, metalness: 0.7 })
-  );
-  knob.position.set(0.65, 0.45 + doorHeight*0.5, -D/2 - 0.24);
-  doorGroup.add(knob);
-  const canopy = new THREE.Mesh(
-    new THREE.BoxGeometry(2.6, 0.18, 0.9),
-    new THREE.MeshStandardMaterial({ color: 0x4d2a1c, roughness: 0.7 })
-  );
-  canopy.position.set(0, 0.45 + doorHeight + 0.4, -D/2 - 0.5);
+  lobby.position.set(0, 0.6 + lobbyH/2, -D/2 - wallT/2 - 0.06);
+  lobby.castShadow = true;
+  buildingGroup.add(lobby);
+  // Lobby frame
+  const lobbyFrameMat = new THREE.MeshStandardMaterial({
+    color: 0x1a1c20, roughness: 0.4, metalness: 0.7,
+  });
+  applyClipping(lobbyFrameMat);
+  // top + bottom + sides + 2 mullions
+  function lobbyBar(w, h, d, x, y, z) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), lobbyFrameMat);
+    m.position.set(x, y, z);
+    m.castShadow = true;
+    buildingGroup.add(m);
+  }
+  lobbyBar(lobbyW + 0.2, 0.18, 0.25, 0, 0.6 + lobbyH + 0.09, -D/2 - wallT/2 - 0.05);
+  lobbyBar(lobbyW + 0.2, 0.18, 0.25, 0, 0.6 + 0.09, -D/2 - wallT/2 - 0.05);
+  lobbyBar(0.18, lobbyH + 0.18, 0.25, -lobbyW/2 - 0.09, 0.6 + lobbyH/2, -D/2 - wallT/2 - 0.05);
+  lobbyBar(0.18, lobbyH + 0.18, 0.25,  lobbyW/2 + 0.09, 0.6 + lobbyH/2, -D/2 - wallT/2 - 0.05);
+  lobbyBar(0.10, lobbyH, 0.20, -lobbyW/4, 0.6 + lobbyH/2, -D/2 - wallT/2 - 0.04);
+  lobbyBar(0.10, lobbyH, 0.20,  lobbyW/4, 0.6 + lobbyH/2, -D/2 - wallT/2 - 0.04);
+  // Canopy
+  const canopyMat = new THREE.MeshStandardMaterial({
+    color: 0x1a1c20, roughness: 0.4, metalness: 0.7,
+  });
+  applyClipping(canopyMat);
+  const canopy = new THREE.Mesh(new THREE.BoxGeometry(lobbyW + 1.5, 0.2, 1.6), canopyMat);
+  canopy.position.set(0, 0.6 + lobbyH + 0.4, -D/2 - 0.5);
   canopy.castShadow = true;
-  doorGroup.add(canopy);
-  // Pathway
-  const path = new THREE.Mesh(
-    new THREE.BoxGeometry(2.0, 0.06, 5),
-    new THREE.MeshStandardMaterial({ color: 0x6a6862, roughness: 0.95 })
-  );
-  path.position.set(0, 0.04, -D/2 - 3);
-  path.receiveShadow = true;
-  doorGroup.add(path);
+  buildingGroup.add(canopy);
 
-  // Decorative trees (low-poly, give scale)
+  // === Roof (flat with parapet, mechanical, antenna) ===
+  const roofGroup = new THREE.Group();
+  buildingGroup.add(roofGroup);
+  const roofY = 0.6 + TOTAL_H;
+  // Roof slab
+  const roofSlab = new THREE.Mesh(
+    new THREE.BoxGeometry(W + wallT, 0.4, D + wallT),
+    new THREE.MeshStandardMaterial({ color: 0x52524d, roughness: 0.85 })
+  );
+  roofSlab.position.set(0, roofY + 0.2, 0);
+  roofSlab.castShadow = true; roofSlab.receiveShadow = true;
+  applyClipping(roofSlab.material);
+  roofGroup.add(roofSlab);
+  // Parapet
+  const parapetMat = new THREE.MeshStandardMaterial({ color: 0xc9c0b4, roughness: 0.85 });
+  applyClipping(parapetMat);
+  const parH = 1.1;
+  function parapetSeg(w, d, x, z) {
+    const m = new THREE.Mesh(new THREE.BoxGeometry(w, parH, d), parapetMat);
+    m.position.set(x, roofY + 0.4 + parH/2, z);
+    m.castShadow = true; m.receiveShadow = true;
+    roofGroup.add(m);
+  }
+  parapetSeg(W + wallT, 0.3, 0, -D/2);
+  parapetSeg(W + wallT, 0.3, 0,  D/2);
+  parapetSeg(0.3, D + wallT, -W/2, 0);
+  parapetSeg(0.3, D + wallT,  W/2, 0);
+
+  // HVAC unit
+  const hvacMat = new THREE.MeshStandardMaterial({ color: 0xb6b0a8, roughness: 0.7, metalness: 0.3 });
+  applyClipping(hvacMat);
+  const hvac = new THREE.Mesh(new THREE.BoxGeometry(3.2, 1.2, 2.0), hvacMat);
+  hvac.position.set(-W/2 + 5, roofY + 0.4 + 0.6, 2);
+  hvac.castShadow = true; hvac.receiveShadow = true;
+  roofGroup.add(hvac);
+  // Vents on top of HVAC
+  const ventMat = new THREE.MeshStandardMaterial({ color: 0x44443d, roughness: 0.6 });
+  applyClipping(ventMat);
+  for (let i = 0; i < 3; i++) {
+    const v = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.4, 16), ventMat);
+    v.position.set(-W/2 + 4 + i * 1.0, roofY + 0.4 + 1.4, 2);
+    v.castShadow = true;
+    roofGroup.add(v);
+  }
+  // Water tank
+  const tank = new THREE.Mesh(
+    new THREE.CylinderGeometry(1.4, 1.4, 2.4, 24),
+    new THREE.MeshStandardMaterial({ color: 0x4f5a64, roughness: 0.5, metalness: 0.5 })
+  );
+  applyClipping(tank.material);
+  tank.position.set(W/2 - 5, roofY + 0.4 + 1.2, -2.5);
+  tank.castShadow = true;
+  roofGroup.add(tank);
+  // Antenna
+  const antMat = new THREE.MeshStandardMaterial({ color: 0xc8c8c8, roughness: 0.4, metalness: 0.5 });
+  applyClipping(antMat);
+  const antennaPole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 5.2, 8), antMat);
+  antennaPole.position.set(W/2 - 8, roofY + 0.4 + 2.6, 3);
+  antennaPole.castShadow = true;
+  roofGroup.add(antennaPole);
+  for (let i = 0; i < 3; i++) {
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.5, 1.0), antMat);
+    arm.position.set(W/2 - 8, roofY + 0.4 + 1.0 + i * 1.4, 3);
+    arm.castShadow = true;
+    roofGroup.add(arm);
+  }
+  // Stair box
+  const stairBox = new THREE.Mesh(
+    new THREE.BoxGeometry(3, 2.6, 3),
+    new THREE.MeshStandardMaterial({ color: 0xc9c0b4, roughness: 0.85 })
+  );
+  applyClipping(stairBox.material);
+  stairBox.position.set(-W/2 + 4, roofY + 0.4 + 1.3, -2);
+  stairBox.castShadow = true; stairBox.receiveShadow = true;
+  roofGroup.add(stairBox);
+
+  // ============================================================
+  // Surroundings: trees, lampposts, low-rise neighbors
+  // ============================================================
   function makeTree(x, z, scale = 1) {
     const tree = new THREE.Group();
     const trunk = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.18, 0.22, 1.2, 8),
+      new THREE.CylinderGeometry(0.18, 0.22, 1.4, 8),
       new THREE.MeshStandardMaterial({ color: 0x4a2e1a, roughness: 0.95 })
     );
-    trunk.position.y = 0.6;
+    trunk.position.y = 0.7;
     trunk.castShadow = true;
     tree.add(trunk);
     const leaves = new THREE.Mesh(
-      new THREE.ConeGeometry(0.9, 2.4, 8),
-      new THREE.MeshStandardMaterial({ color: 0x2c5a2c, roughness: 0.9 })
+      new THREE.IcosahedronGeometry(1.2, 0),
+      new THREE.MeshStandardMaterial({ color: 0x2c5a2c, roughness: 0.95, flatShading: true })
     );
-    leaves.position.y = 2.0;
+    leaves.position.y = 2.2;
     leaves.castShadow = true;
     tree.add(leaves);
     tree.position.set(x, 0, z);
     tree.scale.setScalar(scale);
     return tree;
   }
-  scene.add(makeTree(-W/2 - 5, -D/2 - 3, 1.1));
-  scene.add(makeTree(-W/2 - 7, D/2 + 4, 0.9));
-  scene.add(makeTree( W/2 + 6, -D/2 - 5, 1.0));
-  scene.add(makeTree( W/2 + 8,  D/2 + 2, 1.2));
+  const treePositions = [
+    [-W/2 - 7, -D/2 - 7, 1.2],
+    [-W/2 - 9,  D/2 + 3, 0.95],
+    [-W/2 - 5,  D/2 + 7, 1.05],
+    [ W/2 + 6, -D/2 - 8, 1.15],
+    [ W/2 + 9, -D/2 + 2, 0.9],
+    [ W/2 + 7,  D/2 + 5, 1.1],
+    [ 0, -D/2 - 8, 1.0],
+    [-12, D/2 + 9, 1.05],
+  ];
+  treePositions.forEach(([x, z, s]) => scene.add(makeTree(x, z, s)));
 
-  // Interior lights (lit when night)
-  const interiorLights = [];
+  function makeLamppost(x, z) {
+    const g = new THREE.Group();
+    const pole = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.07, 0.09, 4.5, 8),
+      new THREE.MeshStandardMaterial({ color: 0x33363a, roughness: 0.6, metalness: 0.5 })
+    );
+    pole.position.y = 2.25;
+    pole.castShadow = true;
+    g.add(pole);
+    // Lamp head
+    const head = new THREE.Mesh(
+      new THREE.SphereGeometry(0.22, 12, 12),
+      new THREE.MeshStandardMaterial({
+        color: 0xffd680, emissive: 0xffd680, emissiveIntensity: 0,
+        roughness: 0.4,
+      })
+    );
+    head.position.set(0, 4.6, 0);
+    head.userData.isLamp = true;
+    g.add(head);
+    // Point light
+    const pt = new THREE.PointLight(0xffd680, 0, 12, 1.5);
+    pt.position.set(0, 4.5, 0);
+    head.userData.light = pt;
+    g.add(pt);
+    g.position.set(x, 0, z);
+    return g;
+  }
+  const lamps = [];
   [
-    [-8, 1.8, -3.5], [ 1, 1.8, -3.5], [ 9, 1.8, -3.5],
-    [-8, 1.8,  3.5], [ 1, 1.8,  3.5], [ 9, 1.8,  3.5],
-  ].forEach(([x, y, z]) => {
-    const l = new THREE.PointLight(0xffd680, 0, 14, 1.4);
-    l.position.set(x, y, z);
-    buildingGroup.add(l);
-    interiorLights.push(l);
+    [-W/2 - 4, -D/2 - 4],
+    [ W/2 + 4, -D/2 - 4],
+    [-W/2 - 4,  D/2 + 4],
+    [ W/2 + 4,  D/2 + 4],
+    [ 0, -D/2 - 6],
+    [ 0,  D/2 + 6],
+  ].forEach(([x, z]) => {
+    const lp = makeLamppost(x, z);
+    scene.add(lp);
+    lamps.push(lp);
   });
 
-  // Initial state
-  wallsGroup.scale.y = 0;
-  roofGroup.position.y = 12;
-  roofGroup.visible = false;
-  doorGroup.scale.set(0, 0, 0);
-  windowsGroup.children.forEach(w => w.scale.set(0, 0, 0));
+  // Surrounding low-rise neighbor buildings (depth context)
+  function makeNeighbor(x, z, w, h, d, color) {
+    const m = new THREE.Mesh(
+      new THREE.BoxGeometry(w, h, d),
+      new THREE.MeshStandardMaterial({ color, roughness: 0.85 })
+    );
+    m.position.set(x, h/2, z);
+    m.castShadow = true; m.receiveShadow = true;
+    return m;
+  }
+  scene.add(makeNeighbor(-50,  -30, 30, 14, 16, 0x9a8c7a));
+  scene.add(makeNeighbor( 50,  -32, 25, 18, 14, 0xa0928e));
+  scene.add(makeNeighbor( 55,   30, 20, 12, 22, 0x7c8a96));
+  scene.add(makeNeighbor(-55,   34, 28, 16, 18, 0x9e9a8a));
+  scene.add(makeNeighbor(-15,  -40, 18, 10, 14, 0x8e7c6a));
+  scene.add(makeNeighbor( 22,   45, 20, 22, 16, 0xb0a698));
 
-  // ===== Post-processing =====
+  // ============================================================
+  // Construction "scan line" effect (a glowing horizontal plane
+  // that follows the clip plane during build phase)
+  // ============================================================
+  const scanGeom = new THREE.PlaneGeometry(W + 4, D + 4);
+  const scanMat = new THREE.MeshBasicMaterial({
+    color: 0x7dd3fc, transparent: true, opacity: 0.0, depthWrite: false,
+  });
+  const scanLine = new THREE.Mesh(scanGeom, scanMat);
+  scanLine.rotation.x = -Math.PI / 2;
+  scene.add(scanLine);
+
+  // ============================================================
+  // Post-processing
+  // ============================================================
   const composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
   const bloom = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    0.7, 0.5, 0.55
+    0.85, 0.5, 0.62
   );
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
 
-  // ===== Resize =====
+  // ============================================================
+  // Resize
+  // ============================================================
   window.addEventListener('resize', () => {
     const w = window.innerWidth, h = window.innerHeight;
     camera.aspect = w/h;
@@ -809,10 +1398,11 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     bloom.resolution.set(w, h);
   });
 
-  // ===== Animation timeline =====
-  const LOOP_MS = 24000;
-
+  // ============================================================
+  // Animation timeline
+  // ============================================================
   function easeInOut(x) { return x < 0.5 ? 2*x*x : 1 - Math.pow(-2*x + 2, 2) / 2; }
+  function easeOut(x) { return 1 - (1 - x) * (1 - x); }
   function lerp(a, b, t) { return a + (b - a) * t; }
   function clamp01(x) { return Math.max(0, Math.min(1, x)); }
   function lerpColor(out, a, b, t) {
@@ -821,292 +1411,273 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     out.b = a.b + (b.b - a.b) * t;
   }
 
-  // Sky color presets
-  const skyDay = {
-    top: new THREE.Color(0x4d80c8),
-    mid: new THREE.Color(0x8cb6e0),
-    bot: new THREE.Color(0xc8d8e8),
-  };
-  const skyDusk = {
-    top: new THREE.Color(0x2c3a78),
-    mid: new THREE.Color(0xb86a48),
-    bot: new THREE.Color(0xe89858),
-  };
-  const skyNight = {
-    top: new THREE.Color(0x040816),
-    mid: new THREE.Color(0x0a1430),
-    bot: new THREE.Color(0x1a2444),
-  };
-  const skyBlueprint = {
-    top: new THREE.Color(0x040816),
-    mid: new THREE.Color(0x081428),
-    bot: new THREE.Color(0x102040),
-  };
+  // Sky presets
+  const skyDay      = { top: new THREE.Color(0x4d80c8), mid: new THREE.Color(0x8cb6e0), bot: new THREE.Color(0xc8d8e8) };
+  const skyDawn     = { top: new THREE.Color(0x2c3a78), mid: new THREE.Color(0x8e7e9c), bot: new THREE.Color(0xd6a070) };
+  const skyDusk     = { top: new THREE.Color(0x2c3a78), mid: new THREE.Color(0xb86a48), bot: new THREE.Color(0xe89858) };
+  const skyNight    = { top: new THREE.Color(0x040816), mid: new THREE.Color(0x0a1430), bot: new THREE.Color(0x1a2444) };
+  const skyBlueprint= { top: new THREE.Color(0x040816), mid: new THREE.Color(0x081428), bot: new THREE.Color(0x102040) };
 
-  function pickSky(phase) {
-    // phase: 0=blueprint, 1=dawn, 2=day, 3=dusk, 4=night
-    if (phase <= 0) return skyBlueprint;
-    if (phase >= 4) return skyNight;
-    // For simplicity, interpolate between two presets
-    return null;
-  }
+  const tmpA = new THREE.Color();
+  const tmpB = new THREE.Color();
+  const tmpC = new THREE.Color();
 
   let startTime = null;
-  const tmpColorA = new THREE.Color();
-  const tmpColorB = new THREE.Color();
-  const tmpColorC = new THREE.Color();
 
   function tick(now) {
     if (startTime === null) startTime = now;
     const t = ((now - startTime) % LOOP_MS) / LOOP_MS;
 
-    let camMode, blueprintAlpha, planProgress;
-    let wallProg, roofY, roofVisible, doorScl, winScl, winEmiss, lightInt;
-    let sunIntensity, sunDir, hemiInt, moonInt;
-    let skyTop, skyMid, skyBot, starsAlpha, fogD, exposure;
+    let camMode;
+    let blueprintAlpha = 0, planProgress = 1;
+    let buildHeight = 0;       // current y of clip plane (0..TOTAL_H)
+    let scanAlpha = 0, scanY = 0;
+    let windowEmiss = 0;
+    let lampInt = 0;
+    let lobbyEmiss = 0;
+    let sunDir = { az: -Math.PI/4, el: 0.10 };
+    let sunIntensity = 0.05, hemiInt = 0.45, moonInt = 0.5;
+    let starsAlpha = 0.7, fogD = 0.012, exposure = 0.95;
+    let skyTop, skyMid, skyBot;
 
     // Phases:
-    // A: 0.00 - 0.18  Blueprint draws (top-down)
-    // B: 0.18 - 0.32  Camera tilts down + walls extrude
-    // C: 0.32 - 0.42  Roof drops + door + sun rises (dawn)
-    // D: 0.42 - 0.50  Day held; camera orbits
-    // E: 0.50 - 0.62  Sunset; sky turns dusk
-    // F: 0.62 - 0.78  Night; windows lit, slow orbit, stars
-    // G: 0.78 - 0.92  Sunrise → reverse to plan
-    // H: 0.92 - 1.00  Hold blueprint, ready to loop
+    // A: 0.00 - 0.20  Blueprint + furniture draws (top-down)
+    // B: 0.20 - 0.32  Camera tilts; blueprint fades; first floor extrudes
+    // C: 0.32 - 0.55  Building rises floor-by-floor (clip plane)
+    // D: 0.55 - 0.62  Day; orbit
+    // E: 0.62 - 0.72  Sunset; orbit
+    // F: 0.72 - 0.85  Night; lit windows; orbit
+    // G: 0.85 - 0.96  Reverse → back to top-down plan
+    // H: 0.96 - 1.00  Hold plan, ready to loop
 
-    if (t < 0.18) {
-      const k = t / 0.18;
-      camMode = { type: 'top', k };
+    if (t < 0.20) {
+      const k = t / 0.20;
+      camMode = { type: 'top' };
       blueprintAlpha = clamp01(t * 30);
       planProgress = clamp01(k);
-      wallProg = 0; roofY = 12; roofVisible = false;
-      doorScl = 0; winScl = 0; winEmiss = 0; lightInt = 0;
-      sunDir = { az: -Math.PI/4, el: 0.10 };
+      buildHeight = 0;
+      scanAlpha = 0;
       sunIntensity = 0.05; hemiInt = 0.45; moonInt = 0.5;
+      sunDir = { az: -Math.PI/4, el: 0.10 };
       skyTop = skyBlueprint.top; skyMid = skyBlueprint.mid; skyBot = skyBlueprint.bot;
-      starsAlpha = 0.7; fogD = 0.012; exposure = 0.95;
+      starsAlpha = 0.7; fogD = 0.010; exposure = 0.95;
+      windowEmiss = 0; lampInt = 0;
     } else if (t < 0.32) {
-      const k = (t - 0.18) / 0.14;
+      const k = (t - 0.20) / 0.12;
       const ek = easeInOut(k);
       camMode = { type: 'tiltIn', k: ek };
-      blueprintAlpha = lerp(1, 0, ek);
+      blueprintAlpha = lerp(1, 0.0, ek);
       planProgress = 1;
-      wallProg = lerp(0, 1, ek);
-      roofY = 12; roofVisible = false;
-      doorScl = clamp01((k - 0.7) / 0.3);
-      winScl = clamp01((k - 0.6) / 0.4);
-      winEmiss = 0; lightInt = 0;
-      sunDir = { az: -Math.PI/3, el: lerp(0.1, 0.32, ek) };
-      sunIntensity = lerp(0.1, 1.4, ek);
-      hemiInt = lerp(0.45, 0.7, ek);
-      moonInt = lerp(0.5, 0.0, ek);
-      lerpColor(tmpColorA, skyBlueprint.top, skyDawn().top, ek);
-      lerpColor(tmpColorB, skyBlueprint.mid, skyDawn().mid, ek);
-      lerpColor(tmpColorC, skyBlueprint.bot, skyDawn().bot, ek);
-      skyTop = tmpColorA; skyMid = tmpColorB; skyBot = tmpColorC;
-      starsAlpha = lerp(0.7, 0.0, ek);
-      fogD = lerp(0.012, 0.005, ek);
+      buildHeight = lerp(0, FLOOR_H * 1.2, ek);
+      scanAlpha = lerp(0, 0.6, ek);
+      scanY = buildHeight;
+      sunIntensity = lerp(0.05, 0.6, ek);
+      hemiInt = lerp(0.45, 0.55, ek);
+      moonInt = lerp(0.5, 0.2, ek);
+      sunDir = { az: -Math.PI/3, el: lerp(0.10, 0.22, ek) };
+      lerpColor(tmpA, skyBlueprint.top, skyDawn.top, ek);
+      lerpColor(tmpB, skyBlueprint.mid, skyDawn.mid, ek);
+      lerpColor(tmpC, skyBlueprint.bot, skyDawn.bot, ek);
+      skyTop = tmpA; skyMid = tmpB; skyBot = tmpC;
+      starsAlpha = lerp(0.7, 0.2, ek);
+      fogD = lerp(0.010, 0.006, ek);
       exposure = lerp(0.95, 1.05, ek);
-    } else if (t < 0.42) {
-      const k = (t - 0.32) / 0.10;
-      const ek = easeInOut(k);
-      camMode = { type: 'orbitLow', k };
+      windowEmiss = 0; lampInt = 0;
+    } else if (t < 0.55) {
+      const k = (t - 0.32) / 0.23;
+      const ek = easeOut(k);
+      camMode = { type: 'orbitRise', k };
       blueprintAlpha = 0;
-      wallProg = 1;
-      roofVisible = true;
-      roofY = lerp(8, 0, ek);
-      doorScl = 1;
-      winScl = 1;
-      winEmiss = 0; lightInt = 0;
-      sunDir = { az: lerp(-Math.PI/3, -Math.PI/4, k), el: lerp(0.32, 0.55, ek) };
-      sunIntensity = lerp(1.4, 2.4, ek);
-      hemiInt = 0.7;
-      moonInt = 0;
-      const a = skyDawn(), b = skyDay;
-      lerpColor(tmpColorA, a.top, b.top, ek);
-      lerpColor(tmpColorB, a.mid, b.mid, ek);
-      lerpColor(tmpColorC, a.bot, b.bot, ek);
-      skyTop = tmpColorA; skyMid = tmpColorB; skyBot = tmpColorC;
-      starsAlpha = 0;
-      fogD = 0.005; exposure = 1.05;
-    } else if (t < 0.50) {
-      const k = (t - 0.42) / 0.08;
-      camMode = { type: 'orbit', k, base: 0 };
-      blueprintAlpha = 0;
-      wallProg = 1; roofY = 0; roofVisible = true;
-      doorScl = 1; winScl = 1; winEmiss = 0; lightInt = 0;
-      sunDir = { az: lerp(-Math.PI/4, 0, k), el: 0.55 };
-      sunIntensity = 2.4; hemiInt = 0.7; moonInt = 0;
-      skyTop = skyDay.top; skyMid = skyDay.mid; skyBot = skyDay.bot;
-      starsAlpha = 0; fogD = 0.005; exposure = 1.05;
+      buildHeight = lerp(FLOOR_H * 1.2, TOTAL_H + 4, ek);
+      scanAlpha = lerp(0.6, 0.1, ek);
+      scanY = Math.min(buildHeight, TOTAL_H + 0.5);
+      sunIntensity = lerp(0.6, 2.2, ek);
+      hemiInt = lerp(0.55, 0.7, ek);
+      moonInt = lerp(0.2, 0.0, ek);
+      sunDir = { az: lerp(-Math.PI/3, -Math.PI/4, k), el: lerp(0.22, 0.5, ek) };
+      lerpColor(tmpA, skyDawn.top, skyDay.top, ek);
+      lerpColor(tmpB, skyDawn.mid, skyDay.mid, ek);
+      lerpColor(tmpC, skyDawn.bot, skyDay.bot, ek);
+      skyTop = tmpA; skyMid = tmpB; skyBot = tmpC;
+      starsAlpha = lerp(0.2, 0, ek);
+      fogD = lerp(0.006, 0.004, ek);
+      exposure = 1.05;
+      windowEmiss = 0; lampInt = 0;
     } else if (t < 0.62) {
-      const k = (t - 0.50) / 0.12;
-      const ek = easeInOut(k);
-      camMode = { type: 'orbit', k, base: 0.3 };
+      const k = (t - 0.55) / 0.07;
+      camMode = { type: 'orbit', k, base: 0.0 };
       blueprintAlpha = 0;
-      wallProg = 1; roofY = 0; roofVisible = true;
-      doorScl = 1; winScl = 1;
-      winEmiss = clamp01((k - 0.6) / 0.4) * 1.3;
-      lightInt = clamp01((k - 0.6) / 0.4) * 1.2;
-      sunDir = { az: lerp(0, Math.PI/3, k), el: lerp(0.55, 0.05, ek) };
-      sunIntensity = lerp(2.4, 0.05, ek);
+      buildHeight = TOTAL_H + 4;
+      scanAlpha = 0;
+      sunIntensity = 2.2; hemiInt = 0.7; moonInt = 0;
+      sunDir = { az: lerp(-Math.PI/4, 0, k), el: 0.5 };
+      skyTop = skyDay.top; skyMid = skyDay.mid; skyBot = skyDay.bot;
+      starsAlpha = 0; fogD = 0.004; exposure = 1.05;
+      windowEmiss = 0; lampInt = 0;
+    } else if (t < 0.72) {
+      const k = (t - 0.62) / 0.10;
+      const ek = easeInOut(k);
+      camMode = { type: 'orbit', k, base: 0.20 };
+      blueprintAlpha = 0;
+      buildHeight = TOTAL_H + 4;
+      sunIntensity = lerp(2.2, 0.05, ek);
       hemiInt = lerp(0.7, 0.25, ek);
       moonInt = lerp(0, 0.4, ek);
-      const a = skyDay, b = skyDusk;
-      lerpColor(tmpColorA, a.top, b.top, ek);
-      lerpColor(tmpColorB, a.mid, b.mid, ek);
-      lerpColor(tmpColorC, a.bot, b.bot, ek);
-      skyTop = tmpColorA; skyMid = tmpColorB; skyBot = tmpColorC;
-      starsAlpha = clamp01((k - 0.7) / 0.3) * 0.4;
-      fogD = lerp(0.005, 0.014, ek);
+      sunDir = { az: lerp(0, Math.PI/3, k), el: lerp(0.5, 0.05, ek) };
+      lerpColor(tmpA, skyDay.top, skyDusk.top, ek);
+      lerpColor(tmpB, skyDay.mid, skyDusk.mid, ek);
+      lerpColor(tmpC, skyDay.bot, skyDusk.bot, ek);
+      skyTop = tmpA; skyMid = tmpB; skyBot = tmpC;
+      starsAlpha = clamp01((k - 0.7) / 0.3) * 0.5;
+      fogD = lerp(0.004, 0.012, ek);
       exposure = lerp(1.05, 1.0, ek);
-    } else if (t < 0.78) {
-      const k = (t - 0.62) / 0.16;
+      windowEmiss = clamp01((k - 0.5) / 0.5) * 1.4;
+      lampInt = clamp01((k - 0.6) / 0.4) * 1.2;
+    } else if (t < 0.85) {
+      const k = (t - 0.72) / 0.13;
       const ek = easeInOut(k);
-      camMode = { type: 'orbit', k, base: 0.7 };
+      camMode = { type: 'orbit', k, base: 0.45 };
       blueprintAlpha = 0;
-      wallProg = 1; roofY = 0; roofVisible = true;
-      doorScl = 1; winScl = 1; winEmiss = 1.3; lightInt = 1.2;
-      sunDir = { az: Math.PI/3, el: lerp(0.05, -0.1, ek) };
+      buildHeight = TOTAL_H + 4;
       sunIntensity = lerp(0.05, 0, ek);
-      hemiInt = lerp(0.25, 0.18, ek);
-      moonInt = lerp(0.4, 0.5, ek);
-      const a = skyDusk, b = skyNight;
-      lerpColor(tmpColorA, a.top, b.top, ek);
-      lerpColor(tmpColorB, a.mid, b.mid, ek);
-      lerpColor(tmpColorC, a.bot, b.bot, ek);
-      skyTop = tmpColorA; skyMid = tmpColorB; skyBot = tmpColorC;
-      starsAlpha = lerp(0.4, 0.85, ek);
-      fogD = lerp(0.014, 0.018, ek);
+      hemiInt = lerp(0.25, 0.16, ek);
+      moonInt = lerp(0.4, 0.55, ek);
+      sunDir = { az: Math.PI/3, el: lerp(0.05, -0.1, ek) };
+      lerpColor(tmpA, skyDusk.top, skyNight.top, ek);
+      lerpColor(tmpB, skyDusk.mid, skyNight.mid, ek);
+      lerpColor(tmpC, skyDusk.bot, skyNight.bot, ek);
+      skyTop = tmpA; skyMid = tmpB; skyBot = tmpC;
+      starsAlpha = lerp(0.5, 0.95, ek);
+      fogD = lerp(0.012, 0.018, ek);
       exposure = lerp(1.0, 0.95, ek);
-    } else if (t < 0.92) {
-      const k = (t - 0.78) / 0.14;
+      windowEmiss = 1.4;
+      lampInt = 1.2;
+    } else if (t < 0.96) {
+      const k = (t - 0.85) / 0.11;
       const ek = easeInOut(k);
       camMode = { type: 'tiltOut', k: ek };
-      blueprintAlpha = lerp(0, 1, clamp01((k - 0.5) * 2));
+      blueprintAlpha = lerp(0, 1, clamp01((k - 0.55) / 0.40));
       planProgress = 1;
-      wallProg = lerp(1, 0, clamp01((k - 0.3) / 0.5));
-      roofVisible = ek < 0.4;
-      roofY = lerp(0, 12, clamp01((k) / 0.4));
-      doorScl = lerp(1, 0, clamp01((k - 0.2) / 0.3));
-      winScl = lerp(1, 0, clamp01((k - 0.15) / 0.3));
-      winEmiss = lerp(1.3, 0, clamp01(k * 2));
-      lightInt = lerp(1.2, 0, clamp01(k * 2));
-      sunDir = { az: -Math.PI/3, el: lerp(-0.1, 0.1, ek) };
-      sunIntensity = lerp(0, 0.1, ek);
-      hemiInt = lerp(0.18, 0.45, ek);
-      moonInt = lerp(0.5, 0.5, ek);
-      const a = skyNight, b = skyBlueprint;
-      lerpColor(tmpColorA, a.top, b.top, ek);
-      lerpColor(tmpColorB, a.mid, b.mid, ek);
-      lerpColor(tmpColorC, a.bot, b.bot, ek);
-      skyTop = tmpColorA; skyMid = tmpColorB; skyBot = tmpColorC;
-      starsAlpha = lerp(0.85, 0.7, ek);
-      fogD = lerp(0.018, 0.012, ek);
-      exposure = lerp(0.95, 0.95, ek);
+      buildHeight = lerp(TOTAL_H + 4, 0, clamp01(k * 1.2));
+      scanAlpha = clamp01(k - 0.05) * 0.5;
+      scanY = buildHeight;
+      sunIntensity = lerp(0, 0.05, ek);
+      hemiInt = lerp(0.16, 0.45, ek);
+      moonInt = lerp(0.55, 0.5, ek);
+      sunDir = { az: -Math.PI/3, el: lerp(-0.1, 0.10, ek) };
+      lerpColor(tmpA, skyNight.top, skyBlueprint.top, ek);
+      lerpColor(tmpB, skyNight.mid, skyBlueprint.mid, ek);
+      lerpColor(tmpC, skyNight.bot, skyBlueprint.bot, ek);
+      skyTop = tmpA; skyMid = tmpB; skyBot = tmpC;
+      starsAlpha = lerp(0.95, 0.7, ek);
+      fogD = lerp(0.018, 0.010, ek);
+      exposure = 0.95;
+      windowEmiss = lerp(1.4, 0, clamp01(k * 1.5));
+      lampInt = lerp(1.2, 0, clamp01(k * 1.5));
     } else {
-      camMode = { type: 'top', k: 1 };
+      camMode = { type: 'top' };
       blueprintAlpha = 1; planProgress = 1;
-      wallProg = 0; roofY = 12; roofVisible = false;
-      doorScl = 0; winScl = 0; winEmiss = 0; lightInt = 0;
-      sunDir = { az: -Math.PI/4, el: 0.10 }; sunIntensity = 0.05;
-      hemiInt = 0.45; moonInt = 0.5;
+      buildHeight = 0; scanAlpha = 0;
+      sunIntensity = 0.05; hemiInt = 0.45; moonInt = 0.5;
+      sunDir = { az: -Math.PI/4, el: 0.10 };
       skyTop = skyBlueprint.top; skyMid = skyBlueprint.mid; skyBot = skyBlueprint.bot;
-      starsAlpha = 0.7; fogD = 0.012; exposure = 0.95;
+      starsAlpha = 0.7; fogD = 0.010; exposure = 0.95;
+      windowEmiss = 0; lampInt = 0;
     }
 
     // ----- Camera path -----
-    const orbitAngle = (typeof camMode.base === 'number')
-      ? (camMode.base + camMode.k) * Math.PI * 2 * 0.18
-      : 0;
     if (camMode.type === 'top') {
-      const k = camMode.k;
-      // Pure top-down look at origin
-      const dist = lerp(38, 38, k);
-      camera.position.set(0.001, dist, 0.001); // tiny offset to avoid up-vector singularity
+      camera.position.set(0.001, 80, 0.001);
       camera.lookAt(0, 0, 0);
     } else if (camMode.type === 'tiltIn') {
       const k = camMode.k;
-      // From (0, 38, 0) top-down to (~22, 18, 22) iso angle
-      const dist = lerp(38, 28, k);
-      const elev = lerp(Math.PI/2, Math.PI/2 - 0.85, k); // from 90° down toward iso
-      const azim = lerp(0, -Math.PI/4, k); // start centered, swing slightly to right
-      const x = Math.cos(elev) * Math.cos(azim) * dist;
-      const z = Math.cos(elev) * Math.sin(azim) * dist;
-      const y = Math.sin(elev) * dist;
-      camera.position.set(x, y + 2, z);
-      camera.lookAt(0, 2 + k * 1, 0);
-    } else if (camMode.type === 'orbitLow') {
-      const k = camMode.k;
-      const elev = lerp(Math.PI/2 - 0.85, Math.PI/2 - 1.0, k);
-      const azim = -Math.PI/4 - k * 0.3;
-      const dist = lerp(28, 26, k);
+      const elev = lerp(Math.PI/2, Math.PI/2 - 0.95, k);
+      const azim = lerp(0, -Math.PI/4, k);
+      const dist = lerp(80, 70, k);
+      const ec = Math.cos(elev), es = Math.sin(elev);
       camera.position.set(
-        Math.cos(elev) * Math.cos(azim) * dist,
-        Math.sin(elev) * dist + 3,
-        Math.cos(elev) * Math.sin(azim) * dist
+        ec * Math.cos(azim) * dist,
+        es * dist + 8 * k,
+        ec * Math.sin(azim) * dist
       );
-      camera.lookAt(0, 3, 0);
+      camera.lookAt(0, lerp(0, 18, k), 0);
+    } else if (camMode.type === 'orbitRise') {
+      const k = camMode.k;
+      const elev = Math.PI/2 - 0.95 - k * 0.15;
+      const azim = -Math.PI/4 - k * 0.6;
+      const dist = lerp(70, 75, k);
+      const ec = Math.cos(elev), es = Math.sin(elev);
+      camera.position.set(
+        ec * Math.cos(azim) * dist,
+        es * dist + 12 + k * 8,
+        ec * Math.sin(azim) * dist
+      );
+      camera.lookAt(0, lerp(18, TOTAL_H/2, easeOut(k)), 0);
     } else if (camMode.type === 'orbit') {
       const k = camMode.k;
       const baseAng = camMode.base ?? 0;
-      const elev = Math.PI/2 - 1.05;
-      const azim = baseAng * Math.PI * 2 - Math.PI/4 - k * 0.4;
-      const dist = 26;
+      const elev = Math.PI/2 - 1.10;
+      const azim = baseAng * Math.PI * 2 - Math.PI/4 - k * 0.5;
+      const dist = 75;
+      const ec = Math.cos(elev), es = Math.sin(elev);
       camera.position.set(
-        Math.cos(elev) * Math.cos(azim) * dist,
-        Math.sin(elev) * dist + 3.2,
-        Math.cos(elev) * Math.sin(azim) * dist
+        ec * Math.cos(azim) * dist,
+        es * dist + 22,
+        ec * Math.sin(azim) * dist
       );
-      camera.lookAt(0, 3, 0);
+      camera.lookAt(0, TOTAL_H/2, 0);
     } else if (camMode.type === 'tiltOut') {
       const k = camMode.k;
-      const elev = lerp(Math.PI/2 - 1.0, Math.PI/2, k);
-      const azim = lerp(-Math.PI/2, 0, k);
-      const dist = lerp(26, 38, k);
+      const elev = lerp(Math.PI/2 - 1.10, Math.PI/2, k);
+      const azim = lerp(-Math.PI/4 - 0.5, 0, k);
+      const dist = lerp(75, 80, k);
       const ec = Math.cos(elev), es = Math.sin(elev);
       camera.position.set(
         ec * Math.cos(azim) * dist + 0.001,
-        es * dist + 2 * (1 - k),
+        es * dist + 22 * (1 - k),
         ec * Math.sin(azim) * dist + 0.001
       );
-      camera.lookAt(0, lerp(3, 0, k), 0);
+      camera.lookAt(0, lerp(TOTAL_H/2, 0, k), 0);
     }
 
-    // ----- Apply scene state -----
-    blueprint.material.opacity = blueprintAlpha;
-    if (planProgress !== undefined && blueprintAlpha > 0.01) {
-      updateBlueprintProgress(planProgress);
+    // ----- Apply state -----
+    planMat.opacity = blueprintAlpha;
+    if (blueprintAlpha > 0.01) {
+      updatePlanProgress(planProgress);
     }
 
-    wallsGroup.scale.y = Math.max(0.0001, wallProg);
-    wallsGroup.visible = wallProg > 0.01;
+    // Clip plane: only points with y < buildHeight visible
+    clipPlane.constant = -buildHeight;
 
-    roofGroup.position.y = roofY;
-    roofGroup.visible = roofVisible;
+    // Scan line follows clip plane
+    scanLine.position.y = scanY + 0.05;
+    scanMat.opacity = scanAlpha;
 
-    doorGroup.scale.setScalar(doorScl);
-    doorGroup.visible = doorScl > 0.01;
+    // Glass emissive
+    glassMat.emissiveIntensity = windowEmiss;
+    lobbyMat.emissiveIntensity = windowEmiss * 0.5;
 
-    windowsGroup.children.forEach(g => {
-      g.scale.setScalar(winScl);
-      if (g.userData.glass) {
-        g.userData.glass.material.emissiveIntensity = winEmiss;
-      }
+    // Lamps
+    lamps.forEach(lp => {
+      lp.children.forEach(ch => {
+        if (ch.userData.isLamp) {
+          ch.material.emissiveIntensity = lampInt * 1.5;
+          if (ch.userData.light) ch.userData.light.intensity = lampInt;
+        }
+      });
     });
-    interiorLights.forEach(l => l.intensity = lightInt);
 
-    // Sun position from spherical (az, el)
-    const sx = Math.cos(sunDir.el) * Math.cos(sunDir.az) * 50;
-    const sy = Math.sin(sunDir.el) * 50;
-    const sz = Math.cos(sunDir.el) * Math.sin(sunDir.az) * 50;
-    sun.position.set(sx, Math.max(sy, -5), sz);
+    // Sun
+    const sx = Math.cos(sunDir.el) * Math.cos(sunDir.az) * 80;
+    const sy = Math.sin(sunDir.el) * 80;
+    const sz = Math.cos(sunDir.el) * Math.sin(sunDir.az) * 80;
+    sun.position.set(sx, Math.max(sy, -10), sz);
     sun.target.position.set(0, 0, 0);
     sun.intensity = sunIntensity;
     hemi.intensity = hemiInt;
     moon.intensity = moonInt;
 
+    // Sky
     skyMat.uniforms.topColor.value.copy(skyTop);
     skyMat.uniforms.midColor.value.copy(skyMid);
     skyMat.uniforms.bottomColor.value.copy(skyBot);
@@ -1114,7 +1685,6 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     scene.fog.density = fogD;
     renderer.toneMappingExposure = exposure;
 
-    // Update HUD
     setPhaseLabel(t);
     setProgressDots(t);
 
@@ -1122,30 +1692,22 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     requestAnimationFrame(tick);
   }
 
-  function skyDawn() {
-    return {
-      top: new THREE.Color(0x2c3a78),
-      mid: new THREE.Color(0x8e7e9c),
-      bot: new THREE.Color(0xd6a070),
-    };
-  }
-
   function setPhaseLabel(t) {
     const el = document.getElementById('phaseLabel');
     let txt;
-    if (t < 0.18) txt = '— SCHEMATIC / שרטוט —';
-    else if (t < 0.32) txt = '— EXTRUDE / הקמת קירות —';
-    else if (t < 0.42) txt = '— ROOFING / גג —';
-    else if (t < 0.50) txt = '— DAYLIGHT / יום —';
-    else if (t < 0.62) txt = '— SUNSET / שקיעה —';
-    else if (t < 0.78) txt = '— NIGHT / לילה —';
-    else if (t < 0.92) txt = '— DAWN / שחר —';
-    else txt = '— SCHEMATIC / שרטוט —';
+    if (t < 0.20) txt = '— BLUEPRINT / שרטוט אדריכלי —';
+    else if (t < 0.32) txt = '— FOUNDATION / יסודות —';
+    else if (t < 0.55) txt = '— FLOOR ' + Math.min(FLOORS, Math.ceil((t - 0.32) / 0.23 * FLOORS)) + ' / קומה —';
+    else if (t < 0.62) txt = '— DAYLIGHT / יום —';
+    else if (t < 0.72) txt = '— SUNSET / שקיעה —';
+    else if (t < 0.85) txt = '— NIGHT / לילה —';
+    else if (t < 0.96) txt = '— DAWN / שחר —';
+    else txt = '— BLUEPRINT / שרטוט אדריכלי —';
     if (el.textContent !== txt) el.textContent = txt;
   }
 
   function setProgressDots(t) {
-    const phaseEnds = [0.18, 0.42, 0.78, 1.00];
+    const phaseEnds = [0.20, 0.55, 0.85, 1.00];
     for (let i = 1; i <= 4; i++) {
       const inner = document.getElementById('dot-' + i);
       const start = i === 1 ? 0 : phaseEnds[i - 2];
@@ -1155,7 +1717,6 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     }
   }
 
-  // Hide loader, start
   document.getElementById('loader').classList.add('hidden');
   requestAnimationFrame(tick);
 
@@ -1163,7 +1724,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
   console.error(err);
   const e = document.createElement('div');
   e.className = 'error';
-  e.innerHTML = '<div>אירעה שגיאה בטעינת הסצנה התלת־מימדית.<br/>פרטים בקונסולת הדפדפן.</div>';
+  e.innerHTML = '<div>אירעה שגיאה בטעינת הסצנה.<br/>פרטים בקונסולת הדפדפן.</div>';
   document.body.appendChild(e);
 });
 </script>
