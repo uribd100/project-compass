@@ -1440,21 +1440,21 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     let starsAlpha = 0.7, fogD = 0.012, exposure = 0.95;
     let skyTop, skyMid, skyBot;
 
-    // Phases:
-    // A: 0.00 - 0.20  Blueprint + furniture draws (top-down)
-    // B: 0.20 - 0.32  Camera tilts; blueprint fades; first floor extrudes
-    // C: 0.32 - 0.55  Building rises floor-by-floor (clip plane)
-    // D: 0.55 - 0.62  Day; orbit
-    // E: 0.62 - 0.72  Sunset; orbit
-    // F: 0.72 - 0.85  Night; lit windows; orbit
-    // G: 0.85 - 0.96  Reverse → back to top-down plan
-    // H: 0.96 - 1.00  Hold plan, ready to loop
+    // Phases (24s loop):
+    // A: 0.00 - 0.32  Plan + furniture draws (top-down, close)
+    // B: 0.32 - 0.42  Tilt down; blueprint fades; first floors extrude
+    // C: 0.42 - 0.62  Floors rise (clip plane), camera orbits up
+    // D: 0.62 - 0.72  Day orbit (close to facade)
+    // E: 0.72 - 0.82  Sunset orbit
+    // F: 0.82 - 0.93  Night, camera close to front showing lobby + lit windows
+    // G: 0.93 - 0.99  Reverse → back to top-down plan
+    // H: 0.99 - 1.00  Hold plan
 
-    if (t < 0.20) {
-      const k = t / 0.20;
-      camMode = { type: 'top' };
-      blueprintAlpha = clamp01(t * 30);
-      planProgress = clamp01(k);
+    if (t < 0.32) {
+      const k = t / 0.32;
+      camMode = { type: 'plan', k };
+      blueprintAlpha = clamp01(t * 25);
+      planProgress = clamp01(k * 1.05);
       buildHeight = 0;
       scanAlpha = 0;
       sunIntensity = 0.05; hemiInt = 0.45; moonInt = 0.5;
@@ -1462,13 +1462,13 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       skyTop = skyBlueprint.top; skyMid = skyBlueprint.mid; skyBot = skyBlueprint.bot;
       starsAlpha = 0.7; fogD = 0.010; exposure = 0.95;
       windowEmiss = 0; lampInt = 0;
-    } else if (t < 0.32) {
-      const k = (t - 0.20) / 0.12;
+    } else if (t < 0.42) {
+      const k = (t - 0.32) / 0.10;
       const ek = easeInOut(k);
       camMode = { type: 'tiltIn', k: ek };
       blueprintAlpha = lerp(1, 0.0, ek);
       planProgress = 1;
-      buildHeight = lerp(0, FLOOR_H * 1.2, ek);
+      buildHeight = lerp(0, FLOOR_H * 1.5, ek);
       scanAlpha = lerp(0, 0.6, ek);
       scanY = buildHeight;
       sunIntensity = lerp(0.05, 0.6, ek);
@@ -1483,12 +1483,12 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       fogD = lerp(0.010, 0.006, ek);
       exposure = lerp(0.95, 1.05, ek);
       windowEmiss = 0; lampInt = 0;
-    } else if (t < 0.55) {
-      const k = (t - 0.32) / 0.23;
+    } else if (t < 0.62) {
+      const k = (t - 0.42) / 0.20;
       const ek = easeOut(k);
       camMode = { type: 'orbitRise', k };
       blueprintAlpha = 0;
-      buildHeight = lerp(FLOOR_H * 1.2, TOTAL_H + 4, ek);
+      buildHeight = lerp(FLOOR_H * 1.5, TOTAL_H + 4, ek);
       scanAlpha = lerp(0.6, 0.1, ek);
       scanY = Math.min(buildHeight, TOTAL_H + 0.5);
       sunIntensity = lerp(0.6, 2.2, ek);
@@ -1503,9 +1503,9 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       fogD = lerp(0.006, 0.004, ek);
       exposure = 1.05;
       windowEmiss = 0; lampInt = 0;
-    } else if (t < 0.62) {
-      const k = (t - 0.55) / 0.07;
-      camMode = { type: 'orbit', k, base: 0.0 };
+    } else if (t < 0.72) {
+      const k = (t - 0.62) / 0.10;
+      camMode = { type: 'orbitDay', k };
       blueprintAlpha = 0;
       buildHeight = TOTAL_H + 4;
       scanAlpha = 0;
@@ -1514,10 +1514,10 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       skyTop = skyDay.top; skyMid = skyDay.mid; skyBot = skyDay.bot;
       starsAlpha = 0; fogD = 0.004; exposure = 1.05;
       windowEmiss = 0; lampInt = 0;
-    } else if (t < 0.72) {
-      const k = (t - 0.62) / 0.10;
+    } else if (t < 0.82) {
+      const k = (t - 0.72) / 0.10;
       const ek = easeInOut(k);
-      camMode = { type: 'orbit', k, base: 0.20 };
+      camMode = { type: 'orbitSunset', k };
       blueprintAlpha = 0;
       buildHeight = TOTAL_H + 4;
       sunIntensity = lerp(2.2, 0.05, ek);
@@ -1528,15 +1528,15 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       lerpColor(tmpB, skyDay.mid, skyDusk.mid, ek);
       lerpColor(tmpC, skyDay.bot, skyDusk.bot, ek);
       skyTop = tmpA; skyMid = tmpB; skyBot = tmpC;
-      starsAlpha = clamp01((k - 0.7) / 0.3) * 0.5;
+      starsAlpha = clamp01((k - 0.6) / 0.4) * 0.6;
       fogD = lerp(0.004, 0.012, ek);
       exposure = lerp(1.05, 1.0, ek);
-      windowEmiss = clamp01((k - 0.5) / 0.5) * 1.4;
-      lampInt = clamp01((k - 0.6) / 0.4) * 1.2;
-    } else if (t < 0.85) {
-      const k = (t - 0.72) / 0.13;
+      windowEmiss = clamp01((k - 0.4) / 0.6) * 1.6;
+      lampInt = clamp01((k - 0.5) / 0.5) * 1.2;
+    } else if (t < 0.93) {
+      const k = (t - 0.82) / 0.11;
       const ek = easeInOut(k);
-      camMode = { type: 'orbit', k, base: 0.45 };
+      camMode = { type: 'orbitNight', k };
       blueprintAlpha = 0;
       buildHeight = TOTAL_H + 4;
       sunIntensity = lerp(0.05, 0, ek);
@@ -1547,16 +1547,16 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       lerpColor(tmpB, skyDusk.mid, skyNight.mid, ek);
       lerpColor(tmpC, skyDusk.bot, skyNight.bot, ek);
       skyTop = tmpA; skyMid = tmpB; skyBot = tmpC;
-      starsAlpha = lerp(0.5, 0.95, ek);
+      starsAlpha = lerp(0.6, 0.95, ek);
       fogD = lerp(0.012, 0.018, ek);
       exposure = lerp(1.0, 0.95, ek);
-      windowEmiss = 1.4;
+      windowEmiss = 1.6;
       lampInt = 1.2;
-    } else if (t < 0.96) {
-      const k = (t - 0.85) / 0.11;
+    } else if (t < 0.99) {
+      const k = (t - 0.93) / 0.06;
       const ek = easeInOut(k);
       camMode = { type: 'tiltOut', k: ek };
-      blueprintAlpha = lerp(0, 1, clamp01((k - 0.55) / 0.40));
+      blueprintAlpha = lerp(0, 1, clamp01((k - 0.45) / 0.50));
       planProgress = 1;
       buildHeight = lerp(TOTAL_H + 4, 0, clamp01(k * 1.2));
       scanAlpha = clamp01(k - 0.05) * 0.5;
@@ -1572,10 +1572,10 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       starsAlpha = lerp(0.95, 0.7, ek);
       fogD = lerp(0.018, 0.010, ek);
       exposure = 0.95;
-      windowEmiss = lerp(1.4, 0, clamp01(k * 1.5));
+      windowEmiss = lerp(1.6, 0, clamp01(k * 1.5));
       lampInt = lerp(1.2, 0, clamp01(k * 1.5));
     } else {
-      camMode = { type: 'top' };
+      camMode = { type: 'plan', k: 0 };
       blueprintAlpha = 1; planProgress = 1;
       buildHeight = 0; scanAlpha = 0;
       sunIntensity = 0.05; hemiInt = 0.45; moonInt = 0.5;
@@ -1586,55 +1586,93 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     }
 
     // ----- Camera path -----
-    if (camMode.type === 'top') {
-      camera.position.set(0.001, 80, 0.001);
-      camera.lookAt(0, 0, 0);
+    // Each phase is tuned so the relevant subject fills the frame.
+    if (camMode.type === 'plan') {
+      // Slow dolly-in over the plan — start a bit higher, end closer
+      // and pan slightly to the right so the viewer reads the apartments.
+      const k = camMode.k;
+      const ek = easeInOut(k);
+      const y = lerp(46, 36, ek);
+      const offsetX = lerp(0, 4, ek);
+      camera.position.set(offsetX + 0.001, y, 0.001);
+      camera.lookAt(offsetX, 0, 0);
     } else if (camMode.type === 'tiltIn') {
+      // Pivot from plan view down to a low oblique looking at the front
       const k = camMode.k;
-      const elev = lerp(Math.PI/2, Math.PI/2 - 0.95, k);
+      const elev = lerp(Math.PI/2, Math.PI/2 - 1.05, k);
       const azim = lerp(0, -Math.PI/4, k);
-      const dist = lerp(80, 70, k);
+      const dist = lerp(36, 50, k);
       const ec = Math.cos(elev), es = Math.sin(elev);
       camera.position.set(
         ec * Math.cos(azim) * dist,
-        es * dist + 8 * k,
+        es * dist + 6 * k,
         ec * Math.sin(azim) * dist
       );
-      camera.lookAt(0, lerp(0, 18, k), 0);
+      camera.lookAt(0, lerp(0, 12, k), 0);
     } else if (camMode.type === 'orbitRise') {
+      // Building rises; camera sweeps around the front-right corner
       const k = camMode.k;
-      const elev = Math.PI/2 - 0.95 - k * 0.15;
-      const azim = -Math.PI/4 - k * 0.6;
-      const dist = lerp(70, 75, k);
+      const elev = Math.PI/2 - 1.05 - k * 0.12;
+      const azim = -Math.PI/4 - k * 0.45;
+      const dist = lerp(50, 62, k);
       const ec = Math.cos(elev), es = Math.sin(elev);
       camera.position.set(
         ec * Math.cos(azim) * dist,
-        es * dist + 12 + k * 8,
+        es * dist + 10 + k * 12,
         ec * Math.sin(azim) * dist
       );
-      camera.lookAt(0, lerp(18, TOTAL_H/2, easeOut(k)), 0);
-    } else if (camMode.type === 'orbit') {
+      camera.lookAt(0, lerp(12, TOTAL_H/2, easeOut(k)), 0);
+    } else if (camMode.type === 'orbitDay') {
+      // Day: medium-distance orbit showing two faces of the tower
       const k = camMode.k;
-      const baseAng = camMode.base ?? 0;
-      const elev = Math.PI/2 - 1.10;
-      const azim = baseAng * Math.PI * 2 - Math.PI/4 - k * 0.5;
-      const dist = 75;
+      const elev = Math.PI/2 - 1.18;
+      const azim = -Math.PI/4 - 0.45 - k * 0.55;
+      const dist = lerp(62, 58, k);
       const ec = Math.cos(elev), es = Math.sin(elev);
       camera.position.set(
         ec * Math.cos(azim) * dist,
-        es * dist + 22,
+        es * dist + 18,
         ec * Math.sin(azim) * dist
       );
-      camera.lookAt(0, TOTAL_H/2, 0);
+      camera.lookAt(0, TOTAL_H * 0.45, 0);
+    } else if (camMode.type === 'orbitSunset') {
+      // Sunset: continue around so the camera ends up looking at the back-right
+      const k = camMode.k;
+      const elev = Math.PI/2 - 1.18 + k * 0.08;
+      const azim = -Math.PI/4 - 1.0 - k * 0.6;
+      const dist = lerp(58, 55, k);
+      const ec = Math.cos(elev), es = Math.sin(elev);
+      camera.position.set(
+        ec * Math.cos(azim) * dist,
+        es * dist + 18,
+        ec * Math.sin(azim) * dist
+      );
+      camera.lookAt(0, TOTAL_H * 0.45, 0);
+    } else if (camMode.type === 'orbitNight') {
+      // Night: swing back to the FRONT (azim = -π/2 area, camera at -z) so
+      // the lobby + lit windows on the front face dominate the frame.
+      const k = camMode.k;
+      const ek = easeInOut(k);
+      const elev = lerp(Math.PI/2 - 1.10, Math.PI/2 - 1.30, ek);
+      // Sweep azim back to roughly -π/2 (camera in front of building)
+      const azim = lerp(-Math.PI/4 - 1.6, -Math.PI/2 + 0.05, ek);
+      const dist = lerp(55, 42, ek);
+      const ec = Math.cos(elev), es = Math.sin(elev);
+      camera.position.set(
+        ec * Math.cos(azim) * dist,
+        es * dist + lerp(18, 12, ek),
+        ec * Math.sin(azim) * dist
+      );
+      camera.lookAt(0, lerp(TOTAL_H * 0.45, TOTAL_H * 0.4, ek), 0);
     } else if (camMode.type === 'tiltOut') {
       const k = camMode.k;
-      const elev = lerp(Math.PI/2 - 1.10, Math.PI/2, k);
-      const azim = lerp(-Math.PI/4 - 0.5, 0, k);
-      const dist = lerp(75, 80, k);
+      const elev = lerp(Math.PI/2 - 1.30, Math.PI/2, k);
+      const azim = lerp(-Math.PI/2 + 0.05, 0, k);
+      const dist = lerp(42, 36, k);
       const ec = Math.cos(elev), es = Math.sin(elev);
       camera.position.set(
         ec * Math.cos(azim) * dist + 0.001,
-        es * dist + 22 * (1 - k),
+        es * dist + 12 * (1 - k),
         ec * Math.sin(azim) * dist + 0.001
       );
       camera.lookAt(0, lerp(TOTAL_H/2, 0, k), 0);
@@ -1695,19 +1733,19 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
   function setPhaseLabel(t) {
     const el = document.getElementById('phaseLabel');
     let txt;
-    if (t < 0.20) txt = '— BLUEPRINT / שרטוט אדריכלי —';
-    else if (t < 0.32) txt = '— FOUNDATION / יסודות —';
-    else if (t < 0.55) txt = '— FLOOR ' + Math.min(FLOORS, Math.ceil((t - 0.32) / 0.23 * FLOORS)) + ' / קומה —';
-    else if (t < 0.62) txt = '— DAYLIGHT / יום —';
-    else if (t < 0.72) txt = '— SUNSET / שקיעה —';
-    else if (t < 0.85) txt = '— NIGHT / לילה —';
-    else if (t < 0.96) txt = '— DAWN / שחר —';
+    if (t < 0.32) txt = '— BLUEPRINT / שרטוט אדריכלי —';
+    else if (t < 0.42) txt = '— FOUNDATION / יסודות —';
+    else if (t < 0.62) txt = '— FLOOR ' + Math.min(FLOORS, Math.ceil((t - 0.42) / 0.20 * FLOORS)) + ' / קומה —';
+    else if (t < 0.72) txt = '— DAYLIGHT / יום —';
+    else if (t < 0.82) txt = '— SUNSET / שקיעה —';
+    else if (t < 0.93) txt = '— NIGHT / לילה —';
+    else if (t < 0.99) txt = '— DAWN / שחר —';
     else txt = '— BLUEPRINT / שרטוט אדריכלי —';
     if (el.textContent !== txt) el.textContent = txt;
   }
 
   function setProgressDots(t) {
-    const phaseEnds = [0.20, 0.55, 0.85, 1.00];
+    const phaseEnds = [0.32, 0.62, 0.93, 1.00];
     for (let i = 1; i <= 4; i++) {
       const inner = document.getElementById('dot-' + i);
       const start = i === 1 ? 0 : phaseEnds[i - 2];
