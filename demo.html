@@ -771,7 +771,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
         ctx.stroke();
       }
       // Mirror (drawn on a wall)
-      function mirror(x1, z1, x2, z2) {
+      function drawMirror(x1, z1, x2, z2) {
         ctx.strokeStyle = '#cfeafd';
         ctx.lineWidth = 3.2 * LWX;
         ctx.beginPath();
@@ -992,7 +992,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
         bathSink(cx0 + 0.0, -3.4 * m, false);
         bathtub(cx0 + 1.0, -4.5 * m, false);
         // Mirror over the sink (drawn on the wall at z=-3)
-        mirror(cx0 - 0.4, -3.05 * m, cx0 + 0.4, -3.05 * m);
+        drawMirror(cx0 - 0.4, -3.05 * m, cx0 + 0.4, -3.05 * m);
 
         // === Second bedroom (study) ===
         bedSingle(cx0 + 3.5, -4 * m, false);
