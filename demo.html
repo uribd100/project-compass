@@ -1434,10 +1434,13 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     buildingMaterials.push(mat);
   }
 
-  // Foundation
+  // Foundation — must be clipped too, otherwise this 31x17 m slab sits
+  // above the plan plane during the blueprint phase and hides the entire
+  // architectural drawing from the top-down camera.
   const foundationMat = new THREE.MeshStandardMaterial({
     color: 0x33363d, roughness: 0.9,
   });
+  applyClipping(foundationMat);
   const foundation = new THREE.Mesh(
     new THREE.BoxGeometry(W + 2.0, 0.6, D + 2.0),
     foundationMat
