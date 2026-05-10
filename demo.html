@@ -749,6 +749,200 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
         ctx.textBaseline = 'middle';
         ctx.fillText('✿', wx(cx0), wy(cz));
       }
+      // Nightstand (small bedside table)
+      function nightstand(cx0, cz, w, d) {
+        rectAt(cx0, cz, w || 0.5, d || 0.4, FILL_DARK, STROKE_HI, 1.4);
+        // Lamp on top
+        circleAt(cx0, cz, 0.07, ACCENT, ACCENT, 1.0);
+      }
+      // Desk + chair
+      function desk(cx0, cz, rot) {
+        const w = rot ? 0.55 : 1.2;
+        const d = rot ? 1.2 : 0.55;
+        rectAt(cx0, cz, w, d, FILL_DARK, STROKE_HI, 1.6);
+      }
+      function chair(cx0, cz, r) {
+        circleAt(cx0, cz, r || 0.22, FILL_MED, STROKE_HI, 1.4);
+        // Backrest line
+        ctx.strokeStyle = STROKE_HI;
+        ctx.lineWidth = 1.2 * LWX;
+        ctx.beginPath();
+        ctx.arc(wx(cx0), wy(cz), (r || 0.22) * px * 1.05, Math.PI * 1.15, Math.PI * 1.85);
+        ctx.stroke();
+      }
+      // Mirror (drawn on a wall)
+      function mirror(x1, z1, x2, z2) {
+        ctx.strokeStyle = '#cfeafd';
+        ctx.lineWidth = 3.2 * LWX;
+        ctx.beginPath();
+        ctx.moveTo(wx(x1), wy(z1));
+        ctx.lineTo(wx(x2), wy(z2));
+        ctx.stroke();
+      }
+      // Washing machine
+      function washer(cx0, cz) {
+        rectAt(cx0, cz, 0.6, 0.55, FILL_MED, STROKE_HI, 1.6);
+        circleAt(cx0, cz, 0.18, null, STROKE_MED, 1.4);
+        ctx.font = 'bold 22px "Space Mono", monospace';
+        ctx.fillStyle = STROKE_HI;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('W', wx(cx0), wy(cz));
+      }
+      // Bookshelf (rectangle with internal lines)
+      function bookshelf(cx0, cz, w, d) {
+        rectAt(cx0, cz, w, d, FILL_DARK, STROKE_HI, 1.6);
+        const isHoriz = w > d;
+        ctx.strokeStyle = STROKE_MED;
+        ctx.lineWidth = 1.0 * LWX;
+        const segs = 4;
+        for (let i = 1; i < segs; i++) {
+          if (isHoriz) {
+            const x = cx0 - w/2 + (w / segs) * i;
+            ctx.beginPath();
+            ctx.moveTo(wx(x), wy(cz - d/2 + 0.04));
+            ctx.lineTo(wx(x), wy(cz + d/2 - 0.04));
+            ctx.stroke();
+          } else {
+            const z = cz - d/2 + (d / segs) * i;
+            ctx.beginPath();
+            ctx.moveTo(wx(cx0 - w/2 + 0.04), wy(z));
+            ctx.lineTo(wx(cx0 + w/2 - 0.04), wy(z));
+            ctx.stroke();
+          }
+        }
+      }
+      // Rug (dashed border under furniture)
+      function rug(cx0, cz, w, d) {
+        ctx.save();
+        ctx.strokeStyle = STROKE_MED;
+        ctx.lineWidth = 1.5 * LWX;
+        ctx.setLineDash([10, 8]);
+        ctx.strokeRect(wx(cx0 - w/2), wy(cz - d/2), w * px, d * py);
+        ctx.restore();
+      }
+      // Curtain pattern at a window (zig-zag)
+      function curtain(x1, z1, x2, z2, into) {
+        const cx0 = (x1 + x2) / 2;
+        const cz = (z1 + z2) / 2;
+        const dx = x2 - x1, dz = z2 - z1;
+        const len = Math.hypot(dx, dz);
+        const ux = dx / len, uz = dz / len;
+        const nx = -uz, nz = ux; // perpendicular
+        const off = into; // positive depth into the room
+        ctx.strokeStyle = STROKE_MED;
+        ctx.lineWidth = 1.2 * LWX;
+        ctx.beginPath();
+        const N = Math.max(6, Math.round(len / 0.15));
+        for (let i = 0; i <= N; i++) {
+          const t = i / N;
+          const sx = x1 + dx * t + nx * (i % 2 === 0 ? 0 : off);
+          const sz = z1 + dz * t + nz * (i % 2 === 0 ? 0 : off);
+          if (i === 0) ctx.moveTo(wx(sx), wy(sz));
+          else ctx.lineTo(wx(sx), wy(sz));
+        }
+        ctx.stroke();
+      }
+      // Tile hatching (grid of small squares) within a rectangular zone
+      function tileHatch(cx0, cz, w, d, tile) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(125, 211, 252, 0.35)';
+        ctx.lineWidth = 1.0 * LWX;
+        const ts = tile || 0.4;
+        const x0 = cx0 - w/2, z0 = cz - d/2;
+        ctx.beginPath();
+        for (let xx = x0; xx <= x0 + w; xx += ts) {
+          ctx.moveTo(wx(xx), wy(z0));
+          ctx.lineTo(wx(xx), wy(z0 + d));
+        }
+        for (let zz = z0; zz <= z0 + d; zz += ts) {
+          ctx.moveTo(wx(x0), wy(zz));
+          ctx.lineTo(wx(x0 + w), wy(zz));
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+      // Wood plank hatching (parallel lines along X axis)
+      function planks(cx0, cz, w, d, plankW) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(125, 211, 252, 0.28)';
+        ctx.lineWidth = 0.8 * LWX;
+        const pw = plankW || 0.35;
+        const z0 = cz - d/2;
+        ctx.beginPath();
+        for (let zz = z0 + pw; zz < z0 + d; zz += pw) {
+          ctx.moveTo(wx(cx0 - w/2 + 0.08), wy(zz));
+          ctx.lineTo(wx(cx0 + w/2 - 0.08), wy(zz));
+        }
+        // Stagger short transverse lines (plank seams)
+        ctx.lineWidth = 0.6 * LWX;
+        for (let zz = z0 + pw/2; zz < z0 + d; zz += pw) {
+          for (let xx = cx0 - w/2 + (Math.random() * 0.5 + 0.4); xx < cx0 + w/2; xx += pw * 6 + Math.random() * 0.5) {
+            ctx.moveTo(wx(xx), wy(zz - pw/2));
+            ctx.lineTo(wx(xx), wy(zz + pw/2));
+          }
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+      // Ceiling light symbol
+      function ceilingLight(cx0, cz) {
+        const r = 0.18;
+        ctx.strokeStyle = ACCENT;
+        ctx.lineWidth = 1.5 * LWX;
+        ctx.beginPath();
+        ctx.arc(wx(cx0), wy(cz), r * px, 0, Math.PI*2);
+        ctx.stroke();
+        // Cross inside
+        ctx.beginPath();
+        ctx.moveTo(wx(cx0 - r * 0.7), wy(cz));
+        ctx.lineTo(wx(cx0 + r * 0.7), wy(cz));
+        ctx.moveTo(wx(cx0), wy(cz - r * 0.7));
+        ctx.lineTo(wx(cx0), wy(cz + r * 0.7));
+        ctx.stroke();
+      }
+      // Outlet symbol (small triangle along a wall)
+      function outlet(cx0, cz) {
+        ctx.fillStyle = ACCENT;
+        ctx.strokeStyle = ACCENT;
+        ctx.lineWidth = 0.8 * LWX;
+        const s = 0.10 * px;
+        ctx.beginPath();
+        ctx.arc(wx(cx0), wy(cz), s * 0.55, 0, Math.PI*2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(wx(cx0) - s * 0.3, wy(cz) - s * 0.15);
+        ctx.lineTo(wx(cx0) + s * 0.3, wy(cz) - s * 0.15);
+        ctx.moveTo(wx(cx0) - s * 0.3, wy(cz) + s * 0.15);
+        ctx.lineTo(wx(cx0) + s * 0.3, wy(cz) + s * 0.15);
+        ctx.stroke();
+      }
+      // Light switch (small circle with "S")
+      function lightSwitch(cx0, cz) {
+        circleAt(cx0, cz, 0.10, FILL_DARK, ACCENT, 1.0);
+        ctx.font = 'bold 16px "Space Mono", monospace';
+        ctx.fillStyle = ACCENT;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText('S', wx(cx0), wy(cz));
+      }
+      // Floor finish code label
+      function finishCode(cx0, cz, code) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(125, 211, 252, 0.55)';
+        ctx.font = 'italic 18px "Space Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(code, wx(cx0), wy(cz));
+        ctx.restore();
+      }
+      // Room area label (in m²)
+      function roomArea(cx0, cz, area) {
+        ctx.save();
+        ctx.fillStyle = 'rgba(125, 211, 252, 0.85)';
+        ctx.font = 'bold 22px "Space Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(area + ' m²', wx(cx0), wy(cz));
+        ctx.restore();
+      }
 
       // For each top apartment (apartments at z=-8 to z=-1.5):
       // Living/Kitchen/Dining: z=-8 to -5, full width 10m, centered at cx0
@@ -758,46 +952,109 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       // Hallway: z=-3 to -1.5, central
       function topApartment(cx0, mirror) {
         const m = mirror ? -1 : 1;
-        // Living: sofa against rear wall (z=-8), facing in
+
+        // === Floor finishes (drawn first as background hatching) ===
+        // Living/dining/kitchen: parquet/wood
+        planks(cx0, -6.5 * m, 9.5, 3.0, 0.32);
+        // Master bedroom
+        planks(cx0 - 3, -4 * m, 4.0, 2.0, 0.30);
+        // Second bedroom
+        planks(cx0 + 3.5, -4 * m, 3.0, 2.0, 0.28);
+        // Bathroom: tiles
+        tileHatch(cx0 + 0.5, -4 * m, 3.0, 2.0, 0.30);
+        // Hallway: tiles
+        tileHatch(cx0, -2.25 * m, 9.5, 1.5, 0.5);
+
+        // === Living room ===
+        rug(cx0 - 1.6, -6.6 * m, 3.6, 1.8);  // area rug under sofa
         sofa(cx0 - 1.6, -7.4 * m, false);
         coffeeTable(cx0 - 1.6, -6.5 * m);
         tvUnit(cx0 - 1.6, -5.3 * m, false);
-        // Dining + kitchen
+        // Bookshelf next to TV
+        bookshelf(cx0 - 4.0, -5.3 * m, 1.3, 0.4);
+
+        // === Dining + kitchen ===
         diningSet(cx0 + 2.8, -7 * m, false);
-        // Kitchen counter near interior wall
         kitchen(cx0 + 2.5, -5.4 * m, 'in');
-        // Master bedroom (cx0-3, z=-4 m)
+        // Washer near the kitchen (laundry alcove)
+        washer(cx0 + 4.4, -5.4 * m);
+
+        // === Master bedroom ===
         bedDouble(cx0 - 3, -4 * m, false);
+        // Nightstands either side of head (head at z=-4.75)
+        nightstand(cx0 - 4.0, -4.7 * m, 0.55, 0.45);
+        nightstand(cx0 - 2.0, -4.7 * m, 0.55, 0.45);
+        // Wardrobe in corner against side wall
         wardrobe(cx0 - 4.6, -3.4 * m, 0.6, 1.0);
-        // Bathroom (cx0+0.5, z=-4 m)
+
+        // === Bathroom ===
         toilet(cx0 + 1.6, -3.4 * m, false);
         bathSink(cx0 + 0.0, -3.4 * m, false);
         bathtub(cx0 + 1.0, -4.5 * m, false);
-        // Second bedroom
+        // Mirror over the sink (drawn on the wall at z=-3)
+        mirror(cx0 - 0.4, -3.05 * m, cx0 + 0.4, -3.05 * m);
+
+        // === Second bedroom (study) ===
         bedSingle(cx0 + 3.5, -4 * m, false);
-        wardrobe(cx0 + 4.6, -3.3 * m, 0.6, 0.8);
-        // Doors:
-        // Apartment entry from corridor (z=-1.5 to z=-3 hallway opens)
+        // Desk + chair against rear wall
+        desk(cx0 + 4.3, -4.7 * m, true);
+        chair(cx0 + 4.3, -4.0 * m, 0.22);
+        wardrobe(cx0 + 2.6, -3.3 * m, 0.6, 0.6);
+
+        // === Doors (swing arcs) ===
         doorArc(cx0, -1.5 * m, 0.9, mirror ? Math.PI/2 : -Math.PI/2, mirror ? Math.PI : 0);
-        // Master bedroom door
         doorArc(cx0 - 1.0, -3 * m, 0.8, mirror ? Math.PI : 0, mirror ? Math.PI*1.5 : Math.PI/2);
-        // Bathroom door
         doorArc(cx0 + 1.5, -3 * m, 0.7, mirror ? Math.PI : 0, mirror ? Math.PI*1.5 : Math.PI/2);
-        // Second bedroom door
         doorArc(cx0 + 3.5, -3 * m, 0.7, mirror ? Math.PI : 0, mirror ? Math.PI*1.5 : Math.PI/2);
-        // Living window (front, z=-D/2)
-        winSym(cx0 - 4, -D/2, cx0 - 1, -D/2);
-        winSym(cx0 + 1, -D/2, cx0 + 4, -D/2);
+
+        // === Windows + curtains (front face) ===
+        winSym(cx0 - 4, -D/2 * m, cx0 - 1, -D/2 * m);
+        winSym(cx0 + 1, -D/2 * m, cx0 + 4, -D/2 * m);
+        curtain(cx0 - 4, -D/2 * m, cx0 - 1, -D/2 * m, 0.30 * m);
+        curtain(cx0 + 1, -D/2 * m, cx0 + 4, -D/2 * m, 0.30 * m);
         // Side windows on outermost apartments
         if (cx0 === -10) {
-          winSym(-W/2, -7, -W/2, -5);
-          winSym(-W/2, -4, -W/2, -2);
+          winSym(-W/2, -7 * m, -W/2, -5 * m);
+          winSym(-W/2, -4 * m, -W/2, -2 * m);
+          curtain(-W/2, -7 * m, -W/2, -5 * m, 0.30);
         } else if (cx0 === 10) {
-          winSym(W/2, -7, W/2, -5);
-          winSym(W/2, -4, W/2, -2);
+          winSym(W/2, -7 * m, W/2, -5 * m);
+          winSym(W/2, -4 * m, W/2, -2 * m);
+          curtain(W/2, -7 * m, W/2, -5 * m, -0.30);
         }
-        // Plant near entry
-        plant(cx0 - 4.4, -1.8 * m);
+        // Plant in living room corner
+        plant(cx0 + 4.6, -7.4 * m);
+
+        // === Electrical (lights, switches, a few outlets) ===
+        ceilingLight(cx0 - 1.6, -6.5 * m);    // living
+        ceilingLight(cx0 + 2.8, -7 * m);      // dining
+        ceilingLight(cx0 + 2.5, -5.4 * m);    // kitchen
+        ceilingLight(cx0 - 3, -4 * m);        // master bed
+        ceilingLight(cx0 + 0.7, -4 * m);      // bath
+        ceilingLight(cx0 + 3.5, -4 * m);      // bed 2
+        ceilingLight(cx0, -2.25 * m);         // hallway
+
+        outlet(cx0 - 4.85, -7 * m);
+        outlet(cx0 + 4.85, -7 * m);
+        outlet(cx0 - 4.85, -3.4 * m);
+        outlet(cx0 + 4.85, -3.4 * m);
+
+        lightSwitch(cx0 - 0.6, -1.7 * m);     // entry switch
+        lightSwitch(cx0 - 1.0, -3.2 * m);     // master bed switch
+        lightSwitch(cx0 + 1.7, -3.2 * m);     // bath switch
+
+        // === Floor finish codes ===
+        finishCode(cx0 - 1.6, -7.95 * m, 'PARQUET');
+        finishCode(cx0 + 0.5, -4.95 * m, 'CT');
+        finishCode(cx0 - 3.0, -4.95 * m, 'HW');
+        finishCode(cx0 + 3.5, -4.95 * m, 'HW');
+
+        // === Room areas (m²) ===
+        roomArea(cx0 - 1.6, -7.0 * m, '24');     // living
+        roomArea(cx0 + 2.8, -6.4 * m, '14');     // dining/kit
+        roomArea(cx0 - 3.0, -4.4 * m, '8');      // master
+        roomArea(cx0 + 0.5, -4.0 * m, '6');      // bath
+        roomArea(cx0 + 3.5, -4.4 * m, '6');      // bed 2
       }
 
       apartmentCenters.forEach(c => topApartment(c, false));   // top side
@@ -835,6 +1092,204 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       ctx.font = 'bold 32px Heebo';
       ctx.fillStyle = 'rgba(186, 230, 253, 0.95)';
       ctx.fillText('פרוזדור', wx(W/2 - 4), wy(-0.05));
+
+      // ===== Section markers (A-A across, B-B down) =====
+      ctx.strokeStyle = ACCENT;
+      ctx.fillStyle = ACCENT;
+      ctx.lineWidth = 2.0 * LWX;
+      // Section A-A: horizontal cut line through the building
+      const yA = wy(-D/2 - 2.4);
+      const yA2 = wy(D/2 + 2.4);
+      ctx.setLineDash([28, 14, 6, 14]);
+      ctx.beginPath();
+      ctx.moveTo(wx(-W/2 - 1.5), yA);
+      ctx.lineTo(wx(W/2 + 1.5), yA);
+      ctx.moveTo(wx(-W/2 - 1.5), yA2);
+      ctx.lineTo(wx(W/2 + 1.5), yA2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Section markers (circles with letter + arrow)
+      function sectionMark(cx, cy0, letter, dirRad) {
+        ctx.fillStyle = ACCENT;
+        ctx.strokeStyle = ACCENT;
+        ctx.lineWidth = 2.0 * LWX;
+        ctx.beginPath();
+        ctx.arc(cx, cy0, 24, 0, Math.PI*2);
+        ctx.stroke();
+        ctx.fillStyle = '#0a1730';
+        ctx.beginPath();
+        ctx.arc(cx, cy0, 20, 0, Math.PI*2);
+        ctx.fill();
+        ctx.fillStyle = ACCENT;
+        ctx.font = 'bold 28px "Space Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(letter, cx, cy0);
+        // Arrow
+        ctx.lineWidth = 3.0 * LWX;
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(dirRad) * 24, cy0 + Math.sin(dirRad) * 24);
+        ctx.lineTo(cx + Math.cos(dirRad) * 60, cy0 + Math.sin(dirRad) * 60);
+        ctx.stroke();
+        // Arrowhead
+        const ah = 14;
+        const ax = cx + Math.cos(dirRad) * 60;
+        const ay = cy0 + Math.sin(dirRad) * 60;
+        ctx.beginPath();
+        ctx.moveTo(ax, ay);
+        ctx.lineTo(ax - Math.cos(dirRad) * ah - Math.sin(dirRad) * ah * 0.5,
+                   ay - Math.sin(dirRad) * ah + Math.cos(dirRad) * ah * 0.5);
+        ctx.lineTo(ax - Math.cos(dirRad) * ah + Math.sin(dirRad) * ah * 0.5,
+                   ay - Math.cos(dirRad) * ah * 0.5 - Math.sin(dirRad) * ah);
+        ctx.closePath();
+        ctx.fillStyle = ACCENT;
+        ctx.fill();
+      }
+      sectionMark(wx(-W/2 - 2.2), yA, 'A', Math.PI);
+      sectionMark(wx( W/2 + 2.2), yA, 'A', 0);
+      sectionMark(wx(-W/2 - 2.2), yA2, 'A', Math.PI);
+      sectionMark(wx( W/2 + 2.2), yA2, 'A', 0);
+      // Section B-B (vertical)
+      const xB = wx(-W/2 - 2.4);
+      const xB2 = wx( W/2 + 2.4);
+      ctx.strokeStyle = ACCENT;
+      ctx.lineWidth = 2.0 * LWX;
+      ctx.setLineDash([28, 14, 6, 14]);
+      ctx.beginPath();
+      ctx.moveTo(xB, wy(-D/2 - 1.5)); ctx.lineTo(xB, wy(D/2 + 1.5));
+      ctx.moveTo(xB2, wy(-D/2 - 1.5)); ctx.lineTo(xB2, wy(D/2 + 1.5));
+      ctx.stroke();
+      ctx.setLineDash([]);
+      sectionMark(xB, wy(-D/2 - 2.2), 'B', -Math.PI/2);
+      sectionMark(xB, wy( D/2 + 2.2), 'B', Math.PI/2);
+      sectionMark(xB2, wy(-D/2 - 2.2), 'B', -Math.PI/2);
+      sectionMark(xB2, wy( D/2 + 2.2), 'B', Math.PI/2);
+
+      // ===== Detail bubbles (numbered references) =====
+      function detailBubble(cx0, cz, num, leadX, leadY) {
+        ctx.strokeStyle = ACCENT;
+        ctx.lineWidth = 2.0 * LWX;
+        // Leader line
+        ctx.beginPath();
+        ctx.moveTo(wx(cx0), wy(cz));
+        ctx.lineTo(leadX, leadY);
+        ctx.stroke();
+        // Bubble (white circle inside, top half = number, bottom half = sheet)
+        ctx.beginPath();
+        ctx.arc(leadX, leadY, 28, 0, Math.PI*2);
+        ctx.fillStyle = '#0a1730';
+        ctx.fill();
+        ctx.stroke();
+        // Horizontal divider
+        ctx.beginPath();
+        ctx.moveTo(leadX - 28, leadY); ctx.lineTo(leadX + 28, leadY);
+        ctx.stroke();
+        ctx.fillStyle = ACCENT;
+        ctx.font = 'bold 22px "Space Mono", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(String(num), leadX, leadY - 12);
+        ctx.font = '16px "Space Mono", monospace';
+        ctx.fillText('A-30', leadX, leadY + 12);
+      }
+      detailBubble(-12, -7.6, 1, wx(-W/2) - 80, wy(-D/2) - 90);
+      detailBubble( 12, -7.6, 2, wx( W/2) + 80, wy(-D/2) - 90);
+      detailBubble( 12,  7.6, 3, wx( W/2) + 80, wy( D/2) + 90);
+      detailBubble(-12,  7.6, 4, wx(-W/2) - 80, wy( D/2) + 90);
+
+      // ===== Scale bar =====
+      ctx.fillStyle = STROKE_HI;
+      ctx.strokeStyle = STROKE_HI;
+      ctx.lineWidth = 2.0 * LWX;
+      const sbX = 100, sbY = C_H - 130, sbStep = 4 * px; // 4 m units
+      ctx.font = 'bold 22px "Space Mono", monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+      // 5-segment scale bar (0..20 m)
+      for (let i = 0; i < 5; i++) {
+        ctx.fillStyle = (i % 2 === 0) ? STROKE_HI : '#0a1730';
+        ctx.fillRect(sbX + i * sbStep, sbY, sbStep, 18);
+        ctx.strokeRect(sbX + i * sbStep, sbY, sbStep, 18);
+      }
+      ctx.fillStyle = STROKE_HI;
+      for (let i = 0; i <= 5; i++) {
+        ctx.fillText(String(i * 4), sbX + i * sbStep, sbY + 26);
+      }
+      ctx.font = 'bold 20px "Space Mono", monospace';
+      ctx.fillText('SCALE BAR (m)', sbX + sbStep * 2.5, sbY - 28);
+
+      // ===== Compass rose (replaces simple north arrow) =====
+      const cmX = wx(W/2 + 6.5);
+      const cmY = wy(-D/2 + 1.0);
+      const cmR = 70;
+      ctx.strokeStyle = ACCENT;
+      ctx.fillStyle = ACCENT;
+      ctx.lineWidth = 2.4 * LWX;
+      ctx.beginPath();
+      ctx.arc(cmX, cmY, cmR, 0, Math.PI*2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(cmX, cmY, cmR * 0.6, 0, Math.PI*2);
+      ctx.stroke();
+      // Star
+      const dirs = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+      const labels = ['N', 'E', 'S', 'W'];
+      ctx.fillStyle = ACCENT;
+      for (let i = 0; i < 4; i++) {
+        const dx = dirs[i][0], dy = dirs[i][1];
+        const px2 = dirs[(i + 1) % 4][0], py2 = dirs[(i + 1) % 4][1];
+        ctx.beginPath();
+        ctx.moveTo(cmX, cmY);
+        ctx.lineTo(cmX + dx * cmR, cmY + dy * cmR);
+        ctx.lineTo(cmX + (dx + px2) * cmR * 0.18, cmY + (dy + py2) * cmR * 0.18);
+        ctx.closePath();
+        ctx.fill();
+      }
+      // Cardinal labels
+      ctx.font = 'bold 26px "Space Mono", monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = ACCENT;
+      for (let i = 0; i < 4; i++) {
+        const dx = dirs[i][0], dy = dirs[i][1];
+        ctx.fillText(labels[i], cmX + dx * (cmR + 22), cmY + dy * (cmR + 22));
+      }
+
+      // ===== Drawing notes =====
+      ctx.fillStyle = 'rgba(186, 230, 253, 0.85)';
+      ctx.font = '20px "Space Mono", monospace';
+      ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+      const noteX = 100, noteY = 100;
+      const notes = [
+        'NOTES:',
+        '1. ALL DIMENSIONS IN METERS',
+        '2. WALL THICKNESS — 0.30 m EXTERIOR / 0.18 m INTERIOR',
+        '3. FLOOR FINISH CODES:',
+        '   HW = HARDWOOD   CT = CERAMIC TILE   PARQUET = OAK',
+        '4. CEILING HEIGHT 2.80 m (3.20 m STRUCTURAL)',
+        '5. WINDOWS: ALUMINIUM FRAMES, DOUBLE GLAZED',
+        '6. SEE A-30 FOR WALL & WINDOW DETAILS',
+      ];
+      notes.forEach((line, i) => {
+        ctx.fillText(line, noteX, noteY + i * 28);
+      });
+
+      // ===== Revision triangle =====
+      const rvX = C_W - 380, rvY = C_H - 380;
+      ctx.fillStyle = ACCENT;
+      ctx.strokeStyle = ACCENT;
+      ctx.lineWidth = 2.0 * LWX;
+      ctx.beginPath();
+      ctx.moveTo(rvX, rvY - 22);
+      ctx.lineTo(rvX - 22, rvY + 14);
+      ctx.lineTo(rvX + 22, rvY + 14);
+      ctx.closePath();
+      ctx.fillStyle = '#0a1730';
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = ACCENT;
+      ctx.font = 'bold 22px "Space Mono", monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('1', rvX, rvY + 2);
+      ctx.font = '18px "Space Mono", monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText('REV 01 · 2026-04-22 · ISSUED FOR PERMIT', rvX + 36, rvY);
 
       ctx.globalAlpha = 1;
     }
