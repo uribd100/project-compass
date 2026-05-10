@@ -361,11 +361,18 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
   // ============================================================
   // Architectural plan (canvas) with FURNITURE
   // ============================================================
+  // Single canvas reused across redraws so we don't allocate a fresh
+  // 4096x2400 buffer (~40 MB) every time the engineer "draws another line".
+  const _planCanvas = document.createElement('canvas');
+  _planCanvas.width = 4096; _planCanvas.height = 2400;
   function makePlanCanvas(progress) {
     const C_W = 4096, C_H = 2400;
-    const canvas = document.createElement('canvas');
-    canvas.width = C_W; canvas.height = C_H;
+    const canvas = _planCanvas;
     const ctx = canvas.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, C_W, C_H);
+    ctx.globalAlpha = 1;
+    ctx.setLineDash([]);
 
     // Paper background
     const grad = ctx.createRadialGradient(C_W/2, C_H/2, 100, C_W/2, C_H/2, C_W/1.5);
@@ -874,13 +881,18 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
           ctx.moveTo(wx(cx0 - w/2 + 0.08), wy(zz));
           ctx.lineTo(wx(cx0 + w/2 - 0.08), wy(zz));
         }
-        // Stagger short transverse lines (plank seams)
+        // Staggered transverse lines (plank seams) — deterministic so the
+        // drawing doesn't jitter when the canvas re-renders during the
+        // engineer's drawing animation.
         ctx.lineWidth = 0.6 * LWX;
+        let row = 0;
         for (let zz = z0 + pw/2; zz < z0 + d; zz += pw) {
-          for (let xx = cx0 - w/2 + (Math.random() * 0.5 + 0.4); xx < cx0 + w/2; xx += pw * 6 + Math.random() * 0.5) {
+          const offset = (row % 2 === 0) ? 0.4 : 0.4 + pw * 3;
+          for (let xx = cx0 - w/2 + offset; xx < cx0 + w/2; xx += pw * 6) {
             ctx.moveTo(wx(xx), wy(zz - pw/2));
             ctx.lineTo(wx(xx), wy(zz + pw/2));
           }
+          row++;
         }
         ctx.stroke();
         ctx.restore();
@@ -1393,7 +1405,10 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     function clamp01(v) { return Math.max(0, Math.min(1, v)); }
   }
 
-  const planCanvasEl = makePlanCanvas(1);
+  // Initial draw: blank paper (progress=0) so the engineer "draws" it as
+  // the loop starts. The same canvas is reused on every redraw.
+  makePlanCanvas(0);
+  const planCanvasEl = _planCanvas;
   const planTex = new THREE.CanvasTexture(planCanvasEl);
   planTex.colorSpace = THREE.SRGBColorSpace;
   planTex.minFilter = THREE.LinearFilter;
@@ -1408,22 +1423,34 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
   planMesh.position.y = 0.03;
   scene.add(planMesh);
 
-  // The plan is rendered once with full detail at startup. Re-rendering it
-  // every frame proved too expensive (4096x2400 canvas regeneration per
-  // frame plus a multi-megabyte GPU upload), which made the plan phase look
-  // broken because the canvas couldn't keep up with the camera.
-  function updatePlanProgress(_) { /* intentional no-op */ }
+  // Throttled progressive redraw: the canvas is reused (no allocation) and
+  // we only repaint when the drawing progress crosses a discrete step, so
+  // the engineer-drawing animation reads as continuous without paying the
+  // ~100 ms canvas + GPU cost on every frame.
+  let lastPlanStep = -1;
+  function updatePlanProgress(p) {
+    const step = Math.round(p * 30) / 30;        // ~30 redraws across phase A
+    if (step === lastPlanStep) return;
+    lastPlanStep = step;
+    makePlanCanvas(step);                        // redraws into _planCanvas
+    planTex.needsUpdate = true;
+  }
 
   // ============================================================
   // BUILDING (12-floor tower)
   // ============================================================
-  // Clipping plane for floor-by-floor reveal.
-  // THREE.Plane.distanceToPoint = dot(N, P) + constant.
-  // A point is rendered when distance > 0, so with N=(0,-1,0):
-  //   -y + constant > 0  →  y < constant.
-  // Setting constant = buildHeight reveals everything below the rising plane.
+  // Clipping planes for the staged reveal.
+  //   wallsClip rises during the build phase to expose floors bottom-up.
+  //   roofClip rises only AFTER the walls finish, so the roof and rooftop
+  //   amenities (parapet, HVAC, water tank, antenna, crown, signage…)
+  //   appear as a separate moment that emphasises 2D → 3D completion.
+  // THREE.Plane.distanceToPoint = dot(N, P) + constant; with N=(0,-1,0)
+  // the visible half-space is y < constant.
   const clipPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0);
-  clipPlane.constant = 0; // initial: y < 0 visible → nothing above ground.
+  clipPlane.constant = 0;
+
+  const roofClipPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0);
+  roofClipPlane.constant = 0;
 
   const buildingGroup = new THREE.Group();
   scene.add(buildingGroup);
@@ -1432,6 +1459,11 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     mat.clippingPlanes = [clipPlane];
     mat.clipShadows = true;
     buildingMaterials.push(mat);
+  }
+
+  function applyRoofClipping(mat) {
+    mat.clippingPlanes = [roofClipPlane];
+    mat.clipShadows = true;
   }
 
   // Foundation — must be clipped too, otherwise this 31x17 m slab sits
@@ -1663,11 +1695,11 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
   );
   roofSlab.position.set(0, roofY + 0.2, 0);
   roofSlab.castShadow = true; roofSlab.receiveShadow = true;
-  applyClipping(roofSlab.material);
+  applyRoofClipping(roofSlab.material);
   roofGroup.add(roofSlab);
   // Parapet
   const parapetMat = new THREE.MeshStandardMaterial({ color: 0xc9c0b4, roughness: 0.85 });
-  applyClipping(parapetMat);
+  applyRoofClipping(parapetMat);
   const parH = 1.1;
   function parapetSeg(w, d, x, z) {
     const m = new THREE.Mesh(new THREE.BoxGeometry(w, parH, d), parapetMat);
@@ -1682,14 +1714,14 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
   // HVAC unit
   const hvacMat = new THREE.MeshStandardMaterial({ color: 0xb6b0a8, roughness: 0.7, metalness: 0.3 });
-  applyClipping(hvacMat);
+  applyRoofClipping(hvacMat);
   const hvac = new THREE.Mesh(new THREE.BoxGeometry(3.2, 1.2, 2.0), hvacMat);
   hvac.position.set(-W/2 + 5, roofY + 0.4 + 0.6, 2);
   hvac.castShadow = true; hvac.receiveShadow = true;
   roofGroup.add(hvac);
   // Vents on top of HVAC
   const ventMat = new THREE.MeshStandardMaterial({ color: 0x44443d, roughness: 0.6 });
-  applyClipping(ventMat);
+  applyRoofClipping(ventMat);
   for (let i = 0; i < 3; i++) {
     const v = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.35, 0.4, 16), ventMat);
     v.position.set(-W/2 + 4 + i * 1.0, roofY + 0.4 + 1.4, 2);
@@ -1701,13 +1733,13 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     new THREE.CylinderGeometry(1.4, 1.4, 2.4, 24),
     new THREE.MeshStandardMaterial({ color: 0x4f5a64, roughness: 0.5, metalness: 0.5 })
   );
-  applyClipping(tank.material);
+  applyRoofClipping(tank.material);
   tank.position.set(W/2 - 5, roofY + 0.4 + 1.2, -2.5);
   tank.castShadow = true;
   roofGroup.add(tank);
   // Antenna
   const antMat = new THREE.MeshStandardMaterial({ color: 0xc8c8c8, roughness: 0.4, metalness: 0.5 });
-  applyClipping(antMat);
+  applyRoofClipping(antMat);
   const antennaPole = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 5.2, 8), antMat);
   antennaPole.position.set(W/2 - 8, roofY + 0.4 + 2.6, 3);
   antennaPole.castShadow = true;
@@ -1723,7 +1755,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     new THREE.BoxGeometry(3, 2.6, 3),
     new THREE.MeshStandardMaterial({ color: 0xc9c0b4, roughness: 0.85 })
   );
-  applyClipping(stairBox.material);
+  applyRoofClipping(stairBox.material);
   stairBox.position.set(-W/2 + 4, roofY + 0.4 + 1.3, -2);
   stairBox.castShadow = true; stairBox.receiveShadow = true;
   roofGroup.add(stairBox);
@@ -1737,7 +1769,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       roughness: 0.18, metalness: 0.55,
     })
   );
-  applyClipping(amenity.material);
+  applyRoofClipping(amenity.material);
   amenity.position.set(2, roofY + 0.4 + 1.5, 0);
   amenity.castShadow = true; amenity.receiveShadow = true;
   roofGroup.add(amenity);
@@ -1882,7 +1914,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
   const crownMat = new THREE.MeshStandardMaterial({
     color: 0xeee5d4, roughness: 0.7, metalness: 0.05,
   });
-  applyClipping(crownMat);
+  applyRoofClipping(crownMat);
   const crown = new THREE.Mesh(
     new THREE.BoxGeometry(W + wallT + 1.6, 0.6, D + wallT + 1.6),
     crownMat
@@ -1910,12 +1942,12 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     map: signTex, emissive: 0xffd680, emissiveIntensity: 0,
     emissiveMap: signTex, roughness: 0.6,
   });
-  applyClipping(signMat);
+  applyRoofClipping(signMat);
   const sign = new THREE.Mesh(new THREE.PlaneGeometry(12, 1.6), signMat);
   sign.position.set(0, roofY + 0.3 + 2.5, -D/2 - wallT/2 - 0.05);
   roofGroup.add(sign);
   const signBack = new THREE.Mesh(new THREE.PlaneGeometry(12, 1.6), signMat.clone());
-  applyClipping(signBack.material);
+  applyRoofClipping(signBack.material);
   signBack.material.map = signTex;
   signBack.material.emissiveMap = signTex;
   signBack.position.set(0, roofY + 0.3 + 2.5,  D/2 + wallT/2 + 0.05);
@@ -2084,7 +2116,8 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
     let camMode;
     let blueprintAlpha = 0, planProgress = 1;
-    let buildHeight = 0;       // current y of clip plane (0..TOTAL_H)
+    let buildHeight = 0;        // walls clip plane height
+    let roofRevealHeight = 0;   // roof clip plane height
     let scanAlpha = 0, scanY = 0;
     let windowEmiss = 0;
     let lampInt = 0;
@@ -2095,14 +2128,17 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     let skyTop, skyMid, skyBot;
 
     // Phases (24s loop):
-    // A: 0.00 - 0.32  Plan + furniture draws (top-down, close)
-    // B: 0.32 - 0.42  Tilt down; blueprint fades; first floors extrude
-    // C: 0.42 - 0.62  Floors rise (clip plane), camera orbits up
-    // D: 0.62 - 0.72  Day orbit (close to facade)
-    // E: 0.72 - 0.82  Sunset orbit
-    // F: 0.82 - 0.93  Night, camera close to front showing lobby + lit windows
-    // G: 0.93 - 0.99  Reverse → back to top-down plan
-    // H: 0.99 - 1.00  Hold plan
+    // A:  0.00 - 0.32  Plan + furniture draws progressively (top-down)
+    // B:  0.32 - 0.42  Tilt down; blueprint fades; first floors extrude
+    // C1: 0.42 - 0.56  Walls rise to the top (no roof yet)
+    // C2: 0.56 - 0.62  Roof drops in (parapet, HVAC, crown, signage…)
+    // D:  0.62 - 0.72  Day orbit (close to facade)
+    // E:  0.72 - 0.82  Sunset orbit
+    // F:  0.82 - 0.93  Night, camera close to front showing lobby + lit windows
+    // G:  0.93 - 0.99  Reverse → back to top-down plan
+    // H:  0.99 - 1.00  Hold plan
+
+    const ROOF_FULL = TOTAL_H + 12;   // covers crown, signage, antenna pole
 
     if (t < 0.32) {
       const k = t / 0.32;
@@ -2110,6 +2146,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       blueprintAlpha = clamp01(t * 25);
       planProgress = clamp01(k * 1.05);
       buildHeight = 0;
+      roofRevealHeight = 0;
       scanAlpha = 0;
       sunIntensity = 0.05; hemiInt = 0.45; moonInt = 0.5;
       sunDir = { az: -Math.PI/4, el: 0.10 };
@@ -2123,6 +2160,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       blueprintAlpha = lerp(1, 0.0, ek);
       planProgress = 1;
       buildHeight = lerp(0, FLOOR_H * 1.5, ek);
+      roofRevealHeight = 0;
       scanAlpha = lerp(0, 0.6, ek);
       scanY = buildHeight;
       sunIntensity = lerp(0.05, 0.6, ek);
@@ -2137,18 +2175,20 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       fogD = lerp(0.010, 0.006, ek);
       exposure = lerp(0.95, 1.05, ek);
       windowEmiss = 0; lampInt = 0;
-    } else if (t < 0.62) {
-      const k = (t - 0.42) / 0.20;
+    } else if (t < 0.56) {
+      // C1: walls rise floor-by-floor; roof stays absent
+      const k = (t - 0.42) / 0.14;
       const ek = easeOut(k);
       camMode = { type: 'orbitRise', k };
       blueprintAlpha = 0;
-      buildHeight = lerp(FLOOR_H * 1.5, TOTAL_H + 4, ek);
-      scanAlpha = lerp(0.6, 0.1, ek);
+      buildHeight = lerp(FLOOR_H * 1.5, TOTAL_H + 2, ek);
+      roofRevealHeight = 0;
+      scanAlpha = lerp(0.6, 0.4, ek);
       scanY = Math.min(buildHeight, TOTAL_H + 0.5);
-      sunIntensity = lerp(0.6, 2.2, ek);
+      sunIntensity = lerp(0.6, 2.0, ek);
       hemiInt = lerp(0.55, 0.7, ek);
       moonInt = lerp(0.2, 0.0, ek);
-      sunDir = { az: lerp(-Math.PI/3, -Math.PI/4, k), el: lerp(0.22, 0.5, ek) };
+      sunDir = { az: lerp(-Math.PI/3, -Math.PI/4, k), el: lerp(0.22, 0.45, ek) };
       lerpColor(tmpA, skyDawn.top, skyDay.top, ek);
       lerpColor(tmpB, skyDawn.mid, skyDay.mid, ek);
       lerpColor(tmpC, skyDawn.bot, skyDay.bot, ek);
@@ -2157,11 +2197,29 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       fogD = lerp(0.006, 0.004, ek);
       exposure = 1.05;
       windowEmiss = 0; lampInt = 0;
+    } else if (t < 0.62) {
+      // C2: roof drops in
+      const k = (t - 0.56) / 0.06;
+      const ek = easeOut(k);
+      camMode = { type: 'orbitRoof', k };
+      blueprintAlpha = 0;
+      buildHeight = TOTAL_H + 2;
+      roofRevealHeight = lerp(0, ROOF_FULL, ek);
+      scanAlpha = lerp(0.4, 0, ek);
+      scanY = TOTAL_H + lerp(0, 4, ek);
+      sunIntensity = lerp(2.0, 2.2, ek);
+      hemiInt = 0.7;
+      moonInt = 0;
+      sunDir = { az: lerp(-Math.PI/4, -Math.PI/4, ek), el: lerp(0.45, 0.5, ek) };
+      skyTop = skyDay.top; skyMid = skyDay.mid; skyBot = skyDay.bot;
+      starsAlpha = 0; fogD = 0.004; exposure = 1.05;
+      windowEmiss = 0; lampInt = 0;
     } else if (t < 0.72) {
       const k = (t - 0.62) / 0.10;
       camMode = { type: 'orbitDay', k };
       blueprintAlpha = 0;
-      buildHeight = TOTAL_H + 4;
+      buildHeight = TOTAL_H + 2;
+      roofRevealHeight = ROOF_FULL;
       scanAlpha = 0;
       sunIntensity = 2.2; hemiInt = 0.7; moonInt = 0;
       sunDir = { az: lerp(-Math.PI/4, 0, k), el: 0.5 };
@@ -2173,7 +2231,8 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       const ek = easeInOut(k);
       camMode = { type: 'orbitSunset', k };
       blueprintAlpha = 0;
-      buildHeight = TOTAL_H + 4;
+      buildHeight = TOTAL_H + 2;
+      roofRevealHeight = ROOF_FULL;
       sunIntensity = lerp(2.2, 0.05, ek);
       hemiInt = lerp(0.7, 0.25, ek);
       moonInt = lerp(0, 0.4, ek);
@@ -2192,7 +2251,8 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       const ek = easeInOut(k);
       camMode = { type: 'orbitNight', k };
       blueprintAlpha = 0;
-      buildHeight = TOTAL_H + 4;
+      buildHeight = TOTAL_H + 2;
+      roofRevealHeight = ROOF_FULL;
       sunIntensity = lerp(0.05, 0, ek);
       hemiInt = lerp(0.25, 0.16, ek);
       moonInt = lerp(0.4, 0.55, ek);
@@ -2212,7 +2272,9 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
       camMode = { type: 'tiltOut', k: ek };
       blueprintAlpha = lerp(0, 1, clamp01((k - 0.45) / 0.50));
       planProgress = 1;
-      buildHeight = lerp(TOTAL_H + 4, 0, clamp01(k * 1.2));
+      // Reverse: roof retracts first (k < 0.4), then walls (k > 0.3)
+      roofRevealHeight = lerp(ROOF_FULL, 0, clamp01(k / 0.4));
+      buildHeight = lerp(TOTAL_H + 2, 0, clamp01((k - 0.3) / 0.7));
       scanAlpha = clamp01(k - 0.05) * 0.5;
       scanY = buildHeight;
       sunIntensity = lerp(0, 0.05, ek);
@@ -2231,7 +2293,8 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     } else {
       camMode = { type: 'plan', k: 0 };
       blueprintAlpha = 1; planProgress = 1;
-      buildHeight = 0; scanAlpha = 0;
+      buildHeight = 0; roofRevealHeight = 0;
+      scanAlpha = 0;
       sunIntensity = 0.05; hemiInt = 0.45; moonInt = 0.5;
       sunDir = { az: -Math.PI/4, el: 0.10 };
       skyTop = skyBlueprint.top; skyMid = skyBlueprint.mid; skyBot = skyBlueprint.bot;
@@ -2276,11 +2339,24 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
         ec * Math.sin(azim) * dist
       );
       camera.lookAt(0, lerp(12, TOTAL_H/2, easeOut(k)), 0);
+    } else if (camMode.type === 'orbitRoof') {
+      // Roof drop: pull up slightly so the roof lands clearly in frame.
+      const k = camMode.k;
+      const elev = Math.PI/2 - 1.05 - 0.12 - k * 0.05;
+      const azim = -Math.PI/4 - 0.45 - k * 0.10;
+      const dist = lerp(62, 60, k);
+      const ec = Math.cos(elev), es = Math.sin(elev);
+      camera.position.set(
+        ec * Math.cos(azim) * dist,
+        es * dist + 22 + k * 4,
+        ec * Math.sin(azim) * dist
+      );
+      camera.lookAt(0, TOTAL_H * 0.55, 0);
     } else if (camMode.type === 'orbitDay') {
       // Day: medium-distance orbit showing two faces of the tower
       const k = camMode.k;
       const elev = Math.PI/2 - 1.18;
-      const azim = -Math.PI/4 - 0.45 - k * 0.55;
+      const azim = -Math.PI/4 - 0.55 - k * 0.55;
       const dist = lerp(62, 58, k);
       const ec = Math.cos(elev), es = Math.sin(elev);
       camera.position.set(
@@ -2340,6 +2416,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 
     // Clip plane: only points with y < buildHeight visible
     clipPlane.constant = buildHeight;
+    roofClipPlane.constant = roofRevealHeight;
 
     // Scan line follows clip plane
     scanLine.position.y = scanY + 0.05;
@@ -2393,7 +2470,8 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     let txt;
     if (t < 0.32) txt = '— BLUEPRINT / שרטוט אדריכלי —';
     else if (t < 0.42) txt = '— FOUNDATION / יסודות —';
-    else if (t < 0.62) txt = '— FLOOR ' + Math.min(FLOORS, Math.ceil((t - 0.42) / 0.20 * FLOORS)) + ' / קומה —';
+    else if (t < 0.56) txt = '— FLOOR ' + Math.min(FLOORS, Math.ceil((t - 0.42) / 0.14 * FLOORS)) + ' / קומה —';
+    else if (t < 0.62) txt = '— ROOF / גג —';
     else if (t < 0.72) txt = '— DAYLIGHT / יום —';
     else if (t < 0.82) txt = '— SUNSET / שקיעה —';
     else if (t < 0.93) txt = '— NIGHT / לילה —';
