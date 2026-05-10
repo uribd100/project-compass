@@ -1408,14 +1408,11 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
   planMesh.position.y = 0.03;
   scene.add(planMesh);
 
-  let lastPlanProgress = -1;
-  function updatePlanProgress(p) {
-    if (Math.abs(p - lastPlanProgress) < 0.005) return;
-    lastPlanProgress = p;
-    const c = makePlanCanvas(p);
-    planTex.image = c;
-    planTex.needsUpdate = true;
-  }
+  // The plan is rendered once with full detail at startup. Re-rendering it
+  // every frame proved too expensive (4096x2400 canvas regeneration per
+  // frame plus a multi-megabyte GPU upload), which made the plan phase look
+  // broken because the canvas couldn't keep up with the camera.
+  function updatePlanProgress(_) { /* intentional no-op */ }
 
   // ============================================================
   // BUILDING (12-floor tower)
@@ -1727,6 +1724,200 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
   stairBox.position.set(-W/2 + 4, roofY + 0.4 + 1.3, -2);
   stairBox.castShadow = true; stairBox.receiveShadow = true;
   roofGroup.add(stairBox);
+
+  // Roof rooftop terrace (slab on top so the setback feels like a real
+  // penthouse with usable space). Plus a glazed amenity room.
+  const amenity = new THREE.Mesh(
+    new THREE.BoxGeometry(8, 3.0, 5),
+    new THREE.MeshStandardMaterial({
+      color: 0x223040, emissive: 0xffd680, emissiveIntensity: 0,
+      roughness: 0.18, metalness: 0.55,
+    })
+  );
+  applyClipping(amenity.material);
+  amenity.position.set(2, roofY + 0.4 + 1.5, 0);
+  amenity.castShadow = true; amenity.receiveShadow = true;
+  roofGroup.add(amenity);
+
+  // ============================================================
+  // Balconies (instanced) — protruding from the front face on every floor
+  // except the ground (lobby) floor. Three balcony bays per floor.
+  // ============================================================
+  const balconyDepth = 1.4;
+  const balconyW = 3.2;
+  const balconyT = 0.18;
+  const balconyMat = new THREE.MeshStandardMaterial({
+    color: 0xd6cdc0, roughness: 0.85,
+  });
+  applyClipping(balconyMat);
+  const railMat = new THREE.MeshStandardMaterial({
+    color: 0x1a1c20, roughness: 0.5, metalness: 0.6,
+  });
+  applyClipping(railMat);
+  const glassRailMat = new THREE.MeshStandardMaterial({
+    color: 0x6090b8, transparent: true, opacity: 0.35,
+    roughness: 0.1, metalness: 0.4,
+  });
+  applyClipping(glassRailMat);
+
+  const balconyXs = [-W/2 + 5, 0, W/2 - 5];
+  const FLOORS_WITH_BALCONY = FLOORS - 1;       // skip ground/lobby floor
+  const N_BALC = FLOORS_WITH_BALCONY * balconyXs.length;
+
+  const balconyGeom = new THREE.BoxGeometry(balconyW, balconyT, balconyDepth);
+  const railTopGeom  = new THREE.BoxGeometry(balconyW, 0.06, 0.06);
+  const railSideGeom = new THREE.BoxGeometry(0.06, 1.05, balconyDepth);
+  const railGlassGeom = new THREE.BoxGeometry(balconyW - 0.1, 1.0, 0.04);
+
+  const balcSlabs = new THREE.InstancedMesh(balconyGeom, balconyMat, N_BALC);
+  balcSlabs.castShadow = true; balcSlabs.receiveShadow = true;
+  const balcRailTop = new THREE.InstancedMesh(railTopGeom, railMat, N_BALC);
+  const balcRailL   = new THREE.InstancedMesh(railSideGeom, railMat, N_BALC);
+  const balcRailR   = new THREE.InstancedMesh(railSideGeom, railMat, N_BALC);
+  const balcGlass   = new THREE.InstancedMesh(railGlassGeom, glassRailMat, N_BALC);
+  balcRailTop.castShadow = true; balcRailL.castShadow = true; balcRailR.castShadow = true;
+  balcGlass.castShadow = false;
+
+  const _m = new THREE.Matrix4();
+  const _v = new THREE.Vector3();
+  const _q = new THREE.Quaternion();
+  const _s = new THREE.Vector3(1, 1, 1);
+  let bi = 0;
+  for (let f = 1; f <= FLOORS_WITH_BALCONY; f++) {
+    const floorTop = 0.6 + f * FLOOR_H;        // y where this floor's slab sits
+    const slabY = floorTop - balconyT/2;
+    for (const x of balconyXs) {
+      // Slab
+      _v.set(x, slabY, -D/2 - balconyDepth/2 - wallT/2);
+      _m.compose(_v, _q, _s);
+      balcSlabs.setMatrixAt(bi, _m);
+      // Top rail
+      _v.set(x, slabY + 1.05, -D/2 - balconyDepth - wallT/2);
+      _m.compose(_v, _q, _s);
+      balcRailTop.setMatrixAt(bi, _m);
+      // Glass infill
+      _v.set(x, slabY + 0.55, -D/2 - balconyDepth - wallT/2 + 0.02);
+      _m.compose(_v, _q, _s);
+      balcGlass.setMatrixAt(bi, _m);
+      // Side rails
+      _v.set(x - balconyW/2, slabY + 0.55, -D/2 - balconyDepth/2 - wallT/2);
+      _m.compose(_v, _q, _s);
+      balcRailL.setMatrixAt(bi, _m);
+      _v.set(x + balconyW/2, slabY + 0.55, -D/2 - balconyDepth/2 - wallT/2);
+      _m.compose(_v, _q, _s);
+      balcRailR.setMatrixAt(bi, _m);
+      bi++;
+    }
+  }
+  balcSlabs.instanceMatrix.needsUpdate = true;
+  balcRailTop.instanceMatrix.needsUpdate = true;
+  balcRailL.instanceMatrix.needsUpdate = true;
+  balcRailR.instanceMatrix.needsUpdate = true;
+  balcGlass.instanceMatrix.needsUpdate = true;
+  buildingGroup.add(balcSlabs, balcRailTop, balcRailL, balcRailR, balcGlass);
+
+  // ============================================================
+  // Architectural fins — vertical concrete blades at the four corners
+  // running the full building height.
+  // ============================================================
+  const finMat = new THREE.MeshStandardMaterial({
+    color: 0xeee5d4, roughness: 0.85,
+  });
+  applyClipping(finMat);
+  const finW = 0.55, finD = 0.55;
+  const finPositions = [
+    [-W/2 - 0.18, -D/2 - 0.18],
+    [ W/2 + 0.18, -D/2 - 0.18],
+    [-W/2 - 0.18,  D/2 + 0.18],
+    [ W/2 + 0.18,  D/2 + 0.18],
+  ];
+  finPositions.forEach(([x, z]) => {
+    const fin = new THREE.Mesh(
+      new THREE.BoxGeometry(finW, TOTAL_H + 1.2, finD),
+      finMat
+    );
+    fin.position.set(x, 0.6 + (TOTAL_H + 1.2)/2, z);
+    fin.castShadow = true; fin.receiveShadow = true;
+    buildingGroup.add(fin);
+  });
+
+  // ============================================================
+  // Vertical glass stairwell column on the left (-X) side, full height —
+  // gives the facade a strong vertical accent and reads as a real
+  // architectural feature.
+  // ============================================================
+  const stairColMat = new THREE.MeshStandardMaterial({
+    color: 0x223040, emissive: 0xffd680, emissiveIntensity: 0,
+    roughness: 0.18, metalness: 0.55,
+  });
+  applyClipping(stairColMat);
+  const stairColumn = new THREE.Mesh(
+    new THREE.BoxGeometry(0.3, TOTAL_H, 3.6),
+    stairColMat
+  );
+  stairColumn.position.set(-W/2 - wallT/2 - 0.05, 0.6 + TOTAL_H/2, 0);
+  stairColumn.castShadow = true;
+  buildingGroup.add(stairColumn);
+  // Floor-line plates inside the stair column (thin horizontal bars)
+  const stairPlateMat = new THREE.MeshStandardMaterial({
+    color: 0x4a4e58, roughness: 0.7,
+  });
+  applyClipping(stairPlateMat);
+  for (let f = 1; f <= FLOORS; f++) {
+    const plate = new THREE.Mesh(
+      new THREE.BoxGeometry(0.45, 0.12, 3.4),
+      stairPlateMat
+    );
+    plate.position.set(-W/2 - wallT/2 - 0.10, 0.6 + f * FLOOR_H, 0);
+    plate.castShadow = true;
+    buildingGroup.add(plate);
+  }
+
+  // ============================================================
+  // Decorative crown/parapet band at the very top of the tower
+  // ============================================================
+  const crownMat = new THREE.MeshStandardMaterial({
+    color: 0xeee5d4, roughness: 0.7, metalness: 0.05,
+  });
+  applyClipping(crownMat);
+  const crown = new THREE.Mesh(
+    new THREE.BoxGeometry(W + wallT + 1.6, 0.6, D + wallT + 1.6),
+    crownMat
+  );
+  crown.position.set(0, roofY + 0.3 + 1.2, 0);
+  crown.castShadow = true; crown.receiveShadow = true;
+  roofGroup.add(crown);
+
+  // Building signage — "TOWER 12" emissive band
+  function makeSignageTexture(text) {
+    const c = document.createElement('canvas');
+    c.width = 1024; c.height = 256;
+    const cx = c.getContext('2d');
+    cx.fillStyle = '#0a0c12';
+    cx.fillRect(0, 0, c.width, c.height);
+    cx.fillStyle = '#ffe7a8';
+    cx.font = 'bold 168px "Space Mono", monospace';
+    cx.textAlign = 'center'; cx.textBaseline = 'middle';
+    cx.fillText(text, c.width/2, c.height/2 + 8);
+    return c;
+  }
+  const signTex = new THREE.CanvasTexture(makeSignageTexture('TOWER 12'));
+  signTex.colorSpace = THREE.SRGBColorSpace;
+  const signMat = new THREE.MeshStandardMaterial({
+    map: signTex, emissive: 0xffd680, emissiveIntensity: 0,
+    emissiveMap: signTex, roughness: 0.6,
+  });
+  applyClipping(signMat);
+  const sign = new THREE.Mesh(new THREE.PlaneGeometry(12, 1.6), signMat);
+  sign.position.set(0, roofY + 0.3 + 2.5, -D/2 - wallT/2 - 0.05);
+  roofGroup.add(sign);
+  const signBack = new THREE.Mesh(new THREE.PlaneGeometry(12, 1.6), signMat.clone());
+  applyClipping(signBack.material);
+  signBack.material.map = signTex;
+  signBack.material.emissiveMap = signTex;
+  signBack.position.set(0, roofY + 0.3 + 2.5,  D/2 + wallT/2 + 0.05);
+  signBack.rotation.y = Math.PI;
+  roofGroup.add(signBack);
 
   // ============================================================
   // Surroundings: trees, lampposts, low-rise neighbors
@@ -2154,6 +2345,10 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
     // Glass emissive
     glassMat.emissiveIntensity = windowEmiss;
     lobbyMat.emissiveIntensity = windowEmiss * 0.5;
+    stairColMat.emissiveIntensity = windowEmiss * 0.7;
+    amenity.material.emissiveIntensity = windowEmiss * 0.9;
+    signMat.emissiveIntensity = windowEmiss * 1.3;
+    signBack.material.emissiveIntensity = windowEmiss * 1.3;
 
     // Lamps
     lamps.forEach(lp => {
