@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>סימפליפאיי × מילגם — מאיץ בינה מלאכותית</title>
+<meta name="description" content="תזה אסטרטגית לשיתוף פעולה בין סימפליפאיי למילגם — מאיץ AI לארגונים מורכבים.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060D1F; --bg-card:#0E1733; --bg-soft:#1A2342;
+  --ink:#E8ECF7; --ink-dim:#9AA5C2; --ink-faint:#5B678E;
+  --gold:#C7A24A; --gold-soft:rgba(199,162,74,.14);
+  --accent:#4D8EFF; --accent-soft:rgba(77,142,255,.14);
+  --cta:#FF6F4C; --cta-glow:rgba(255,111,76,.45);
+  --border:#26315400; --border-line:#243054;
+  --ok:#43D6A0;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; font-family:'Heebo',system-ui,sans-serif; background:var(--bg);
+  color:var(--ink); direction:rtl; line-height:1.65; overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/* ---------- animated background ---------- */
+#bgfx{position:fixed; inset:0; z-index:0; pointer-events:none}
+.aurora{position:fixed; inset:-20% ; z-index:0; pointer-events:none; filter:blur(70px); opacity:.55}
+.aurora span{position:absolute; border-radius:50%; mix-blend-mode:screen; animation:drift 22s ease-in-out infinite}
+.aurora .a1{width:46vw;height:46vw; top:-6%; right:-4%; background:radial-gradient(circle,rgba(77,142,255,.55),transparent 62%)}
+.aurora .a2{width:40vw;height:40vw; bottom:-10%; left:-6%; background:radial-gradient(circle,rgba(199,162,74,.42),transparent 62%); animation-delay:-7s}
+.aurora .a3{width:34vw;height:34vw; top:38%; left:30%; background:radial-gradient(circle,rgba(255,111,76,.30),transparent 62%); animation-delay:-13s}
+@keyframes drift{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(4vw,3vh) scale(1.12)}66%{transform:translate(-3vw,-2vh) scale(.94)}}
+.grid-overlay{position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.25;
+  background-image:linear-gradient(var(--border-line) 1px,transparent 1px),linear-gradient(90deg,var(--border-line) 1px,transparent 1px);
+  background-size:64px 64px; mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,#000 30%,transparent 78%)}
+
+/* ---------- scroll progress ---------- */
+.progress{position:fixed; top:0; right:0; left:0; height:3px; z-index:60; background:transparent}
+.progress i{display:block; height:100%; width:0;
+  background:linear-gradient(90deg,var(--gold),var(--cta) 60%,var(--accent)); box-shadow:0 0 12px var(--gold-soft)}
+
+/* ---------- top bar ---------- */
+.topbar{position:fixed; top:0; right:0; left:0; z-index:50; display:flex; align-items:center; justify-content:space-between;
+  padding:14px clamp(16px,4vw,46px); backdrop-filter:blur(10px);
+  background:linear-gradient(180deg,rgba(6,13,31,.9),rgba(6,13,31,0)); transition:background .3s}
+.topbar .brand{font-weight:900; letter-spacing:.5px; font-size:17px; color:var(--ink)}
+.topbar .brand b{color:var(--gold)}
+.topbar .tx{font-size:12px; color:var(--ink-dim)}
+.topbar .pill{display:inline-flex;align-items:center;gap:7px; font-size:12px; color:var(--ink-dim);
+  border:1px solid var(--border-line); padding:6px 12px; border-radius:999px; background:rgba(14,23,51,.5)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--ok); box-shadow:0 0 0 0 var(--ok); animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(67,214,160,.5)}70%{box-shadow:0 0 0 9px rgba(67,214,160,0)}100%{box-shadow:0 0 0 0 rgba(67,214,160,0)}}
+
+/* ---------- layout ---------- */
+main{position:relative; z-index:2}
+section{position:relative; padding:clamp(64px,9vw,120px) clamp(18px,5vw,40px); max-width:1080px; margin:0 auto}
+.eyebrow{display:inline-flex; align-items:center; gap:9px; font-size:12.5px; font-weight:600; letter-spacing:2px;
+  text-transform:uppercase; color:var(--gold); margin-bottom:18px}
+.eyebrow::before{content:""; width:26px; height:1px; background:var(--gold); display:inline-block}
+h2{font-size:clamp(24px,4.4vw,40px); font-weight:800; margin:0 0 14px; line-height:1.15; letter-spacing:-.5px}
+.lead{font-size:clamp(15px,2.2vw,19px); color:var(--ink-dim); max-width:62ch; margin:0 0 8px}
+.hl{color:var(--gold)} .hl-a{color:var(--accent)} .hl-c{color:var(--cta)}
+
+/* ---------- hero ---------- */
+.hero{min-height:100vh; display:flex; flex-direction:column; justify-content:center; max-width:1180px}
+.hero .kicker{font-size:13px; color:var(--ink-dim); letter-spacing:3px; text-transform:uppercase; margin-bottom:22px}
+.hero h1{font-size:clamp(38px,9vw,92px); line-height:.98; font-weight:900; margin:0; letter-spacing:-1.5px}
+.hero h1 .x{color:var(--gold); font-weight:300; padding:0 .12em}
+.hero h1 .grad{background:linear-gradient(120deg,#fff,#9fc0ff 55%,var(--gold)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.hero .sub{font-size:clamp(18px,3vw,30px); color:var(--ink); margin:26px 0 6px; font-weight:600}
+.hero .sub2{font-size:clamp(14px,2vw,18px); color:var(--ink-dim)}
+.hero .meta{display:flex; flex-wrap:wrap; gap:10px; margin-top:30px}
+.chip{font-size:12.5px; color:var(--ink-dim); border:1px solid var(--border-line); border-radius:999px; padding:8px 14px;
+  background:rgba(14,23,51,.45); transition:.25s}
+.chip:hover{color:var(--ink); border-color:var(--gold); transform:translateY(-2px)}
+.scrollcue{position:absolute; bottom:30px; right:clamp(18px,5vw,40px); font-size:12px; color:var(--ink-faint); letter-spacing:1px}
+.scrollcue b{display:block; font-size:20px; text-align:center; animation:bob 1.8s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(7px);opacity:1}}
+
+/* ---------- stat grid ---------- */
+.stats{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-top:36px}
+.stat{background:linear-gradient(160deg,var(--bg-card),rgba(14,23,51,.4)); border:1px solid var(--border-line);
+  border-radius:16px; padding:22px 18px; position:relative; overflow:hidden; transition:.3s}
+.stat::after{content:""; position:absolute; inset:0; background:radial-gradient(120px 80px at 80% 0%,var(--accent-soft),transparent); opacity:0; transition:.3s}
+.stat:hover{transform:translateY(-4px); border-color:var(--accent)}
+.stat:hover::after{opacity:1}
+.stat .num{font-size:clamp(26px,4vw,38px); font-weight:900; color:#fff; letter-spacing:-1px; line-height:1}
+.stat .num small{font-size:.5em; color:var(--gold); font-weight:700}
+.stat .lab{font-size:12.5px; color:var(--ink-dim); margin-top:8px}
+
+/* ---------- generic cards ---------- */
+.cards{display:grid; gap:14px; margin-top:34px}
+.c3{grid-template-columns:repeat(3,1fr)} .c2{grid-template-columns:repeat(2,1fr)} .c5{grid-template-columns:repeat(5,1fr)}
+.card{background:linear-gradient(165deg,var(--bg-card),rgba(10,17,40,.55)); border:1px solid var(--border-line);
+  border-radius:18px; padding:24px 22px; position:relative; overflow:hidden; transition:.32s cubic-bezier(.2,.8,.2,1)}
+.card::before{content:""; position:absolute; top:0; right:0; left:0; height:2px; background:linear-gradient(90deg,transparent,var(--gold),transparent); transform:scaleX(0); transition:.4s}
+.card:hover{transform:translateY(-6px); border-color:var(--gold)}
+.card:hover::before{transform:scaleX(1)}
+.card .ic{font-size:30px; margin-bottom:14px; display:block; filter:drop-shadow(0 4px 14px rgba(0,0,0,.4))}
+.card h3{font-size:18px; margin:0 0 8px; font-weight:800}
+.card p{font-size:13.5px; color:var(--ink-dim); margin:0}
+.card .tag{display:inline-block; margin-top:14px; font-size:11.5px; font-weight:700; letter-spacing:.5px; color:var(--gold);
+  background:var(--gold-soft); border-radius:999px; padding:5px 11px}
+
+/* ---------- pain bars ---------- */
+.bars{margin-top:30px; display:grid; gap:14px; max-width:640px}
+.bar{display:grid; grid-template-columns:1fr auto; gap:8px 14px; align-items:center}
+.bar .bl{font-size:14px; color:var(--ink)}
+.bar .bv{font-size:14px; font-weight:700; color:var(--gold)} .mono.bv{font-family:'JetBrains Mono',monospace}
+.track{grid-column:1/-1; height:9px; background:rgba(255,255,255,.06); border-radius:999px; overflow:hidden}
+.track i{display:block; height:100%; width:0; border-radius:999px; background:linear-gradient(90deg,var(--accent),var(--gold)); transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.bigpct{font-size:clamp(56px,12vw,120px); font-weight:900; line-height:.9; letter-spacing:-4px;
+  background:linear-gradient(120deg,var(--cta),var(--gold)); -webkit-background-clip:text; background-clip:text; color:transparent}
+
+/* ---------- vs comparison ---------- */
+.vs{display:grid; grid-template-columns:1fr auto 1fr; gap:18px; margin-top:34px; align-items:stretch}
+.col{border-radius:18px; padding:26px 24px; border:1px solid var(--border-line)}
+.col.them{background:rgba(20,26,46,.5)}
+.col.me{background:linear-gradient(165deg,rgba(199,162,74,.12),var(--bg-card)); border-color:var(--gold)}
+.col h4{margin:0 0 4px; font-size:18px}
+.col .who{font-size:12px; color:var(--ink-faint); margin-bottom:16px}
+.col ul{list-style:none; margin:0; padding:0; display:grid; gap:11px}
+.col li{font-size:13.5px; color:var(--ink-dim); padding-right:22px; position:relative}
+.col.them li::before{content:"✕"; position:absolute; right:0; color:#7a8; opacity:.6}
+.col.me li{color:var(--ink)} .col.me li::before{content:"✓"; position:absolute; right:0; color:var(--ok); font-weight:700}
+.vsmid{display:flex; align-items:center; justify-content:center; font-weight:900; color:var(--gold); font-size:18px}
+.vsnote{text-align:center; margin-top:22px; font-size:clamp(16px,2.4vw,22px); font-weight:700}
+.vsnote span{color:var(--gold)}
+
+/* ---------- proof ---------- */
+.proof{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:34px}
+.pf{background:linear-gradient(165deg,var(--bg-card),rgba(10,17,40,.6)); border:1px solid var(--border-line); border-radius:20px; padding:26px; transition:.3s}
+.pf:hover{border-color:var(--accent); transform:translateY(-4px)}
+.pf .h{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:4px}
+.pf .h b{font-size:20px} .pf .h .u{font-size:12px; color:var(--accent)} .mono.u{font-family:'JetBrains Mono',monospace}
+.pf .d{font-size:13.5px; color:var(--ink-dim); margin:0 0 18px}
+.pf .nums{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:18px}
+.pf .nums div{text-align:center; background:rgba(255,255,255,.03); border-radius:12px; padding:12px 6px}
+.pf .nums .n{font-size:17px; font-weight:900; color:#fff} .pf .nums .l{font-size:10.5px; color:var(--ink-faint); margin-top:3px}
+.pf ul{list-style:none; margin:0; padding:0; display:grid; gap:8px}
+.pf li{font-size:13px; color:var(--ink-dim); padding-right:18px; position:relative}
+.pf li::before{content:"→"; position:absolute; right:0; color:var(--gold)}
+
+/* ---------- process timeline ---------- */
+.timeline{margin-top:38px; position:relative; display:grid; gap:18px}
+.timeline::before{content:""; position:absolute; right:21px; top:10px; bottom:10px; width:2px; background:linear-gradient(var(--gold),var(--accent),transparent)}
+.tl{display:grid; grid-template-columns:44px 1fr; gap:18px; align-items:start}
+.tl .node{width:44px; height:44px; border-radius:50%; display:grid; place-items:center; font-weight:900; color:var(--bg);
+  background:linear-gradient(135deg,var(--gold),#e9c878); position:relative; z-index:2; box-shadow:0 0 0 6px var(--bg)}
+.tl .body{background:var(--bg-card); border:1px solid var(--border-line); border-radius:16px; padding:20px 22px; transition:.3s}
+.tl:hover .body{border-color:var(--gold); transform:translateX(-5px)}
+.tl .when{font-size:11.5px; letter-spacing:1px; text-transform:uppercase; color:var(--accent); font-weight:700}
+.tl h3{margin:6px 0 6px; font-size:19px}
+.tl p{margin:0 0 12px; font-size:13.5px; color:var(--ink-dim)}
+.tl .price{font-size:13px; font-weight:700; color:var(--gold); background:var(--gold-soft); border-radius:999px; padding:6px 13px; display:inline-block}
+
+/* ---------- deliverables / tiers ---------- */
+.deliv{display:grid; grid-template-columns:1.2fr 1fr; gap:16px; margin-top:34px}
+.box{background:var(--bg-card); border:1px solid var(--border-line); border-radius:18px; padding:26px}
+.box h4{margin:0 0 16px; font-size:16px; color:var(--gold)}
+.box ol{margin:0; padding-right:18px; display:grid; gap:10px}
+.box ol li{font-size:13.5px; color:var(--ink); }
+.risk{display:grid; gap:12px}
+.risk .r{padding:14px 16px; border-radius:12px; background:rgba(255,111,76,.07); border:1px solid rgba(255,111,76,.25)}
+.risk .r b{display:block; color:var(--cta); font-size:13px; margin-bottom:3px}
+.risk .r span{font-size:13px; color:var(--ink-dim)}
+
+.tiers{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:34px}
+.tier{background:var(--bg-card); border:1px solid var(--border-line); border-radius:18px; padding:24px 22px; position:relative; transition:.3s}
+.tier:hover{transform:translateY(-5px); border-color:var(--accent)}
+.tier.best{border-color:var(--gold); background:linear-gradient(170deg,rgba(199,162,74,.12),var(--bg-card))}
+.tier .badge{position:absolute; top:-11px; right:22px; background:var(--gold); color:var(--bg); font-size:11px; font-weight:800; padding:4px 12px; border-radius:999px}
+.tier .lv{font-size:12px; color:var(--ink-faint); letter-spacing:1px; text-transform:uppercase}
+.tier h3{margin:6px 0 4px; font-size:19px}
+.tier .pr{font-size:22px; font-weight:900; color:var(--gold); margin:6px 0}
+.tier .meta{font-size:12px; color:var(--ink-faint); margin-bottom:14px}
+.tier ul{list-style:none; margin:0; padding:0; display:grid; gap:9px}
+.tier li{font-size:13px; color:var(--ink-dim); padding-right:18px; position:relative}
+.tier li::before{content:"•"; position:absolute; right:0; color:var(--gold)}
+
+/* ---------- CTA ---------- */
+.cta{max-width:1080px; margin:0 auto; text-align:center; padding:clamp(70px,10vw,130px) 20px}
+.cta h2{font-size:clamp(30px,7vw,68px); letter-spacing:-1.5px}
+.cta .ln{font-size:clamp(16px,2.6vw,22px); color:var(--ink-dim); margin:14px 0 36px}
+.btns{display:flex; gap:14px; justify-content:center; flex-wrap:wrap}
+.btn{display:inline-flex; align-items:center; gap:9px; font-size:15px; font-weight:700; text-decoration:none; padding:15px 26px; border-radius:14px; transition:.25s}
+.btn.primary{background:linear-gradient(135deg,var(--cta),#ff8a6b); color:#1a0a06; box-shadow:0 10px 30px var(--cta-glow)}
+.btn.primary:hover{transform:translateY(-3px); box-shadow:0 16px 40px var(--cta-glow)}
+.btn.ghost{border:1px solid var(--border-line); color:var(--ink)}
+.btn.ghost:hover{border-color:var(--gold); color:var(--gold)}
+.sign{margin-top:42px; font-size:13.5px; color:var(--ink-faint)}
+.sign b{color:var(--ink)}
+
+/* ---------- reveal animation ---------- */
+.reveal{opacity:0; transform:translateY(34px); transition:opacity .8s cubic-bezier(.2,.8,.2,1), transform .8s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1; transform:none}
+.reveal[data-d="1"]{transition-delay:.08s}.reveal[data-d="2"]{transition-delay:.16s}.reveal[data-d="3"]{transition-delay:.24s}
+.reveal[data-d="4"]{transition-delay:.32s}.reveal[data-d="5"]{transition-delay:.40s}.reveal[data-d="6"]{transition-delay:.48s}
+.reveal[data-d="7"]{transition-delay:.56s}.reveal[data-d="8"]{transition-delay:.64s}
+
+/* ---------- responsive ---------- */
+@media(max-width:860px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .c3,.c5,.proof,.deliv,.tiers,.vs{grid-template-columns:1fr}
+  .vsmid{display:none}
+  .pf .nums{grid-template-columns:repeat(2,1fr)}
+  .topbar .tx{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important}
+  .reveal{opacity:1; transform:none}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<canvas id="bgfx"></canvas>
+<div class="aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+<div class="grid-overlay"></div>
+<div class="progress"><i id="prog"></i></div>
+
+<div class="topbar" id="topbar">
+  <div class="brand">simplif<b>AI</b> <span style="color:var(--ink-faint);font-weight:400">×</span> מילגם</div>
+  <span class="pill"><span class="dot"></span> תזה אסטרטגית · לא הצעת מחיר</span>
+</div>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="kicker reveal">פגישת היכרות · 14 מאי 2026</div>
+    <h1 class="reveal" data-d="1"><span class="grad">simplifAI</span> <span class="x">×</span> מילגם</h1>
+    <div class="sub reveal" data-d="2">מאיץ בינה מלאכותית <span class="hl">לארגונים מורכבים</span>.</div>
+    <div class="sub2 reveal" data-d="3">לא להחליף את ה‑IT שלכם — להאיץ אותו. הוכחת ערך תוך שבועות, לא חודשים.</div>
+    <div class="meta reveal" data-d="4">
+      <span class="chip">Next.js 16 · Supabase</span>
+      <span class="chip">Claude · Gemini</span>
+      <span class="chip">Hebrew RTL native</span>
+      <span class="chip">OCR · RAG</span>
+      <span class="chip">WhatsApp · CardCom</span>
+    </div>
+    <div class="scrollcue reveal" data-d="5">גלילה<b>↓</b></div>
+  </section>
+
+  <!-- PROFILE / SCALE -->
+  <section>
+    <div class="eyebrow reveal">מה ראיתי מבחוץ</div>
+    <h2 class="reveal" data-d="1">חברה גדולה. סקאלה ענקית.<br><span class="hl">הזדמנויות שלא נראות מהצד.</span></h2>
+    <p class="lead reveal" data-d="2">פרופיל מילגם כפי שעולה מ‑LinkedIn, אתר החברה ו‑Times of Israel.</p>
+    <div class="stats">
+      <div class="stat reveal" data-d="1"><div class="num" data-count="1900" data-suffix="">0</div><div class="lab">עובדים · IT פנימי משמעותי</div></div>
+      <div class="stat reveal" data-d="2"><div class="num"><small>$</small><span data-count="246">0</span><small>M</small></div><div class="lab">הכנסות שנתיות</div></div>
+      <div class="stat reveal" data-d="3"><div class="num" data-count="180" data-suffix="">0</div><div class="lab">רשויות מקומיות + משרדי ממשלה</div></div>
+      <div class="stat reveal" data-d="4"><div class="num" data-count="4">0</div><div class="lab">חטיבות: פרויקטים · כספים · מערכות מידע · שירות</div></div>
+      <div class="stat reveal" data-d="1"><div class="num" data-count="2">0</div><div class="lab">מיליון בגרויות בשנה · תהליכים לאומיים</div></div>
+      <div class="stat reveal" data-d="2"><div class="num" data-count="320">0</div><div class="lab">אלף טסטים בשנה · קשר ישיר עם אזרחים</div></div>
+      <div class="stat reveal" data-d="3"><div class="num" data-count="450">0</div><div class="lab">אלף ארוחות בית ספר ביום · לוגיסטיקה</div></div>
+      <div class="stat reveal" data-d="4"><div class="num" data-count="40" data-suffix="+">0</div><div class="lab">ערים · Pango · מאות אלפי נהגים</div></div>
+    </div>
+  </section>
+
+  <!-- PAIN -->
+  <section>
+    <div class="eyebrow reveal">השערת הכאב</div>
+    <h2 class="reveal" data-d="1">המוקד פתוח חמישה ימים. <br>צרכי האזרחים — <span class="hl-c">שבעה</span>.</h2>
+    <div style="display:grid;grid-template-columns:auto 1fr;gap:30px;align-items:center" class="reveal" data-d="2">
+      <div>
+        <div class="bigpct" data-count="30" data-suffix="%">0%</div>
+        <div style="font-size:13px;color:var(--ink-dim);max-width:240px">מהשבוע ללא מענה דיגיטלי. שישי, שבת, חגים וערבים — המוקד סגור, והפניות נערמות ליום ראשון.</div>
+      </div>
+      <div class="bars">
+        <div style="font-size:13px;color:var(--ink-dim);margin-bottom:2px">ופניות חוזרות — נציג יקר עונה אותו דבר 500 פעם ביום:</div>
+        <div class="bar"><span class="bl">סטטוס תשלום וגבייה</span><span class="bv mono">28%</span><div class="track"><i data-w="28"></i></div></div>
+        <div class="bar"><span class="bl">בקשות מסמכים ואישורים</span><span class="bv mono">22%</span><div class="track"><i data-w="22"></i></div></div>
+        <div class="bar"><span class="bl">שאלות על מועדים ותהליכים</span><span class="bv mono">18%</span><div class="track"><i data-w="18"></i></div></div>
+        <div class="bar"><span class="bl">ערעורים ותלונות פשוטות</span><span class="bv mono">12%</span><div class="track"><i data-w="12"></i></div></div>
+        <div class="bar"><span class="bl">מקרים מורכבים — צריך אדם</span><span class="bv mono" style="color:var(--accent)">20%</span><div class="track"><i data-w="20" style="background:var(--accent)"></i></div></div>
+      </div>
+    </div>
+    <p class="lead reveal" data-d="3" style="margin-top:30px">סוכן AI מטפל ב‑<span class="hl">70%</span> — אנשים מטפלים ב‑20% המורכבים. זמן טיפול בשיחה יורד ב‑30%, שביעות הרצון עולה, והנציגים מתפנים למה שבאמת חשוב.</p>
+  </section>
+
+  <!-- 5 OPPORTUNITIES -->
+  <section>
+    <div class="eyebrow reveal">חמש הזדמנויות</div>
+    <h2 class="reveal" data-d="1">איפה אני נותן ערך — מהיר ובדוק</h2>
+    <p class="lead reveal" data-d="2">חמישה כיוונים. כל אחד הוכחת היתכנות תוך <span class="hl">4–10 שבועות</span>.</p>
+    <div class="cards c5">
+      <div class="card reveal" data-d="1"><span class="ic">📞</span><h3>סוכן שירות 24/7</h3><p>WhatsApp + קולי, עברית ילידית, כיסוי סופי שבוע וחגים.</p><span class="tag">6–10 שבועות</span></div>
+      <div class="card reveal" data-d="2"><span class="ic">📄</span><h3>עיבוד מסמכים</h3><p>OCR + סיווג למסמכי סיוע בשכ"ד, ערעורים ובקשות.</p><span class="tag">3–5 שבועות</span></div>
+      <div class="card reveal" data-d="3"><span class="ic">📚</span><h3>מאגר ידע פנימי</h3><p>עוזר AI לנציגים — 180 רשויות, תקנות שונות, חיפוש סמנטי.</p><span class="tag">4–6 שבועות</span></div>
+      <div class="card reveal" data-d="4"><span class="ic">🚗</span><h3>Pango · חוויית נהג</h3><p>עוזר בתוך האפליקציה, התראות יזומות, פתרון אוטומטי.</p><span class="tag">6–8 שבועות</span></div>
+      <div class="card reveal" data-d="5"><span class="ic">📮</span><h3>דואר ישראל</h3><p>הזדמנות חד‑פעמית: לבנות מודרני מהיום הראשון, לא לעדכן ישן.</p><span class="tag">פוטנציאל ארוך טווח</span></div>
+    </div>
+  </section>
+
+  <!-- WHY DIFFERENT -->
+  <section>
+    <div class="eyebrow reveal">למה אני שונה</div>
+    <h2 class="reveal" data-d="1">לא להחליף את מטריקס / נס / מג'יק — <span class="hl">להשלים אותן</span></h2>
+    <p class="lead reveal" data-d="2">אני לא חברת אינטגרציה. אני מאיץ בינה מלאכותית.</p>
+    <div class="vs">
+      <div class="col them reveal" data-d="1">
+        <h4>ענקיות אינטגרציה</h4>
+        <div class="who">מטריקס · נס · מג'יק · Sapiens</div>
+        <ul>
+          <li>זמן לאב‑טיפוס: 6–12 חודשים</li>
+          <li>מערך טכנולוגי: .NET · Java · SAP · ישן</li>
+          <li>חמישה קבלני משנה</li>
+          <li>עלות פיילוט: 500K–2M ש"ח</li>
+          <li>ועדות שינויים · החלטה ב‑3 שבועות</li>
+        </ul>
+      </div>
+      <div class="vsmid">VS</div>
+      <div class="col me reveal" data-d="2">
+        <h4>simplifAI · אורי</h4>
+        <div class="who">מאיץ AI · סולו · stack מודרני</div>
+        <ul>
+          <li>זמן לאב‑טיפוס: 2–6 שבועות</li>
+          <li>Next.js · Supabase · Claude · Gemini</li>
+          <li>אדם אחד שכותב את הקוד</li>
+          <li>עלות פיילוט: 15K–150K ש"ח</li>
+          <li>תיקון בערב · deploy בבוקר</li>
+        </ul>
+      </div>
+    </div>
+    <div class="vsnote reveal" data-d="3">השלמה, לא תחרות. <span>התשתית שלהם — מאיץ ה‑AI שלי.</span></div>
+  </section>
+
+  <!-- PROOF -->
+  <section>
+    <div class="eyebrow reveal">הוכחה</div>
+    <h2 class="reveal" data-d="1">לא מצגת יכולות. <span class="hl">מערכות בייצור.</span></h2>
+    <p class="lead reveal" data-d="2">שתי מערכות חיות שבניתי לבד — תראו ותחליטו.</p>
+    <div class="proof">
+      <div class="pf reveal" data-d="1">
+        <div class="h"><b>pm‑eng</b><span class="u mono">pm-eng.lovable.app</span></div>
+        <p class="d">מערכת ניהול פרויקטים למשרד הנדסה — בייצור.</p>
+        <div class="nums">
+          <div><div class="n"><small style="color:var(--gold)">₪</small><span data-count="3.3" data-dec="1">0</span><small style="font-size:.6em">M</small></div><div class="l">חשבוניות במחזור</div></div>
+          <div><div class="n" data-count="43">0</div><div class="l">פרויקטים פעילים</div></div>
+          <div><div class="n" data-count="179">0</div><div class="l">בארכיון</div></div>
+          <div><div class="n" data-count="2">0</div><div class="l">חודשים · סולו</div></div>
+        </div>
+        <ul>
+          <li>סוכן AI מובנה (ניפר) — שואל על פרויקטים, תקציב, סיכון</li>
+          <li>גאנט · משימות · 8 תבניות צ׳קליסט הנדסי</li>
+          <li>ניהול לקוחות, ספקים, חשבוניות וגבייה</li>
+          <li>RTL · מצב בהיר וכהה · רב‑לקוחות</li>
+        </ul>
+      </div>
+      <div class="pf reveal" data-d="2">
+        <div class="h"><b>TaxAI</b><span class="u mono">taxai.simplifai.co.il</span></div>
+        <p class="d">פלטפורמת מס לעצמאיים. תאימות מלאה לפקודת מס הכנסה.</p>
+        <div class="nums">
+          <div><div class="n" data-count="82">0</div><div class="l">שאלות באשף</div></div>
+          <div><div class="n" data-count="8">0</div><div class="l">פרופילי עוסקים</div></div>
+          <div><div class="n" data-count="3">0</div><div class="l">פלטפורמות</div></div>
+          <div><div class="n" data-count="4">0</div><div class="l">חודשים · סולו</div></div>
+        </div>
+        <ul>
+          <li>שותפות עם איתי בן‑נון רו"ח — אחריות מקצועית</li>
+          <li>זיהוי תווים (OCR) לקבלות בעברית</li>
+          <li>יצירת PDF להגשה למס הכנסה</li>
+          <li>Supabase · RLS · CardCom · Next.js 16</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section>
+    <div class="eyebrow reveal">איך אני עובד</div>
+    <h2 class="reveal" data-d="1">התחלה קטנה · הוכחה מהירה · הרחבה אחראית</h2>
+    <p class="lead reveal" data-d="2">שלושה שלבים. <span class="hl">אפס סיכון בכניסה.</span></p>
+    <div class="timeline">
+      <div class="tl reveal" data-d="1"><div class="node">01</div><div class="body">
+        <div class="when">3 שבועות · תקופת גילוי</div>
+        <h3>גילוי</h3>
+        <p>ראיונות עם 5–10 אנשים, ניתוח שיטתי, ומפת דרכים כתובה של 2–3 פיילוטים אפשריים.</p>
+        <span class="price">20K ש"ח · התחייבות אפס</span>
+      </div></div>
+      <div class="tl reveal" data-d="2"><div class="node">02</div><div class="body">
+        <div class="when">6–10 שבועות · הוכחת היתכנות</div>
+        <h3>פיילוט</h3>
+        <p>מקרה שימוש אחד, פיילוט סגור, מדידה אמיתית של ערך. למשל: סוכן WhatsApp לרשות אחת.</p>
+        <span class="price">80K–150K ש"ח</span>
+      </div></div>
+      <div class="tl reveal" data-d="3"><div class="node">03</div><div class="body">
+        <div class="when">3–6 חודשים · פריסה לייצור</div>
+        <h3>הרחבה</h3>
+        <p>הרחבה לרשויות נוספות, או רטיינר חודשי לפיתוח שוטף ביוזמות AI — כולל דואר ישראל.</p>
+        <span class="price">250K–500K ש"ח</span>
+      </div></div>
+    </div>
+    <p class="lead reveal" data-d="2" style="margin-top:26px">כל שלב — החלטה עצמאית. <span class="hl">אתם רשאים לעצור, להחליף ספק, או להמשיך לבד.</span></p>
+  </section>
+
+  <!-- DISCOVERY DELIVERABLES -->
+  <section>
+    <div class="eyebrow reveal">המוצר היום</div>
+    <h2 class="reveal" data-d="1">תקופת גילוי — השלב הראשון בלבד</h2>
+    <p class="lead reveal" data-d="2">שלושה שבועות · 20 אלף ש"ח · <span class="hl-c">אפס המשך‑חובה.</span></p>
+    <div class="deliv">
+      <div class="box reveal" data-d="1">
+        <h4>מה מילגם תקבל</h4>
+        <ol>
+          <li>5–10 ראיונות עם אנשי מפתח</li>
+          <li>תרשימי זרימה — מצב נוכחי ומצב יעד</li>
+          <li>הערכת החזר השקעה לכל הזדמנות</li>
+          <li>מפת דרכים כתובה (20–30 עמ', עברית)</li>
+          <li>המלצה ספציפית: באיזה פיילוט להתחיל</li>
+          <li>3 חלופות לכל פיילוט (אני / אחר / בתוך הבית)</li>
+        </ol>
+      </div>
+      <div class="box reveal" data-d="2">
+        <h4>תנאי הסיכון</h4>
+        <div class="risk">
+          <div class="r"><b>לא מתאים אחרי הגילוי?</b><span>לא חייבים פיילוט. המפה נשארת שלכם.</span></div>
+          <div class="r"><b>לא עומד בלוח זמנים?</b><span>אני משלים בלי תוספת מחיר.</span></div>
+          <div class="r"><b>תרצו לבטל באמצע?</b><span>משלמים 50% בלבד, ומקבלים כל מה שהוכן.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIERS -->
+  <section>
+    <div class="eyebrow reveal">מה אחרי הגילוי</div>
+    <h2 class="reveal" data-d="1">שלוש רמות התקשרות — לבחירתכם</h2>
+    <p class="lead reveal" data-d="2">שום מחיר לא נסגר היום. ההצעה תוצע <span class="hl">רק אחרי</span> תקופת הגילוי.</p>
+    <div class="tiers">
+      <div class="tier reveal" data-d="1">
+        <div class="lv">רמה 1</div><h3>הוכחת היתכנות</h3>
+        <div class="pr">80K–150K ש"ח</div><div class="meta">6–10 שבועות · מקרה שימוש אחד</div>
+        <ul><li>פיילוט סגור ברשות אחת</li><li>מדידה אמיתית של ערך</li><li>החלטה: להרחיב, להחליף, או לעצור</li></ul>
+      </div>
+      <div class="tier best reveal" data-d="2">
+        <div class="badge">מומלץ</div>
+        <div class="lv">רמה 2</div><h3>פריסה לייצור</h3>
+        <div class="pr">250K–500K ש"ח</div><div class="meta">3–6 חודשים · רשויות נוספות</div>
+        <ul><li>הרחבה למספר רשויות</li><li>אינטגרציה עם מערכות קיימות</li><li>תמיכה ותחזוקה כלולים</li></ul>
+      </div>
+      <div class="tier reveal" data-d="3">
+        <div class="lv">רמה 3</div><h3>שותפות אסטרטגית</h3>
+        <div class="pr">25K–40K ש"ח / חודש</div><div class="meta">רטיינר חודשי · מעורבות שוטפת</div>
+        <ul><li>מעורבות שוטפת ביוזמות AI</li><li>כולל פרויקט דואר ישראל</li><li>פיתוח מהיר לפי עדיפויות</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <div class="eyebrow reveal" style="justify-content:center">סיכום</div>
+    <h2 class="reveal" data-d="1">אני לא מוכר. <span class="hl">אני שואל.</span></h2>
+    <div class="ln reveal" data-d="2">אם יש התאמה — נמצא אותה יחד.</div>
+    <div class="btns reveal" data-d="3">
+      <a class="btn primary" href="https://wa.me/972537453493" target="_blank" rel="noopener">דברו איתי ב‑WhatsApp →</a>
+      <a class="btn ghost" href="https://pm-eng.lovable.app/" target="_blank" rel="noopener">למערכת pm‑eng החיה</a>
+    </div>
+    <div class="sign reveal" data-d="4">
+      <b>אורי בר דרור</b> · מייסד, סימפליפאיי<br>
+      office@simplifai.co.il · simplifai.co.il
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  var rm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* scroll progress */
+  var prog = document.getElementById('prog');
+  function onScroll(){
+    var h = document.documentElement;
+    var p = h.scrollTop / (h.scrollHeight - h.clientHeight);
+    prog.style.width = (p*100)+'%';
+    var tb = document.getElementById('topbar');
+    tb.style.background = h.scrollTop>40 ? 'linear-gradient(180deg,rgba(6,13,31,.95),rgba(6,13,31,.6))' : 'linear-gradient(180deg,rgba(6,13,31,.9),rgba(6,13,31,0))';
+  }
+  document.addEventListener('scroll', onScroll, {passive:true}); onScroll();
+
+  /* reveal + counters + bars via IntersectionObserver */
+  function animateCount(el){
+    var target = parseFloat(el.getAttribute('data-count'));
+    var dec = parseInt(el.getAttribute('data-dec')||'0',10);
+    var suffix = el.getAttribute('data-suffix')||'';
+    if(rm){ el.textContent = target.toFixed(dec)+suffix; return; }
+    var start = performance.now(), dur = 1400;
+    function step(now){
+      var t = Math.min(1,(now-start)/dur);
+      var e = 1-Math.pow(1-t,3); // easeOutCubic
+      var val = target*e;
+      el.textContent = (dec? val.toFixed(dec) : Math.round(val).toLocaleString('en-US'))+suffix;
+      if(t<1) requestAnimationFrame(step);
+      else el.textContent = (dec? target.toFixed(dec) : Math.round(target).toLocaleString('en-US'))+suffix;
+    }
+    requestAnimationFrame(step);
+  }
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(!en.isIntersecting) return;
+      var el = en.target;
+      el.classList.add('in');
+      el.querySelectorAll('[data-count]').forEach(animateCount);
+      if(el.hasAttribute('data-count')) animateCount(el);
+      el.querySelectorAll('.track i[data-w]').forEach(function(b){ b.style.width = b.getAttribute('data-w')+'%'; });
+      io.unobserve(el);
+    });
+  }, {threshold:0.18, rootMargin:'0px 0px -8% 0px'});
+
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+  // also observe standalone counters/bars not wrapped in a .reveal that just entered
+  document.querySelectorAll('.bigpct[data-count], .bars').forEach(function(el){ io.observe(el); });
+
+  /* lightweight particle canvas */
+  if(!rm){
+    var cv = document.getElementById('bgfx'), cx = cv.getContext('2d'), W,H,pts;
+    cv.style.position='fixed'; cv.style.inset='0'; cv.style.zIndex='0'; cv.style.pointerEvents='none';
+    function resize(){ W=cv.width=innerWidth; H=cv.height=innerHeight; init(); }
+    function init(){
+      var n = Math.min(70, Math.floor(W*H/30000));
+      pts=[]; for(var i=0;i<n;i++) pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.25,vy:(Math.random()-.5)*.25,r:Math.random()*1.6+.4});
+    }
+    function tick(){
+      cx.clearRect(0,0,W,H);
+      for(var i=0;i<pts.length;i++){
+        var p=pts[i]; p.x+=p.vx; p.y+=p.vy;
+        if(p.x<0||p.x>W)p.vx*=-1; if(p.y<0||p.y>H)p.vy*=-1;
+        cx.beginPath(); cx.arc(p.x,p.y,p.r,0,6.28);
+        cx.fillStyle='rgba(199,162,74,.35)'; cx.fill();
+        for(var j=i+1;j<pts.length;j++){
+          var q=pts[j], dx=p.x-q.x, dy=p.y-q.y, d=dx*dx+dy*dy;
+          if(d<11000){ cx.beginPath(); cx.moveTo(p.x,p.y); cx.lineTo(q.x,q.y);
+            cx.strokeStyle='rgba(77,142,255,'+(0.10*(1-d/11000))+')'; cx.lineWidth=1; cx.stroke(); }
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+    addEventListener('resize', resize); resize(); tick();
+  }
+
+  /* keyboard: home/end quick nav */
+  addEventListener('keydown',function(e){
+    if(e.key==='End'){ window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'}); }
+    if(e.key==='Home'){ window.scrollTo({top:0,behavior:'smooth'}); }
+  });
+})();
+</script>
+</body>
+</html>
