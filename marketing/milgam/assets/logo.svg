@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 90" width="320" height="90">
+  <defs>
+    <style>
+      .wm    { font-family:'Outfit','Inter',sans-serif; font-weight:900; font-size:36px; fill:#ffffff; letter-spacing:-1px; }
+      .wm-ai { font-family:'Outfit','Inter',sans-serif; font-weight:900; font-size:36px; fill:#00e676; letter-spacing:-1px; }
+      .tag   { font-family:'Rubik','Assistant',sans-serif; font-weight:400; font-size:11px; fill:#8aab96; letter-spacing:1.5px; }
+    </style>
+  </defs>
+  <!-- Icon: dots entering funnel (complexity) → clean arrow out (simplicity) -->
+  <circle cx="9"  cy="7" r="2" fill="#8aab96" opacity="0.6"/>
+  <circle cx="18" cy="5" r="2" fill="#8aab96" opacity="0.6"/>
+  <circle cx="27" cy="7" r="2" fill="#8aab96" opacity="0.6"/>
+  <path d="M4 10 L32 10 L24 26 L12 26 Z" fill="none" stroke="#00e676" stroke-width="1.5" stroke-linejoin="round"/>
+  <line x1="18" y1="26" x2="18" y2="38" stroke="#00e676" stroke-width="1.5"/>
+  <line x1="10" y1="42" x2="25" y2="42" stroke="#00e676" stroke-width="2" stroke-linecap="round"/>
+  <polyline points="20,37 26,42 20,47" fill="none" stroke="#00e676" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Wordmark: "simplif" white + "AI" neon green -->
+  <text x="46" y="46"><tspan class="wm">simplif</tspan><tspan class="wm-ai">AI</tspan></text>
+  <!-- Hebrew tagline -->
+  <text x="46" y="66" class="tag">מפשטים עסקים. בעזרת AI.</text>
+</svg>
