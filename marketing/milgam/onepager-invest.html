@@ -141,6 +141,18 @@ h2.sec-h{font-family:'Baloo 2','Rubik',sans-serif; font-size:clamp(29px,5vw,54px
 .bigstat .n small{font-size:.42em; -webkit-text-fill-color:var(--cyan); color:var(--cyan)}
 .bigstat .l{font-size:14px; font-weight:600; color:var(--ink); margin-top:12px}
 @media(max-width:880px){.bigstats{grid-template-columns:repeat(2,1fr)}}
+.psgrid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:26px}
+.ps{border:1px solid var(--bd); border-radius:var(--r-lg); overflow:hidden; background:var(--glass); backdrop-filter:blur(12px); transition:.35s}
+.ps:hover{transform:translateY(-6px); border-color:rgba(34,211,238,.32); box-shadow:0 24px 70px rgba(34,211,238,.1)}
+.ps .head{padding:15px 22px; border-bottom:1px solid var(--bd); font-family:'Baloo 2','Rubik',sans-serif; font-weight:800; font-size:16.5px; background:rgba(255,255,255,.02)}
+.ps .seg{padding:14px 22px}
+.ps .seg.sol{border-top:1px dashed var(--bd); background:rgba(34,211,238,.035)}
+.ps .k{font-family:'Baloo 2','Rubik',sans-serif; font-weight:800; font-size:11px; letter-spacing:1px; display:inline-block; margin-bottom:5px}
+.ps .pain .k{color:#FF9B8A}
+.ps .sol .k{color:var(--cyan)}
+.ps .seg p{font-size:13.5px; font-weight:500; color:var(--muted); margin:0}
+.ps .sol p{color:var(--ink)}
+@media(max-width:880px){.psgrid{grid-template-columns:1fr}}
 
 .deliv{display:grid; grid-template-columns:1.1fr 1fr; gap:18px; margin-top:26px}
 .box{background:var(--glass); backdrop-filter:blur(12px); border:1px solid var(--bd); border-radius:var(--r-lg); padding:28px}
@@ -333,13 +345,25 @@ h2.sec-h{font-family:'Baloo 2','Rubik',sans-serif; font-size:clamp(29px,5vw,54px
       <span class="chip">דואר ישראל · 2024</span>
       <span class="chip">הנדסת תשתית · תה"ל/קרדן</span>
     </div>
-    <div class="cards c3">
-      <div class="card reveal" data-d="1"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>תה"ל · פרויקטי תשתית</h3><p>ניהול פרויקטים גלובליים — בדיוק מה ש‑PM‑ENG נבנתה אליו: גאנט, תלויות, תקציב וסיכון במקום אחד.</p></div></div>
-      <div class="card reveal" data-d="2"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>גבייה, מים וביוב</h3><p>תפעול שטח, קריאת מונים ואחזקת תשתית ב‑180 רשויות — מעקב SLA, תקלות ומשימות בזמן אמת.</p></div></div>
-      <div class="card reveal" data-d="3"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>Pango · MCP — חניה ואנרגיה</h3><p>~3 מיליון נהגים, כ‑80% משוק החניה, כבישי אגרה ודלק; אנרגיה סולארית — חוויית משתמש ותפעול חכם.</p></div></div>
-      <div class="card reveal" data-d="1"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>חוצה‑קבוצה — מבט אחד</h3><p>עשרות חברות, אפס תמונה אחת. מערכת רב‑לקוחות מסתגלת שמראה להנהלה את הכול במבט יחיד.</p></div></div>
-      <div class="card reveal" data-d="2"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>עיבוד מסמכים · AI</h3><p>חוזים, אישורים וסיוע בשכר דירה — אלפי שעות הקלדה ידנית בשנה. OCR וסיווג אוטומטי.</p></div></div>
-      <div class="card reveal" data-d="3"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>מאגר ידע חכם · AI</h3><p>180 רשויות, תקנות שונות — עוזר AI שעונה לנציג מיד, במקום חיפוש ידני ושחיקה.</p></div></div>
+    <div class="psgrid">
+      <div class="ps reveal" data-d="1"><div class="head">גבייה ושירות אזרח</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>המוקד פתוח חמישה ימים — כ‑30% מהשבוע ללא מענה; 60–70% מהפניות חוזרות (סטטוס תשלום, מועדים), ונציג עונה אותו דבר מאות פעמים ביום.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>סוכן AI ב‑WhatsApp וקולי, כיסוי 24/7 — מטפל בפניות החוזרות ומשחרר נציגים למקרים המורכבים.</p></div></div>
+      <div class="ps reveal" data-d="2"><div class="head">מים וביוב</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>מים אובדים (NRW), קריאת מונים ידנית, ותיקון נזילות שאורך שבועות — בזבוז משאבים ותלונות.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>ניהול הזמנות‑עבודה ו‑SLA ב‑PM‑ENG + התראות חכמות — לקצר תיקון תקלות ולמקד צוותי שטח.</p></div></div>
+      <div class="ps reveal" data-d="3"><div class="head">חניה — Pango · MCP</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>~3 מיליון נהגים ב‑40+ ערים — אכיפה, פניות ומחלוקות, ותפעול שטח מבוזר בין כלים.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>ניהול משימות שטח, חריגות ופניות במקום אחד — ועוזר נהג חכם בתוך האפליקציה.</p></div></div>
+      <div class="ps reveal" data-d="1"><div class="head">עיבוד מסמכים</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>סיוע בשכר דירה, חוזים ואישורים — אלפי שעות הקלדה ידנית בשנה, וזמן ארוך עד החלטה.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>OCR בעברית + סיווג אוטומטי — חיתוך דרמטי בזמני הטיפול ובעומס.</p></div></div>
+      <div class="ps reveal" data-d="2"><div class="head">ידע פזור · 180 רשויות</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>לכל רשות תקנות שונות; נציג חדש מגיע ליעילות מלאה רק אחרי חודשים, וזמן רב מתבזבז בחיפוש.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>מאגר ידע חכם (RAG) שעונה לנציג מיד עם הכלל הספציפי לכל רשות.</p></div></div>
+      <div class="ps reveal" data-d="3"><div class="head">חוצה‑קבוצה</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>עשרות חברות, כל אחת בכלי אחר — אין להנהלה תמונה אחת על פני הקבוצה.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>PM‑ENG רב‑לקוחות מסתגל — מבט‑על אחיד על כל החברות במערכת אחת.</p></div></div>
     </div>
   </section>
 
@@ -354,13 +378,25 @@ h2.sec-h{font-family:'Baloo 2','Rubik',sans-serif; font-size:clamp(29px,5vw,54px
       <div class="bigstat reveal" data-d="3"><div class="n"><small>₪</small><span data-count="468">0</span><small>M</small></div><div class="l">גובה העסקה</div></div>
       <div class="bigstat reveal" data-d="4"><div class="n">2024</div><div class="l">שנת הרכישה</div></div>
     </div>
-    <div class="cards c3">
-      <div class="card reveal" data-d="1"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>שירות לקוחות 24/7</h3><p>מוקד ו‑700 סניפים — סוכן WhatsApp וקולי בעברית, מענה מיידי וניתוב חכם.</p></div></div>
-      <div class="card reveal" data-d="2"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>בנק הדואר</h3><p>טפסים, פתיחת חשבון, תשלומי חשבונות — OCR ואוטומציה למעל מיליון לקוחות.</p></div></div>
-      <div class="card reveal" data-d="3"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>לוגיסטיקה וחבילות</h3><p>CEP ומסחר אונליין — מעקב, טיפול בחריגות ואופטימיזציית מסירה.</p></div></div>
-      <div class="card reveal" data-d="1"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>שירותי ממשלה בסניף</h3><p>דרכונים, אגרות ותשלומים — ניהול תורים, טפסים חכמים והפחתת עומס.</p></div></div>
-      <div class="card reveal" data-d="2"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>מודרניזציה מהיום הראשון</h3><p>לתכנן מחדש עם AI מובנה — לא לעדכן מערכת ישנה בעוד טלאי.</p></div></div>
-      <div class="card reveal" data-d="3"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>ניהול תוכנית השינוי</h3><p>PM‑ENG לניהול פרויקט המודרניזציה עצמו — על פני מאות סניפים ומערכות.</p></div></div>
+    <div class="psgrid">
+      <div class="ps reveal" data-d="1"><div class="head">תורים ועומס בסניפים</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>תורים של עד שעה בשעות שיא, ושיא ארצי של תלונות מוצדקות (74% ב‑2017) — חוויית לקוח שוחקת.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>סוכן 24/7 + תיאום תור חכם שמטפל ברוטיני (מעקב, תשלומים) — פחות ביקורים פיזיים.</p></div></div>
+      <div class="ps reveal" data-d="2"><div class="head">חבילות ולוגיסטיקה · CEP</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>נפח המסחר האונליין (אמזון ועוד) מציף — מסירות איטיות, חריגות וקושי לעמוד בקצב.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>מעקב, זיהוי חריגות בזמן אמת ואופטימיזציית מסירה — שירות מהיר ושקוף יותר.</p></div></div>
+      <div class="ps reveal" data-d="3"><div class="head">בנק הדואר</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>מעל מיליון לקוחות; טפסים, פתיחת חשבון ותשלומים — תהליכים ידניים ואיטיים.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>OCR לטפסים, אוטומציה ומענה אוטומטי — שירות מהיר ופחות עומס על הסניף.</p></div></div>
+      <div class="ps reveal" data-d="1"><div class="head">שירותי ממשלה בסניף</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>דרכונים, אגרות ותשלומים — עומס ותורים על תהליכים ידניים בנקודת השירות.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>ניהול תורים, טפסים חכמים ומענה אוטומטי — הפחתת עומס וזמני המתנה.</p></div></div>
+      <div class="ps reveal" data-d="2"><div class="head">מערכות ישנות</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>תשתית IT מיושנת — כל שינוי איטי ויקר, וקשה להוסיף יכולות חדשות.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>לבנות מודרני עם AI מובנה מהיום הראשון — לא לטלא מערכת ישנה.</p></div></div>
+      <div class="ps reveal" data-d="3"><div class="head">ניהול תוכנית השינוי</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>מודרניזציה על פני 700 סניפים ומערכות — מאות ממשקים שצריך לנהל בו‑זמנית.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>PM‑ENG לניהול הפרויקט עצמו — גאנט, תלויות, סיכון ומבט‑על אחד.</p></div></div>
     </div>
   </section>
 
