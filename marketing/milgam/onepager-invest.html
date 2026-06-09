@@ -133,6 +133,14 @@ h2.sec-h{font-family:'Baloo 2','Rubik',sans-serif; font-size:clamp(29px,5vw,54px
 .stat .num{font-family:'Baloo 2',sans-serif; font-size:clamp(28px,4vw,40px); font-weight:800; line-height:1}
 .stat .num small{font-size:.5em; color:var(--cyan)}
 .stat .lab{font-size:12.5px; font-weight:500; color:var(--muted); margin-top:8px}
+.bigstats{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin:26px 0 6px}
+.bigstat{background:linear-gradient(160deg,rgba(77,142,255,.1),var(--glass)); border:1px solid rgba(120,180,255,.22); border-radius:var(--r-lg); padding:32px 22px; text-align:center; position:relative; overflow:hidden; transition:.35s}
+.bigstat::after{content:''; position:absolute; inset:0; background:radial-gradient(140px 90px at 50% 0%,rgba(34,211,238,.14),transparent); opacity:0; transition:.35s}
+.bigstat:hover{transform:translateY(-7px); border-color:rgba(34,211,238,.4); box-shadow:0 28px 74px rgba(34,211,238,.15)} .bigstat:hover::after{opacity:1}
+.bigstat .n{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:clamp(40px,6.4vw,62px); line-height:1; background:linear-gradient(120deg,#fff,var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.bigstat .n small{font-size:.42em; -webkit-text-fill-color:var(--cyan); color:var(--cyan)}
+.bigstat .l{font-size:14px; font-weight:600; color:var(--ink); margin-top:12px}
+@media(max-width:880px){.bigstats{grid-template-columns:repeat(2,1fr)}}
 
 .deliv{display:grid; grid-template-columns:1.1fr 1fr; gap:18px; margin-top:26px}
 .box{background:var(--glass); backdrop-filter:blur(12px); border:1px solid var(--bd); border-radius:var(--r-lg); padding:28px}
@@ -191,7 +199,7 @@ h2.sec-h{font-family:'Baloo 2','Rubik',sans-serif; font-size:clamp(29px,5vw,54px
 <div class="progress"><i id="prog"></i></div>
 <div class="topbar" id="topbar">
   <div class="logo">E.N.G<span class="x">×</span>מילגם<span class="sb">הנדסה וניהול לפיתוח · PM‑ENG</span></div>
-  <span class="pill"><span class="dot"></span> מסמך היכרות · חסוי</span>
+  <span class="pill"><span class="dot"></span> תקציר מנהלים</span>
 </div>
 
 <main>
@@ -199,10 +207,10 @@ h2.sec-h{font-family:'Baloo 2','Rubik',sans-serif; font-size:clamp(29px,5vw,54px
   <!-- HERO -->
   <section class="hero">
     <div>
-      <span class="kick reveal">E.N.G — הנדסה וניהול לפיתוח</span>
+      <span class="kick reveal">לעיון הנהלת מילגם</span>
       <h1 class="reveal" data-d="1"><span class="si">PM‑ENG</span></h1>
-      <div class="sub reveal" data-d="2">מערכת ניהול פרויקטים <span class="g">שמסתגלת אליכם</span>.</div>
-      <div class="sub2 reveal" data-d="3">פיתחנו אותה כדי לשלוט במורכבות — ניהול פרויקטים וריבוי ממשקים במקביל. עכשיו היא מסתגלת לרמת הענף, העסק והמשתמש.</div>
+      <div class="sub reveal" data-d="2">מערכת ניהול הפרויקטים של <span class="g">E.N.G — הנדסה וניהול לפיתוח</span>.</div>
+      <div class="sub2 reveal" data-d="3">פיתחנו אותה כדי לשלוט במורכבות של ניהול פרויקטים וריבוי ממשקים במקביל — והיא מסתגלת לרמת הענף, העסק והמשתמש.</div>
       <div class="actions reveal" data-d="4">
         <a class="btn btn-primary" href="https://wa.me/972509966656" target="_blank" rel="noopener">בואו נדבר →</a>
         <a class="btn btn-ghost" href="https://pm-eng.lovable.app/" target="_blank" rel="noopener">למערכת החיה</a>
@@ -270,17 +278,17 @@ h2.sec-h{font-family:'Baloo 2','Rubik',sans-serif; font-size:clamp(29px,5vw,54px
   <!-- 03 · המערכת -->
   <section>
     <div class="sec-tag reveal"><span class="num">03</span><span class="lbl">המערכת</span></div>
-    <h2 class="sec-h reveal" data-d="1">PM‑ENG — <span class="g">המורכבות, במקום אחד</span></h2>
-    <p class="sec-p reveal" data-d="2">מערכת ניהול פרויקטים פעילה בייצור, שמרכזת את כל הממשקים לתמונה אחת — ובנויה להסתגל, לא לכפות.</p>
+    <h2 class="sec-h reveal" data-d="1">PM‑ENG — <span class="g">מערכת ניהול פרויקטים</span></h2>
+    <p class="sec-p reveal" data-d="2">מערכת שמרכזת את כל הממשקים לתמונה אחת — ובנויה להסתגל, לא לכפות.</p>
+    <div class="bigstats">
+      <div class="bigstat reveal" data-d="1"><div class="n"><small>₪</small><span data-count="3.3" data-dec="1">0</span><small>M</small></div><div class="l">חשבוניות במחזור</div></div>
+      <div class="bigstat reveal" data-d="2"><div class="n" data-count="43">0</div><div class="l">פרויקטים פעילים</div></div>
+      <div class="bigstat reveal" data-d="3"><div class="n" data-count="179">0</div><div class="l">בארכיון</div></div>
+      <div class="bigstat reveal" data-d="4"><div class="n" data-count="2">0</div><div class="l">חודשים לפיתוח</div></div>
+    </div>
     <div class="show reveal" data-d="1">
       <div class="im"><img src="assets/reports.webp" alt="PM-ENG"><span class="u">pm-eng.lovable.app</span></div>
       <div class="bd">
-        <div class="nums">
-          <div><div class="n"><small style="color:var(--cyan)">₪</small><span data-count="3.3" data-dec="1">0</span><small>M</small></div><div class="l">מנוהל במערכת</div></div>
-          <div><div class="n" data-count="43">0</div><div class="l">פרויקטים פעילים</div></div>
-          <div><div class="n" data-count="179">0</div><div class="l">בארכיון</div></div>
-          <div><div class="n" data-count="2">0</div><div class="l">חודשים לפיתוח</div></div>
-        </div>
         <ul>
           <li>סוכן AI מובנה · גאנט · משימות · צ׳קליסטים הנדסיים</li>
           <li>לקוחות, ספקים, חשבוניות וגבייה — מחוברים למשימות</li>
@@ -311,13 +319,37 @@ h2.sec-h{font-family:'Baloo 2','Rubik',sans-serif; font-size:clamp(29px,5vw,54px
     </div>
   </section>
 
-  <!-- 05 · הזדמנות -->
+  <!-- 05 · קבוצת מילגם -->
   <section>
-    <div class="sec-tag reveal"><span class="num">05</span><span class="lbl">הזדמנות</span></div>
+    <div class="sec-tag reveal"><span class="num">05</span><span class="lbl">קבוצת מילגם</span></div>
+    <h2 class="sec-h reveal" data-d="1">איפה PM‑ENG <span class="g">נכנס בקבוצה</span></h2>
+    <p class="sec-p reveal" data-d="2">מילגם היא לא חברה אחת — היא קבוצה: גבייה ותפעול ל‑180 רשויות, אחזקת מים וביוב, חניה ואנרגיה, ומערכות מידע — בתוך אשכול <b style="color:#fff">תה"ל</b> (ניהול פרויקטי תשתית גלובליים) וקבוצת קרדן. כל חברה — ריבוי ממשקים משלה, וכר נרחב למערכת מסתגלת.</p>
+    <div class="chips" style="margin-bottom:4px">
+      <span class="chip">תה"ל — פרויקטי תשתית</span>
+      <span class="chip">קרדן · Kardan</span>
+      <span class="chip">מילגם — 180 רשויות</span>
+      <span class="chip">MCP — גבייה ומונים</span>
+      <span class="chip">Pango — חניה</span>
+      <span class="chip">מים וביוב</span>
+      <span class="chip">אנרגיה סולארית</span>
+    </div>
+    <div class="cards c3">
+      <div class="card reveal" data-d="1"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>תה"ל · פרויקטי תשתית</h3><p>ניהול פרויקטים גלובליים — בדיוק מה ש‑PM‑ENG נבנתה אליו: גאנט, תלויות, תקציב וסיכון במקום אחד.</p></div></div>
+      <div class="card reveal" data-d="2"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>גבייה, מים וביוב</h3><p>תפעול שטח, קריאת מונים ואחזקת תשתית ב‑180 רשויות — מעקב SLA, תקלות ומשימות בזמן אמת.</p></div></div>
+      <div class="card reveal" data-d="3"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>Pango · MCP — חניה ואנרגיה</h3><p>מאות אלפי נהגים, אכיפה ופרויקטים סולאריים — חוויית משתמש ותפעול חכם, מחוברים לליבה.</p></div></div>
+      <div class="card reveal" data-d="1"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>חוצה‑קבוצה — מבט אחד</h3><p>עשרות חברות, אפס תמונה אחת. מערכת רב‑לקוחות מסתגלת שמראה להנהלה את הכול במבט יחיד.</p></div></div>
+      <div class="card reveal" data-d="2"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>עיבוד מסמכים · AI</h3><p>חוזים, אישורים וסיוע בשכר דירה — אלפי שעות הקלדה ידנית בשנה. OCR וסיווג אוטומטי.</p></div></div>
+      <div class="card reveal" data-d="3"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>מאגר ידע חכם · AI</h3><p>180 רשויות, תקנות שונות — עוזר AI שעונה לנציג מיד, במקום חיפוש ידני ושחיקה.</p></div></div>
+    </div>
+  </section>
+
+  <!-- 06 · הזדמנות -->
+  <section>
+    <div class="sec-tag reveal"><span class="num">06</span><span class="lbl">הזדמנות</span></div>
     <h2 class="sec-h reveal" data-d="1">לבנות את זה <span class="gi">יחד</span></h2>
     <p class="sec-p reveal" data-d="2">למילגם יש מה שאין לאף מערכת: חברות ניהול פרויקטים, נוכחות בענפים רבים, וגישה לרשויות ולחברות כלכליות. השילוב של מערכת מסתגלת עם הרשת של מילגם — יוצר משהו שאי‑אפשר לבנות לבד.</p>
     <div class="cards c3">
-      <div class="card reveal" data-d="1"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>מערכת שכבר עובדת</h3><p>PM‑ENG בייצור — ובנויה להתאמה מהירה לכל חברה בקבוצה.</p></div></div>
+      <div class="card reveal" data-d="1"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>מערכת שכבר עובדת</h3><p>PM‑ENG פעילה — ובנויה להתאמה מהירה לכל חברה בקבוצה.</p></div></div>
       <div class="card reveal" data-d="2"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>בית גידול אמיתי</h3><p>הטמעה והוכחת ערך בתוך חברות מילגם — לפני יציאה החוצה.</p></div></div>
       <div class="card reveal" data-d="3"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>שיווק משותף</h3><p>להגיע יחד לרשויות, לחברות כלכליות ולשוק שמילגם כבר נמצאת בו.</p></div></div>
     </div>
@@ -334,7 +366,7 @@ h2.sec-h{font-family:'Baloo 2','Rubik',sans-serif; font-size:clamp(29px,5vw,54px
       </div>
     </div>
     <div>
-      <div class="sec-tag reveal"><span class="num">06</span><span class="lbl">בואו נדבר</span></div>
+      <div class="sec-tag reveal"><span class="num">07</span><span class="lbl">בואו נדבר</span></div>
       <h2 class="reveal" data-d="1">נראה לכם את זה <span class="g">חי</span>.</h2>
       <div class="ln reveal" data-d="2">פגישה קצרה, הדגמה של המערכת, ושיחה על איפה היא יכולה להשתלב אצלכם.</div>
       <div class="actions reveal" data-d="3">
