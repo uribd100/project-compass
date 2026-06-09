@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>E.N.G × מילגם — PM‑ENG · מערכת ניהול פרויקטים מסתגלת</title>
+<meta name="description" content="E.N.G — הנדסה וניהול לפיתוח. PM‑ENG: מערכת ניהול פרויקטים שמסתגלת לרמת הענף, העסק והמשתמש.">
+<meta property="og:title" content="E.N.G × מילגם — PM‑ENG">
+<meta property="og:description" content="מערכת ניהול פרויקטים שמסתגלת לכל ענף, עסק ומשתמש.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800;900&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070B18; --bg2:#0B1226; --glass:rgba(255,255,255,.028); --glass2:rgba(255,255,255,.04);
+  --ink:#EAF0FB; --muted:rgba(234,240,251,.66); --faint:rgba(234,240,251,.40);
+  --blue:#4D8EFF; --blue-l:#7FB0FF; --cyan:#22D3EE; --indigo:#8B5CF6;
+  --line:rgba(120,160,255,.09); --bd:rgba(140,170,255,.12);
+  --r-xl:40px; --r-lg:30px; --r-md:22px; --r-sm:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth; scroll-padding-top:96px}
+body{background:var(--bg); color:var(--ink); direction:rtl; line-height:1.78; overflow-x:hidden;
+  font-family:'Rubik',sans-serif; font-weight:500; -webkit-font-smoothing:antialiased; position:relative}
+body::before{content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:url('/assets/lm-cover-hero.webp') center top/cover no-repeat fixed; opacity:.10}
+body::after{content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(60vw 50vh at 12% -5%, rgba(77,142,255,.16), transparent 60%),
+    radial-gradient(55vw 45vh at 92% 8%, rgba(34,211,238,.12), transparent 60%),
+    radial-gradient(60vw 60vh at 50% 110%, rgba(139,92,246,.12), transparent 60%),
+    linear-gradient(180deg, rgba(7,11,24,.45), rgba(7,11,24,.82) 65%, var(--bg))}
+.gridfx{position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px); background-size:60px 60px;
+  -webkit-mask-image:radial-gradient(ellipse 95% 55% at 50% 0%,#000 20%,transparent 80%); mask-image:radial-gradient(ellipse 95% 55% at 50% 0%,#000 20%,transparent 80%)}
+.dsp{font-family:'Baloo 2','Rubik',sans-serif}
+.mono{font-family:'Rubik',sans-serif; font-variant-numeric:tabular-nums; letter-spacing:.4px}
+.g{background:linear-gradient(120deg,var(--blue-l),var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.gi{background:linear-gradient(120deg,var(--cyan),var(--indigo)); -webkit-background-clip:text; background-clip:text; color:transparent}
+img{display:block}
+
+.progress{position:fixed; inset:0 0 auto 0; height:3px; z-index:60}
+.progress i{display:block; height:100%; width:0; background:linear-gradient(90deg,var(--blue),var(--cyan),var(--indigo)); box-shadow:0 0 14px rgba(77,142,255,.5)}
+.topbar{position:fixed; inset:0 0 auto 0; z-index:50; display:flex; align-items:center; justify-content:space-between;
+  padding:14px clamp(14px,4vw,42px); backdrop-filter:blur(16px); border-bottom:1px solid rgba(255,255,255,.04);
+  background:linear-gradient(180deg,rgba(7,11,24,.86),rgba(7,11,24,0))}
+.logo{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:20px; letter-spacing:-.2px}
+.logo span.x{color:var(--faint); font-weight:600; margin:0 7px}
+.logo .sb{display:block; font-family:'Rubik',sans-serif; font-weight:600; font-size:10px; color:var(--muted); letter-spacing:.5px; margin-top:2px}
+.pill{display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:var(--ink);
+  border:1px solid var(--bd); background:rgba(77,142,255,.07); padding:9px 16px; border-radius:999px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--cyan); animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,211,238,.5)}70%{box-shadow:0 0 0 10px rgba(34,211,238,0)}100%{box-shadow:0 0 0 0 rgba(34,211,238,0)}}
+
+main{position:relative; z-index:2}
+section{position:relative; max-width:1140px; margin:clamp(20px,3vw,32px) auto; padding:clamp(40px,6vw,74px) clamp(22px,5vw,58px);
+  border-radius:var(--r-xl); border:1px solid var(--bd);
+  background:linear-gradient(165deg,var(--glass),rgba(7,11,24,.4)); backdrop-filter:blur(16px);
+  box-shadow:0 40px 100px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05); overflow:hidden}
+section::before{content:''; position:absolute; top:-1px; right:14%; left:14%; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(120,180,255,.5),rgba(34,211,238,.4),transparent)}
+
+.sec-tag{display:inline-flex; align-items:center; gap:14px; font-family:'Baloo 2',sans-serif; font-weight:800; font-size:18px; color:#fff; margin-bottom:22px}
+.sec-tag .num{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:30px; line-height:1; width:60px;height:60px;
+  display:grid; place-items:center; border-radius:18px; border:1px solid var(--bd);
+  background:linear-gradient(150deg,rgba(77,142,255,.16),rgba(34,211,238,.08)); color:#fff;
+  box-shadow:0 0 30px rgba(77,142,255,.16), inset 0 1px 0 rgba(255,255,255,.08)}
+.sec-tag .lbl{position:relative; padding-right:16px}
+.sec-tag .lbl::before{content:''; position:absolute; right:0; top:50%; transform:translateY(-50%); width:7px;height:7px; border-radius:50%; background:var(--cyan); box-shadow:0 0 12px var(--cyan)}
+h2.sec-h{font-family:'Baloo 2','Rubik',sans-serif; font-size:clamp(29px,5vw,54px); font-weight:800; line-height:1.08; letter-spacing:-.4px; margin-bottom:16px}
+.sec-p{font-size:clamp(15px,2vw,17.5px); font-weight:500; color:var(--muted); max-width:62ch; margin-bottom:6px}
+
+.hero{min-height:calc(100vh - 36px); display:grid; grid-template-columns:1.1fr .9fr; gap:44px; align-items:center;
+  max-width:1240px; margin-top:84px; padding:clamp(40px,6vw,78px) clamp(26px,5vw,64px); border-radius:50px;
+  background:linear-gradient(115deg,rgba(7,11,24,.84) 32%,rgba(7,11,24,.42)), url('/assets/lm-cover-hero.webp') center/cover no-repeat;
+  border:1px solid rgba(120,170,255,.22); box-shadow:0 50px 120px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.07)}
+.hero::before{display:none}
+.hero .kick{display:inline-block; font-weight:700; font-size:12.5px; color:#bfe6ff; letter-spacing:1px; padding:7px 15px; border-radius:999px; border:1px solid var(--bd); background:rgba(34,211,238,.08); margin-bottom:22px}
+.hero h1{font-family:'Baloo 2','Rubik',sans-serif; font-size:clamp(46px,9vw,104px); font-weight:800; line-height:1; letter-spacing:-1.5px; margin:0}
+.hero h1 .si{background:linear-gradient(120deg,#fff,#bfe0ff 45%,var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.hero .sub{font-family:'Baloo 2','Rubik',sans-serif; font-size:clamp(18px,2.6vw,28px); font-weight:700; margin:22px 0 10px}
+.hero .sub2{font-size:clamp(15px,2vw,17.5px); color:var(--muted); max-width:48ch; font-weight:500}
+.actions{display:flex; flex-wrap:wrap; gap:13px; margin-top:30px}
+.btn{display:inline-flex; align-items:center; gap:10px; font-family:'Baloo 2','Rubik',sans-serif; font-weight:800; font-size:15.5px; text-decoration:none; padding:15px 28px; border-radius:999px; transition:transform .2s,box-shadow .2s}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--cyan)); color:#04121f; box-shadow:0 10px 30px rgba(34,211,238,.28)}
+.btn-primary:hover{transform:translateY(-3px); box-shadow:0 16px 40px rgba(34,211,238,.42)}
+.btn-ghost{color:#fff; position:relative; background:linear-gradient(135deg,rgba(77,142,255,.14),rgba(34,211,238,.07))}
+.btn-ghost::after{content:''; position:absolute; inset:0; border-radius:999px; padding:1.5px; background:linear-gradient(135deg,var(--blue),var(--cyan) 60%,var(--indigo)); -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none}
+.btn-ghost:hover{transform:translateY(-3px)}
+.hero-visual{position:relative; aspect-ratio:1; display:grid; place-items:center}
+.hero-orb{position:absolute; border-radius:50%; animation:float 7s ease-in-out infinite}
+.o1{width:92%;height:92%; background:radial-gradient(circle,rgba(77,142,255,.2),transparent 64%)}
+.o2{width:55%;height:55%; top:6%; right:2%; background:radial-gradient(circle,rgba(34,211,238,.18),transparent 64%); animation-delay:2s}
+.o3{width:40%;height:40%; bottom:4%; left:4%; background:radial-gradient(circle,rgba(139,92,246,.16),transparent 64%); animation-delay:4s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-18px)}}
+.hero-img{position:relative; width:84%; aspect-ratio:1; border-radius:36px; overflow:hidden; border:1.5px solid rgba(120,180,255,.32);
+  box-shadow:0 30px 90px rgba(0,0,0,.55),0 0 70px rgba(34,211,238,.18)}
+.hero-img img{width:100%;height:100%; object-fit:cover; filter:saturate(1.2) brightness(1.02)}
+.scrollcue{position:absolute; bottom:22px; right:30px; font-weight:600; font-size:12px; color:var(--faint)}
+.scrollcue b{display:block; text-align:center; font-size:20px; animation:bob 1.8s infinite}
+@keyframes bob{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(7px);opacity:1}}
+
+.painwrap{display:grid; grid-template-columns:auto 1fr; gap:40px; align-items:center; margin-top:22px}
+.bignum{font-family:'Baloo 2',sans-serif; font-size:clamp(80px,15vw,150px); font-weight:800; line-height:.82;
+  background:linear-gradient(135deg,var(--cyan),var(--indigo)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.painwrap .note{font-size:14px; font-weight:500; color:var(--muted); max-width:230px; margin-top:8px}
+.iflist{display:grid; gap:12px}
+.if{display:flex; align-items:center; gap:14px; padding:14px 18px; border-radius:var(--r-sm); border:1px solid var(--bd); background:var(--glass); transition:.3s}
+.if:hover{border-color:rgba(34,211,238,.35); transform:translateX(-5px)}
+.if .ico{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;flex:0 0 auto;background:linear-gradient(150deg,rgba(77,142,255,.18),rgba(34,211,238,.1));font-size:18px}
+.if b{font-family:'Baloo 2','Rubik',sans-serif;font-weight:800;font-size:15px}
+.if span{font-size:13px;color:var(--muted)}
+
+.cards{display:grid; gap:18px; margin-top:30px}
+.c4{grid-template-columns:repeat(4,1fr)} .c3{grid-template-columns:repeat(3,1fr)} .c2{grid-template-columns:repeat(2,1fr)}
+.card{background:var(--glass); backdrop-filter:blur(12px); border:1px solid var(--bd); border-radius:var(--r-lg); padding:0 0 22px; position:relative; overflow:hidden; transition:.35s; display:flex; flex-direction:column}
+.card .glw{position:absolute; top:-70px; right:-70px; width:190px;height:190px; border-radius:50%; background:radial-gradient(rgba(34,211,238,.16),transparent 70%); opacity:0; transition:.35s; pointer-events:none}
+.card:hover{transform:translateY(-8px); border-color:rgba(34,211,238,.32); box-shadow:0 26px 80px rgba(34,211,238,.1)}
+.card:hover .glw{opacity:1}
+.thumb{width:100%; height:150px; overflow:hidden; background:rgba(77,142,255,.05); border-radius:var(--r-lg) var(--r-lg) 0 0}
+.thumb img{width:100%;height:100%; object-fit:cover; filter:saturate(1.15) brightness(.96) hue-rotate(-6deg); transition:transform .5s ease}
+.card:hover .thumb img{transform:scale(1.08)}
+.card .bd{padding:18px 22px 0}
+.card h3{font-family:'Baloo 2','Rubik',sans-serif; font-size:18px; font-weight:800; margin-bottom:8px}
+.card p{font-size:14px; font-weight:500; color:var(--muted); margin:0}
+.card .tag{margin:13px 22px 0; font-weight:700; font-size:11.5px; color:var(--cyan); background:rgba(34,211,238,.08); border:1px solid rgba(34,211,238,.18); padding:6px 14px; border-radius:999px; align-self:flex-start}
+
+.stats{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:28px}
+.stat{background:var(--glass); border:1px solid var(--bd); border-radius:var(--r-md); padding:24px 20px; position:relative; overflow:hidden; transition:.35s}
+.stat::before{content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(34,211,238,.08),transparent 60%); opacity:0; transition:.35s}
+.stat:hover{transform:translateY(-6px); border-color:rgba(34,211,238,.32)} .stat:hover::before{opacity:1}
+.stat .num{font-family:'Baloo 2',sans-serif; font-size:clamp(28px,4vw,40px); font-weight:800; line-height:1}
+.stat .num small{font-size:.5em; color:var(--cyan)}
+.stat .lab{font-size:12.5px; font-weight:500; color:var(--muted); margin-top:8px}
+.bigstats{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin:26px 0 6px}
+.bigstat{background:linear-gradient(160deg,rgba(77,142,255,.1),var(--glass)); border:1px solid rgba(120,180,255,.22); border-radius:var(--r-lg); padding:32px 22px; text-align:center; position:relative; overflow:hidden; transition:.35s}
+.bigstat::after{content:''; position:absolute; inset:0; background:radial-gradient(140px 90px at 50% 0%,rgba(34,211,238,.14),transparent); opacity:0; transition:.35s}
+.bigstat:hover{transform:translateY(-7px); border-color:rgba(34,211,238,.4); box-shadow:0 28px 74px rgba(34,211,238,.15)} .bigstat:hover::after{opacity:1}
+.bigstat .n{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:clamp(40px,6.4vw,62px); line-height:1; background:linear-gradient(120deg,#fff,var(--cyan)); -webkit-background-clip:text; background-clip:text; color:transparent}
+.bigstat .n small{font-size:.42em; -webkit-text-fill-color:var(--cyan); color:var(--cyan)}
+.bigstat .l{font-size:14px; font-weight:600; color:var(--ink); margin-top:12px}
+@media(max-width:880px){.bigstats{grid-template-columns:repeat(2,1fr)}}
+.psgrid{display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:26px}
+.ps{border:1px solid var(--bd); border-radius:var(--r-lg); overflow:hidden; background:var(--glass); backdrop-filter:blur(12px); transition:.35s}
+.ps:hover{transform:translateY(-6px); border-color:rgba(34,211,238,.32); box-shadow:0 24px 70px rgba(34,211,238,.1)}
+.ps .head{padding:15px 22px; border-bottom:1px solid var(--bd); font-family:'Baloo 2','Rubik',sans-serif; font-weight:800; font-size:16.5px; background:rgba(255,255,255,.02)}
+.ps .seg{padding:14px 22px}
+.ps .seg.sol{border-top:1px dashed var(--bd); background:rgba(34,211,238,.035)}
+.ps .k{font-family:'Baloo 2','Rubik',sans-serif; font-weight:800; font-size:11px; letter-spacing:1px; display:inline-block; margin-bottom:5px}
+.ps .pain .k{color:#FF9B8A}
+.ps .sol .k{color:var(--cyan)}
+.ps .seg p{font-size:13.5px; font-weight:500; color:var(--muted); margin:0}
+.ps .sol p{color:var(--ink)}
+@media(max-width:880px){.psgrid{grid-template-columns:1fr}}
+.ps .seg.sol{position:relative}
+.ps .seg.sol::before{content:'↓'; position:absolute; top:-13px; right:22px; width:26px;height:26px; border-radius:50%; background:linear-gradient(135deg,var(--blue),var(--cyan)); color:#04121f; font-weight:800; display:grid; place-items:center; font-size:14px; box-shadow:0 4px 14px rgba(34,211,238,.4)}
+/* floating section nav */
+.dots{position:fixed; top:50%; left:18px; transform:translateY(-50%); z-index:55; display:flex; flex-direction:column; gap:11px}
+.dot-i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.16);transition:.25s;position:relative;cursor:pointer}
+.dot-i:hover{background:var(--cyan)}
+.dot-i.on{background:linear-gradient(135deg,var(--blue),var(--cyan));box-shadow:0 0 12px var(--cyan);transform:scale(1.35)}
+.dot-i::after{content:attr(data-l);position:absolute;left:18px;top:50%;transform:translateY(-50%);white-space:nowrap;font-size:11.5px;font-weight:600;color:var(--ink);background:rgba(7,11,24,.85);border:1px solid var(--bd);padding:4px 10px;border-radius:8px;opacity:0;pointer-events:none;transition:.2s}
+.dot-i:hover::after{opacity:1}
+@media(max-width:980px){.dots{display:none}}
+
+.deliv{display:grid; grid-template-columns:1.1fr 1fr; gap:18px; margin-top:26px}
+.box{background:var(--glass); backdrop-filter:blur(12px); border:1px solid var(--bd); border-radius:var(--r-lg); padding:28px}
+.box h4{font-family:'Baloo 2','Rubik',sans-serif; font-size:16px; font-weight:800; color:var(--cyan); margin-bottom:14px}
+.chips{display:flex; flex-wrap:wrap; gap:10px}
+.chip{font-weight:600; font-size:13px; color:#fff; border:1px solid var(--bd); background:rgba(255,255,255,.03); padding:9px 15px; border-radius:999px}
+
+.show{display:grid; grid-template-columns:1fr 1.15fr; gap:0; border:1px solid var(--bd); border-radius:var(--r-lg); overflow:hidden; background:var(--glass); backdrop-filter:blur(12px); margin-top:28px}
+.show .im{position:relative; min-height:320px; overflow:hidden}
+.show .im img{width:100%;height:100%; object-fit:cover; filter:saturate(1.15) brightness(.92)}
+.show .im .u{position:absolute; inset:auto 16px 14px auto; font-weight:600; font-size:12px; color:#fff; background:rgba(7,11,24,.72); border:1px solid rgba(34,211,238,.35); padding:6px 13px; border-radius:999px; backdrop-filter:blur(6px)}
+.show .bd{padding:30px 34px}
+.show .nums{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:18px}
+.show .nums div{text-align:center; background:rgba(255,255,255,.04); border-radius:var(--r-sm); padding:14px 6px}
+.show .nums .n{font-family:'Baloo 2',sans-serif; font-size:19px; font-weight:800} .show .nums .l{font-size:10.5px; font-weight:500; color:var(--faint); margin-top:3px}
+.show ul{list-style:none; display:grid; gap:9px}
+.show li{font-size:13.5px; font-weight:500; color:var(--muted); padding-right:18px; position:relative}
+.show li::before{content:'\2192'; position:absolute; right:0; color:var(--cyan)}
+
+.levels{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:26px}
+.lvl{background:var(--glass); border:1px solid var(--bd); border-radius:var(--r-lg); padding:26px 24px; position:relative; overflow:hidden; transition:.35s}
+.lvl:hover{transform:translateY(-6px); border-color:rgba(34,211,238,.32)}
+.lvl .k{font-family:'Baloo 2',sans-serif; font-weight:800; font-size:13px; letter-spacing:1px; color:var(--cyan)}
+.lvl h3{font-family:'Baloo 2','Rubik',sans-serif; font-size:21px; font-weight:800; margin:6px 0 8px}
+.lvl p{font-size:13.5px; font-weight:500; color:var(--muted); margin:0}
+.lvl .no{position:absolute; top:20px; left:24px; font-family:'Baloo 2',sans-serif; font-weight:800; font-size:36px; line-height:1; color:rgba(255,255,255,.06)}
+
+.closing{display:grid; grid-template-columns:.8fr 1.2fr; gap:44px; align-items:center}
+.idcard{position:relative; aspect-ratio:1; max-width:300px; border-radius:var(--r-lg); overflow:hidden; border:1px solid rgba(120,180,255,.28); display:grid; place-items:center;
+  background:linear-gradient(160deg,rgba(77,142,255,.14),rgba(34,211,238,.06),var(--glass)); box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.idcard .t{text-align:center;padding:24px}
+.idcard .t .lg{font-family:'Baloo 2',sans-serif;font-size:46px;font-weight:800;letter-spacing:1px;line-height:1;background:linear-gradient(120deg,#fff,var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}
+.closing h2{font-family:'Baloo 2','Rubik',sans-serif; font-size:clamp(32px,6.6vw,62px); font-weight:800; letter-spacing:-.4px; line-height:1.04}
+.closing .ln{font-size:clamp(15px,2.4vw,20px); font-weight:500; color:var(--muted); margin:16px 0 30px}
+.contact{font-weight:600; font-size:13.5px; color:var(--faint); margin-top:26px}
+.contact b{color:#fff}
+
+.reveal{opacity:0; transform:translateY(32px); transition:opacity .8s cubic-bezier(.2,.8,.2,1),transform .8s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1; transform:none}
+.reveal[data-d="1"]{transition-delay:.07s}.reveal[data-d="2"]{transition-delay:.14s}.reveal[data-d="3"]{transition-delay:.21s}
+.reveal[data-d="4"]{transition-delay:.28s}.reveal[data-d="5"]{transition-delay:.35s}
+
+@media(max-width:880px){
+  .hero{grid-template-columns:1fr; padding-top:28px; gap:26px; border-radius:34px}
+  .hero-visual{order:-1; max-width:330px; margin:0 auto}
+  .stats{grid-template-columns:repeat(2,1fr)} .c4{grid-template-columns:repeat(2,1fr)}
+  .c3,.c2,.deliv,.levels,.show,.closing,.painwrap{grid-template-columns:1fr}
+  section{border-radius:var(--r-lg)}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important} .reveal{opacity:1;transform:none} html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<canvas id="fx"></canvas>
+<div class="gridfx"></div>
+<div class="progress"><i id="prog"></i></div>
+<div class="topbar" id="topbar">
+  <div class="logo">E.N.G<span class="x">×</span>מילגם<span class="sb">הנדסה וניהול לפיתוח · PM‑ENG</span></div>
+  <span class="pill"><span class="dot"></span> תקציר מנהלים</span>
+</div>
+<nav class="dots" id="dots" aria-label="ניווט"></nav>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div>
+      <span class="kick reveal">לעיון הנהלת מילגם</span>
+      <h1 class="reveal" data-d="1"><span class="si">PM‑ENG</span></h1>
+      <div class="sub reveal" data-d="2">מערכת ניהול הפרויקטים של <span class="g">E.N.G — הנדסה וניהול לפיתוח</span>.</div>
+      <div class="sub2 reveal" data-d="3">פיתחנו אותה כדי לשלוט במורכבות של ניהול פרויקטים וריבוי ממשקים במקביל — והיא מסתגלת לרמת הענף, העסק והמשתמש.</div>
+      <div class="actions reveal" data-d="4">
+        <a class="btn btn-primary" href="https://wa.me/972509966656" target="_blank" rel="noopener">בואו נדבר →</a>
+        <a class="btn btn-ghost" href="https://pm-eng.lovable.app/" target="_blank" rel="noopener">למערכת החיה</a>
+      </div>
+    </div>
+    <div class="hero-visual reveal" data-d="2">
+      <div class="hero-orb o1"></div><div class="hero-orb o2"></div><div class="hero-orb o3"></div>
+      <div class="hero-img"><img src="/assets/icons/ai-brain.webp" alt="PM-ENG" loading="eager"></div>
+    </div>
+    <div class="scrollcue reveal" data-d="5">SCROLL<b>↓</b></div>
+  </section>
+
+  <!-- 01 · הכאב -->
+  <section>
+    <div class="sec-tag reveal"><span class="num">01</span><span class="lbl">הכאב</span></div>
+    <h2 class="sec-h reveal" data-d="1">ניהול פרויקטים היום = <span class="g">ניהול ממשקים</span></h2>
+    <p class="sec-p reveal" data-d="2">מנהל פרויקט לא באמת מנהל את הפרויקט — הוא מתמרן בין עשרות ממשקים שלא מדברים זה עם זה. הזמן הולך על תיווך, לא על קבלת החלטות.</p>
+    <div class="painwrap reveal" data-d="3">
+      <div>
+        <div class="bignum" data-count="7" data-suffix="+">0</div>
+        <div class="note">ממשקים מקבילים שמנהל אחד מחזיק בכל רגע נתון — כל אחד בכלי אחר, בלי תמונה אחת.</div>
+      </div>
+      <div class="iflist">
+        <div class="if"><span class="ico">🏛️</span><div><b>רשויות וגורמי תכנון</b><br><span>אישורים, מועדים, התכתבויות סטטוטוריות</span></div></div>
+        <div class="if"><span class="ico">🤝</span><div><b>יזמים, ספקים וקבלנים</b><br><span>חוזים, לוחות זמנים, תיאום ביצוע</span></div></div>
+        <div class="if"><span class="ico">💰</span><div><b>מערכות פיננסיות</b><br><span>תקציב, חשבוניות וגבייה — מנותקות מהמשימות</span></div></div>
+        <div class="if"><span class="ico">👥</span><div><b>צוותים, מיילים ווואטסאפ</b><br><span>משימות ומידע מפוזרים בין אנשים וערוצים</span></div></div>
+      </div>
+    </div>
+    <p class="sec-p reveal" data-d="3" style="margin-top:26px;max-width:none">המערכות המובנות בשוק <span class="gi">מכריחות את הארגון להתאים את עצמו אליהן</span> — ולכן ההטמעה נכשלת. בנינו את ההפך.</p>
+  </section>
+
+  <!-- 02 · החברה -->
+  <section>
+    <div class="sec-tag reveal"><span class="num">02</span><span class="lbl">החברה</span></div>
+    <h2 class="sec-h reveal" data-d="1">E.N.G — <span class="g">הנדסה וניהול לפיתוח</span></h2>
+    <p class="sec-p reveal" data-d="2" style="max-width:none"><b style="color:#fff">"Eilat New Generation"</b> — חברת הנדסה וניהול לפיתוח שצמחה באילת ופועלת בכל הארץ ומעבר לים. אנו מלווים פרויקטים מורכבים מטרום‑ייזום ועד מסירה, מתוך ניסיון עמוק מול רשויות, מינהלות וגופים ציבוריים. מתוך המורכבות הזו — פיתחנו את PM‑ENG.</p>
+    <div class="deliv">
+      <div class="box reveal" data-d="1">
+        <h4>הרקע שלנו</h4>
+        <ul style="list-style:none;display:grid;gap:11px;font-size:14px;color:var(--muted)">
+          <li>נוסדה 2022 · מייסד: <b style="color:#fff">אינג' עדי גורשניק (B.Sc · MBA)</b></li>
+          <li>לשעבר ראש מינהלת הסכם הגג ופיתוח העיר אילת</li>
+          <li>סמנכ"ל ומ"מ מנכ"ל החברה הכלכלית לאילת</li>
+          <li>חבר הנהלה ומבקר פנימי · רשת ישרוטל</li>
+          <li>אגף AI ייעודי (simplifAI) לפיתוח והנדסת מערכות חכמות</li>
+        </ul>
+      </div>
+      <div class="box reveal" data-d="2">
+        <h4>תחומי פעילות</h4>
+        <div class="chips">
+          <span class="chip">רשויות ומינהלות</span>
+          <span class="chip">הסכמי גג</span>
+          <span class="chip">התחדשות עירונית</span>
+          <span class="chip">סטטוטורי · תב"ע</span>
+          <span class="chip">אזורי תעשייה ותעסוקה</span>
+          <span class="chip">תיירות ומלונאות</span>
+          <span class="chip">תכנון, ניהול ופיקוח</span>
+          <span class="chip">מכרזי PPP · BOT</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 03 · המערכת -->
+  <section>
+    <div class="sec-tag reveal"><span class="num">03</span><span class="lbl">המערכת</span></div>
+    <h2 class="sec-h reveal" data-d="1">PM‑ENG — <span class="g">מערכת ניהול פרויקטים</span></h2>
+    <p class="sec-p reveal" data-d="2">מערכת שמרכזת את כל הממשקים לתמונה אחת — ובנויה להסתגל, לא לכפות.</p>
+    <div class="bigstats">
+      <div class="bigstat reveal" data-d="1"><div class="n"><small>₪</small><span data-count="3.3" data-dec="1">0</span><small>M</small></div><div class="l">חשבוניות במחזור</div></div>
+      <div class="bigstat reveal" data-d="2"><div class="n" data-count="43">0</div><div class="l">פרויקטים פעילים</div></div>
+      <div class="bigstat reveal" data-d="3"><div class="n" data-count="179">0</div><div class="l">בארכיון</div></div>
+      <div class="bigstat reveal" data-d="4"><div class="n" data-count="2">0</div><div class="l">חודשים לפיתוח</div></div>
+    </div>
+    <div class="show reveal" data-d="1">
+      <div class="im"><img src="/assets/icons/reports.webp" alt="PM-ENG"><span class="u">pm-eng.lovable.app</span></div>
+      <div class="bd">
+        <ul>
+          <li>סוכן AI מובנה · גאנט · משימות · צ׳קליסטים הנדסיים</li>
+          <li>לקוחות, ספקים, חשבוניות וגבייה — מחוברים למשימות</li>
+          <li>עברית · RTL · רב‑לקוחות — בנויה להרחבה</li>
+          <li>פותחה תוך חודשיים — יכולת פיתוח והתאמה מהירה</li>
+        </ul>
+        <a class="btn btn-ghost" style="margin-top:18px" href="https://pm-eng.lovable.app/" target="_blank" rel="noopener">כניסה למערכת החיה →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 · ההתאמה -->
+  <section>
+    <div class="sec-tag reveal"><span class="num">04</span><span class="lbl">ההתאמה</span></div>
+    <h2 class="sec-h reveal" data-d="1">מסתגלת לרמת <span class="g">הענף, העסק והמשתמש</span></h2>
+    <p class="sec-p reveal" data-d="2">היתרון האמיתי הוא לא הפיצ׳רים — אלא היכולת לעצב מחדש את סביבת המערכת בכל שלוש הרמות, מהר.</p>
+    <div class="levels">
+      <div class="lvl reveal" data-d="1"><span class="no">01</span><div class="k">ענף</div><h3>שפה ותהליך הענף</h3><p>מונחים, שלבים ומסכים שמתאימים לתחום — רשויות, חניה, חינוך או נדל"ן.</p></div>
+      <div class="lvl reveal" data-d="2"><span class="no">02</span><div class="k">עסק</div><h3>חוקי הארגון</h3><p>מבנה, הרשאות, זרימות עבודה ואינטגרציות — לפי איך שהארגון הספציפי עובד.</p></div>
+      <div class="lvl reveal" data-d="3"><span class="no">03</span><div class="k">משתמש</div><h3>חוויית המשתמש</h3><p>תצוגות, התראות וקיצורים אישיים — כך שכל בעל תפקיד רואה בדיוק את שלו.</p></div>
+    </div>
+    <p class="sec-p reveal" data-d="2" style="margin-top:28px">אותה ליבה — סביבות שונות. דוגמאות לעולמות שבהם המערכת מתלבשת מיד:</p>
+    <div class="cards c4">
+      <div class="card reveal" data-d="1"><div class="glw"></div><div class="thumb"><img src="/assets/icons/services-dashboards.webp" alt=""></div><div class="bd"><h3>רשויות ותאגידים עירוניים</h3><p>ניהול פרויקטים, מינהלות והתקשרויות מול גורמי תכנון.</p></div></div>
+      <div class="card reveal" data-d="2"><div class="glw"></div><div class="thumb"><img src="/assets/icons/services-crm-erp.webp" alt=""></div><div class="bd"><h3>חניה ותחבורה</h3><p>תפעול שטח, התקשרויות ובקרת ביצוע בקנה מידה ארצי.</p></div></div>
+      <div class="card reveal" data-d="3"><div class="glw"></div><div class="thumb"><img src="/assets/icons/services-docs.webp" alt=""></div><div class="bd"><h3>חינוך ובחינות</h3><p>תהליכים לאומיים, מסמכים ומועדים — ניהול מסודר בנפח גדול.</p></div></div>
+      <div class="card reveal" data-d="4"><div class="glw"></div><div class="thumb"><img src="/assets/icons/before-after.webp" alt=""></div><div class="bd"><h3>נדל"ן והתחדשות עירונית</h3><p>ייזום, תכנון וביצוע — מטרום‑ייזום ועד מסירה.</p></div></div>
+    </div>
+  </section>
+
+  <!-- 05 · קבוצת מילגם -->
+  <section>
+    <div class="sec-tag reveal"><span class="num">05</span><span class="lbl">קבוצת מילגם</span></div>
+    <h2 class="sec-h reveal" data-d="1">איפה PM‑ENG <span class="g">נכנס בקבוצה</span></h2>
+    <p class="sec-p reveal" data-d="2">מילגם היא קבוצה רחבה: גבייה ותפעול ל‑180 רשויות, אחזקת מים וביוב, חניה (<b style="color:#fff">Pango</b> — כ‑80% מהשוק, ~3 מיליון נהגים), אנרגיה סולארית (MCP) ומערכות מידע — על שורשי הנדסת תשתית (תה"ל/קרדן). וב‑2024 הובילה את רכישת <b style="color:#fff">דואר ישראל</b>. כל זרוע — ריבוי ממשקים, וכר נרחב למערכת מסתגלת.</p>
+    <div class="chips" style="margin-bottom:4px">
+      <span class="chip">מילגם — 180 רשויות</span>
+      <span class="chip">Pango — 80% מהחניה</span>
+      <span class="chip">MCP — גבייה ומונים</span>
+      <span class="chip">מים וביוב</span>
+      <span class="chip">אנרגיה סולארית</span>
+      <span class="chip">דואר ישראל · 2024</span>
+      <span class="chip">הנדסת תשתית · תה"ל/קרדן</span>
+    </div>
+    <div class="psgrid">
+      <div class="ps reveal" data-d="1"><div class="head">גבייה ושירות אזרח</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>המוקד פתוח חמישה ימים — כ‑30% מהשבוע ללא מענה; 60–70% מהפניות חוזרות (סטטוס תשלום, מועדים), ונציג עונה אותו דבר מאות פעמים ביום.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>סוכן AI ב‑WhatsApp וקולי, כיסוי 24/7 — מטפל בפניות החוזרות ומשחרר נציגים למקרים המורכבים.</p></div></div>
+      <div class="ps reveal" data-d="2"><div class="head">מים וביוב</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>מים אובדים (NRW), קריאת מונים ידנית, ותיקון נזילות שאורך שבועות — בזבוז משאבים ותלונות.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>ניהול הזמנות‑עבודה ו‑SLA ב‑PM‑ENG + התראות חכמות — לקצר תיקון תקלות ולמקד צוותי שטח.</p></div></div>
+      <div class="ps reveal" data-d="3"><div class="head">חניה — Pango · MCP</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>~3 מיליון נהגים ב‑40+ ערים — אכיפה, פניות ומחלוקות, ותפעול שטח מבוזר בין כלים.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>ניהול משימות שטח, חריגות ופניות במקום אחד — ועוזר נהג חכם בתוך האפליקציה.</p></div></div>
+      <div class="ps reveal" data-d="1"><div class="head">עיבוד מסמכים</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>סיוע בשכר דירה, חוזים ואישורים — אלפי שעות הקלדה ידנית בשנה, וזמן ארוך עד החלטה.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>OCR בעברית + סיווג אוטומטי — חיתוך דרמטי בזמני הטיפול ובעומס.</p></div></div>
+      <div class="ps reveal" data-d="2"><div class="head">ידע פזור · 180 רשויות</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>לכל רשות תקנות שונות; נציג חדש מגיע ליעילות מלאה רק אחרי חודשים, וזמן רב מתבזבז בחיפוש.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>מאגר ידע חכם (RAG) שעונה לנציג מיד עם הכלל הספציפי לכל רשות.</p></div></div>
+      <div class="ps reveal" data-d="3"><div class="head">חוצה‑קבוצה</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>עשרות חברות, כל אחת בכלי אחר — אין להנהלה תמונה אחת על פני הקבוצה.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>PM‑ENG רב‑לקוחות מסתגל — מבט‑על אחיד על כל החברות במערכת אחת.</p></div></div>
+    </div>
+  </section>
+
+  <!-- 06 · דואר ישראל -->
+  <section>
+    <div class="sec-tag reveal"><span class="num">06</span><span class="lbl">דואר ישראל</span></div>
+    <h2 class="sec-h reveal" data-d="1">דואר ישראל — <span class="g">700 סניפים שמחכים ל‑AI</span></h2>
+    <p class="sec-p reveal" data-d="2">ב‑2024 הובילה מילגם את הקונסורציום שרכש את דואר ישראל. מאחורי המותג — בנק הדואר (מעל מיליון לקוחות), לוגיסטיקה וחבילות (CEP ומסחר אונליין), ושירותי ממשלה בסניפים — על גבי מערכות ישנות שזועקות למודרניזציה. בדיוק כאן AI יוצר ערך מיידי.</p>
+    <div class="bigstats">
+      <div class="bigstat reveal" data-d="1"><div class="n" data-count="700">0</div><div class="l">סניפים בפריסה ארצית</div></div>
+      <div class="bigstat reveal" data-d="2"><div class="n"><span data-count="1">0</span><small>M+</small></div><div class="l">לקוחות בנק הדואר</div></div>
+      <div class="bigstat reveal" data-d="3"><div class="n"><small>₪</small><span data-count="468">0</span><small>M</small></div><div class="l">גובה העסקה</div></div>
+      <div class="bigstat reveal" data-d="4"><div class="n">2024</div><div class="l">שנת הרכישה</div></div>
+    </div>
+    <div class="psgrid">
+      <div class="ps reveal" data-d="1"><div class="head">תורים ועומס בסניפים</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>תורים של עד שעה בשעות שיא, ושיא ארצי של תלונות מוצדקות (74% ב‑2017) — חוויית לקוח שוחקת.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>סוכן 24/7 + תיאום תור חכם שמטפל ברוטיני (מעקב, תשלומים) — פחות ביקורים פיזיים.</p></div></div>
+      <div class="ps reveal" data-d="2"><div class="head">חבילות ולוגיסטיקה · CEP</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>נפח המסחר האונליין (אמזון ועוד) מציף — מסירות איטיות, חריגות וקושי לעמוד בקצב.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>מעקב, זיהוי חריגות בזמן אמת ואופטימיזציית מסירה — שירות מהיר ושקוף יותר.</p></div></div>
+      <div class="ps reveal" data-d="3"><div class="head">בנק הדואר</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>מעל מיליון לקוחות; טפסים, פתיחת חשבון ותשלומים — תהליכים ידניים ואיטיים.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>OCR לטפסים, אוטומציה ומענה אוטומטי — שירות מהיר ופחות עומס על הסניף.</p></div></div>
+      <div class="ps reveal" data-d="1"><div class="head">שירותי ממשלה בסניף</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>דרכונים, אגרות ותשלומים — עומס ותורים על תהליכים ידניים בנקודת השירות.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>ניהול תורים, טפסים חכמים ומענה אוטומטי — הפחתת עומס וזמני המתנה.</p></div></div>
+      <div class="ps reveal" data-d="2"><div class="head">מערכות ישנות</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>תשתית IT מיושנת — כל שינוי איטי ויקר, וקשה להוסיף יכולות חדשות.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>לבנות מודרני עם AI מובנה מהיום הראשון — לא לטלא מערכת ישנה.</p></div></div>
+      <div class="ps reveal" data-d="3"><div class="head">ניהול תוכנית השינוי</div>
+        <div class="seg pain"><span class="k">הכאב</span><p>מודרניזציה על פני 700 סניפים ומערכות — מאות ממשקים שצריך לנהל בו‑זמנית.</p></div>
+        <div class="seg sol"><span class="k">הפתרון</span><p>PM‑ENG לניהול הפרויקט עצמו — גאנט, תלויות, סיכון ומבט‑על אחד.</p></div></div>
+    </div>
+  </section>
+
+  <!-- 07 · הזדמנות -->
+  <section>
+    <div class="sec-tag reveal"><span class="num">07</span><span class="lbl">הזדמנות</span></div>
+    <h2 class="sec-h reveal" data-d="1">לבנות את זה <span class="gi">יחד</span></h2>
+    <p class="sec-p reveal" data-d="2">למילגם יש מה שאין לאף מערכת: חברות ניהול פרויקטים, נוכחות בענפים רבים, וגישה לרשויות ולחברות כלכליות. השילוב של מערכת מסתגלת עם הרשת של מילגם — יוצר משהו שאי‑אפשר לבנות לבד.</p>
+    <div class="cards c3">
+      <div class="card reveal" data-d="1"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>מערכת שכבר עובדת</h3><p>PM‑ENG פעילה — ובנויה להתאמה מהירה לכל חברה בקבוצה.</p></div></div>
+      <div class="card reveal" data-d="2"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>בית גידול אמיתי</h3><p>הטמעה והוכחת ערך בתוך חברות מילגם — לפני יציאה החוצה.</p></div></div>
+      <div class="card reveal" data-d="3"><div class="glw"></div><div class="bd" style="padding-top:26px"><h3>שיווק משותף</h3><p>להגיע יחד לרשויות, לחברות כלכליות ולשוק שמילגם כבר נמצאת בו.</p></div></div>
+    </div>
+    <p class="sec-p reveal" data-d="3" style="margin-top:24px;max-width:none">לא הצעת ספק — <span class="g">הזמנה לשיחה</span> על דרך לבנות ולהרחיב את זה ביחד.</p>
+  </section>
+
+  <!-- 08 · צעדי המשך -->
+  <section>
+    <div class="sec-tag reveal"><span class="num">08</span><span class="lbl">צעדי המשך</span></div>
+    <h2 class="sec-h reveal" data-d="1">90 הימים <span class="g">הראשונים</span></h2>
+    <p class="sec-p reveal" data-d="2">מתחילים קטן, מוכיחים ערך, ומרחיבים אחראית — בלי סיכון בכניסה.</p>
+    <div class="levels">
+      <div class="lvl reveal" data-d="1"><span class="no">01</span><div class="k">שבועות 1–3 · גילוי</div><h3>מיפוי וכיוונים</h3><p>ראיונות עם אנשי מפתח, מיפוי הממשקים, ובחירת 2–3 פיילוטים — עם מפת דרכים כתובה.</p></div>
+      <div class="lvl reveal" data-d="2"><span class="no">02</span><div class="k">שבועות 4–10 · פיילוט</div><h3>הוכחת ערך</h3><p>מקרה שימוש אחד — למשל סוכן WhatsApp לרשות, או OCR לסיוע בשכר דירה — עם מדידת ערך אמיתי.</p></div>
+      <div class="lvl reveal" data-d="3"><span class="no">03</span><div class="k">חודש 3 ואילך · הרחבה</div><h3>פריסה בקבוצה</h3><p>הטמעת PM‑ENG בחברת ניהול הפרויקטים, או פריסה לחברה/רשות נוספת בקבוצה.</p></div>
+    </div>
+    <p class="sec-p reveal" data-d="2" style="margin-top:24px;max-width:none">כל שלב — <span class="g">החלטה עצמאית</span>. אפשר לעצור, להרחיב, או להמשיך לבד.</p>
+  </section>
+
+  <!-- CLOSING -->
+  <section class="closing">
+    <div class="idcard reveal">
+      <div class="t">
+        <div class="lg">E.N.G</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:8px">PM‑ENG · מערכת מסתגלת</div>
+        <div style="color:var(--faint);font-size:12px;margin-top:12px">אגף AI · simplifAI</div>
+      </div>
+    </div>
+    <div>
+      <div class="sec-tag reveal"><span class="num">09</span><span class="lbl">בואו נדבר</span></div>
+      <h2 class="reveal" data-d="1">נראה לכם את זה <span class="g">חי</span>.</h2>
+      <div class="ln reveal" data-d="2">פגישה קצרה, הדגמה של המערכת, ושיחה על איפה היא יכולה להשתלב אצלכם.</div>
+      <div class="actions reveal" data-d="3">
+        <a class="btn btn-primary" href="https://wa.me/972509966656" target="_blank" rel="noopener">בואו נדבר →</a>
+        <a class="btn btn-ghost" href="https://pm-eng.lovable.app/" target="_blank" rel="noopener">למערכת PM‑ENG החיה</a>
+      </div>
+      <div class="contact reveal" data-d="4"><b>E.N.G — הנדסה וניהול לפיתוח</b> · עדי גורשניק · adi@enghol.com · 050‑9966656 · אילת</div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function(){
+  var rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var prog=document.getElementById('prog'), tb=document.getElementById('topbar');
+  addEventListener('scroll',function(){var h=document.documentElement,p=h.scrollTop/(h.scrollHeight-h.clientHeight);
+    prog.style.width=(p*100)+'%';
+    tb.style.background=h.scrollTop>40?'linear-gradient(180deg,rgba(7,11,24,.96),rgba(7,11,24,.6))':'linear-gradient(180deg,rgba(7,11,24,.86),rgba(7,11,24,0))';},{passive:true});
+  function count(el){var t=parseFloat(el.getAttribute('data-count')),dec=parseInt(el.getAttribute('data-dec')||'0',10),sfx=el.getAttribute('data-suffix')||'';
+    if(rm){el.textContent=(dec?t.toFixed(dec):Math.round(t).toLocaleString('en-US'))+sfx;return;}
+    var s=performance.now(),dur=1400;(function step(now){var k=Math.min(1,(now-s)/dur),e=1-Math.pow(1-k,3),v=t*e;
+      el.textContent=(dec?v.toFixed(dec):Math.round(v).toLocaleString('en-US'))+sfx;
+      if(k<1)requestAnimationFrame(step);else el.textContent=(dec?t.toFixed(dec):Math.round(t).toLocaleString('en-US'))+sfx;})(s);}
+  var io=new IntersectionObserver(function(es){es.forEach(function(en){if(!en.isIntersecting)return;var el=en.target;el.classList.add('in');
+    el.querySelectorAll('[data-count]').forEach(count); if(el.hasAttribute('data-count'))count(el);
+    io.unobserve(el);});},{threshold:.14,rootMargin:'0px 0px -7% 0px'});
+  document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
+  document.querySelectorAll('.bignum[data-count]').forEach(function(el){io.observe(el);});
+  /* floating section nav */
+  var nav=document.getElementById('dots');
+  if(nav){
+    var secs=[].slice.call(document.querySelectorAll('main > section'));
+    secs.forEach(function(s,i){
+      var lbl=s.querySelector('.sec-tag .lbl');
+      var name=lbl?lbl.textContent.trim():(i===0?'פתיחה':('סעיף '+i));
+      var a=document.createElement('a'); a.className='dot-i'; a.href='#'; a.setAttribute('data-l',name);
+      a.addEventListener('click',function(e){e.preventDefault(); s.scrollIntoView({behavior:'smooth',block:'start'});});
+      nav.appendChild(a); s.__dot=a;
+    });
+    var io3=new IntersectionObserver(function(es){es.forEach(function(en){
+      if(en.isIntersecting){ secs.forEach(function(s){s.__dot.classList.remove('on');}); if(en.target.__dot) en.target.__dot.classList.add('on'); }
+    });},{rootMargin:'-45% 0px -45% 0px'});
+    secs.forEach(function(s){io3.observe(s);});
+  }
+  if(!rm){var cv=document.getElementById('fx'),cx=cv.getContext('2d'),W,H,pts;
+    cv.style.position='fixed';cv.style.inset='0';cv.style.zIndex='0';cv.style.pointerEvents='none';
+    function init(){var n=Math.min(60,Math.floor(innerWidth*innerHeight/34000));pts=[];for(var i=0;i<n;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,r:Math.random()*1.4+.4});}
+    function resize(){W=cv.width=innerWidth;H=cv.height=innerHeight;init();}
+    function tick(){cx.clearRect(0,0,W,H);for(var i=0;i<pts.length;i++){var p=pts[i];p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;
+      cx.beginPath();cx.arc(p.x,p.y,p.r,0,6.28);cx.fillStyle='rgba(34,211,238,.32)';cx.fill();
+      for(var j=i+1;j<pts.length;j++){var q=pts[j],dx=p.x-q.x,dy=p.y-q.y,d=dx*dx+dy*dy;if(d<12500){cx.beginPath();cx.moveTo(p.x,p.y);cx.lineTo(q.x,q.y);cx.strokeStyle='rgba(77,142,255,'+(.1*(1-d/12500))+')';cx.lineWidth=1;cx.stroke();}}}
+      requestAnimationFrame(tick);}
+    addEventListener('resize',resize);resize();tick();}
+})();
+</script>
+</body>
+</html>
