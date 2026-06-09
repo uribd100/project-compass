@@ -20,7 +20,7 @@
   --r-xl:40px; --r-lg:30px; --r-md:22px; --r-sm:16px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth; scroll-padding-top:96px}
 body{background:var(--bg); color:var(--ink); direction:rtl; line-height:1.78; overflow-x:hidden;
   font-family:'Rubik',sans-serif; font-weight:500; -webkit-font-smoothing:antialiased; position:relative}
 body::before{content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
@@ -153,6 +153,16 @@ h2.sec-h{font-family:'Baloo 2','Rubik',sans-serif; font-size:clamp(29px,5vw,54px
 .ps .seg p{font-size:13.5px; font-weight:500; color:var(--muted); margin:0}
 .ps .sol p{color:var(--ink)}
 @media(max-width:880px){.psgrid{grid-template-columns:1fr}}
+.ps .seg.sol{position:relative}
+.ps .seg.sol::before{content:'↓'; position:absolute; top:-13px; right:22px; width:26px;height:26px; border-radius:50%; background:linear-gradient(135deg,var(--blue),var(--cyan)); color:#04121f; font-weight:800; display:grid; place-items:center; font-size:14px; box-shadow:0 4px 14px rgba(34,211,238,.4)}
+/* floating section nav */
+.dots{position:fixed; top:50%; left:18px; transform:translateY(-50%); z-index:55; display:flex; flex-direction:column; gap:11px}
+.dot-i{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.16);transition:.25s;position:relative;cursor:pointer}
+.dot-i:hover{background:var(--cyan)}
+.dot-i.on{background:linear-gradient(135deg,var(--blue),var(--cyan));box-shadow:0 0 12px var(--cyan);transform:scale(1.35)}
+.dot-i::after{content:attr(data-l);position:absolute;left:18px;top:50%;transform:translateY(-50%);white-space:nowrap;font-size:11.5px;font-weight:600;color:var(--ink);background:rgba(7,11,24,.85);border:1px solid var(--bd);padding:4px 10px;border-radius:8px;opacity:0;pointer-events:none;transition:.2s}
+.dot-i:hover::after{opacity:1}
+@media(max-width:980px){.dots{display:none}}
 
 .deliv{display:grid; grid-template-columns:1.1fr 1fr; gap:18px; margin-top:26px}
 .box{background:var(--glass); backdrop-filter:blur(12px); border:1px solid var(--bd); border-radius:var(--r-lg); padding:28px}
@@ -213,6 +223,7 @@ h2.sec-h{font-family:'Baloo 2','Rubik',sans-serif; font-size:clamp(29px,5vw,54px
   <div class="logo">E.N.G<span class="x">×</span>מילגם<span class="sb">הנדסה וניהול לפיתוח · PM‑ENG</span></div>
   <span class="pill"><span class="dot"></span> תקציר מנהלים</span>
 </div>
+<nav class="dots" id="dots" aria-label="ניווט"></nav>
 
 <main>
 
@@ -466,6 +477,22 @@ h2.sec-h{font-family:'Baloo 2','Rubik',sans-serif; font-size:clamp(29px,5vw,54px
     io.unobserve(el);});},{threshold:.14,rootMargin:'0px 0px -7% 0px'});
   document.querySelectorAll('.reveal').forEach(function(el){io.observe(el);});
   document.querySelectorAll('.bignum[data-count]').forEach(function(el){io.observe(el);});
+  /* floating section nav */
+  var nav=document.getElementById('dots');
+  if(nav){
+    var secs=[].slice.call(document.querySelectorAll('main > section'));
+    secs.forEach(function(s,i){
+      var lbl=s.querySelector('.sec-tag .lbl');
+      var name=lbl?lbl.textContent.trim():(i===0?'פתיחה':('סעיף '+i));
+      var a=document.createElement('a'); a.className='dot-i'; a.href='#'; a.setAttribute('data-l',name);
+      a.addEventListener('click',function(e){e.preventDefault(); s.scrollIntoView({behavior:'smooth',block:'start'});});
+      nav.appendChild(a); s.__dot=a;
+    });
+    var io3=new IntersectionObserver(function(es){es.forEach(function(en){
+      if(en.isIntersecting){ secs.forEach(function(s){s.__dot.classList.remove('on');}); if(en.target.__dot) en.target.__dot.classList.add('on'); }
+    });},{rootMargin:'-45% 0px -45% 0px'});
+    secs.forEach(function(s){io3.observe(s);});
+  }
   if(!rm){var cv=document.getElementById('fx'),cx=cv.getContext('2d'),W,H,pts;
     cv.style.position='fixed';cv.style.inset='0';cv.style.zIndex='0';cv.style.pointerEvents='none';
     function init(){var n=Math.min(60,Math.floor(innerWidth*innerHeight/34000));pts=[];for(var i=0;i<n;i++)pts.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.2,vy:(Math.random()-.5)*.2,r:Math.random()*1.4+.4});}
