@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://simplifai.co.il/</loc>
+    <lastmod>2026-04-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://simplifai.co.il/assets/og-home.jpg</image:loc>
+      <image:title>simplifAI — ייעול עסקים בעזרת AI</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://simplifai.co.il/services/</loc>
+    <lastmod>2026-05-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://simplifai.co.il/assets/og-home.jpg</image:loc>
+      <image:title>השירותים של simplifAI</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://simplifai.co.il/services/whatsapp-bot/</loc>
+    <lastmod>2026-04-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://simplifai.co.il/assets/og-whatsapp-bot.jpg</image:loc>
+      <image:title>WhatsApp Bot לעסק — simplifAI</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://simplifai.co.il/services/lead-automation/</loc>
+    <lastmod>2026-04-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://simplifai.co.il/assets/og-lead-automation.jpg</image:loc>
+      <image:title>אוטומציית לידים לעסק — simplifAI</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://simplifai.co.il/services/crm-integration/</loc>
+    <lastmod>2026-04-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://simplifai.co.il/assets/og-crm-integration.jpg</image:loc>
+      <image:title>אינטגרציית CRM לעסק — simplifAI</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://simplifai.co.il/services/ai-agent/</loc>
+    <lastmod>2026-04-22</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://simplifai.co.il/assets/og-ai-agent.jpg</image:loc>
+      <image:title>סוכן AI לעסק — simplifAI</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://simplifai.co.il/tools/calculators/</loc>
+    <lastmod>2026-06-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://simplifai.co.il/assets/og-home.jpg</image:loc>
+      <image:title>4 מחשבוני מס לעצמאי 2026 — simplifAI</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://simplifai.co.il/privacy.html</loc>
+    <lastmod>2026-04-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://simplifai.co.il/terms.html</loc>
+    <lastmod>2026-04-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+</urlset>
