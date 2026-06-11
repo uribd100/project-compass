@@ -24,7 +24,7 @@ export default function Nutrition() {
 
   return (
     <div className="space-y-6">
-      <PageHeader tag="03 · תזונה" title="אוכל שמרפא את הלב">
+      <PageHeader tag="03 · תזונה" title="אוכל שמרפא את הלב" heroKey="nutrition">
         ים-תיכוני להורדת LDL, מותאם לגאוט.
       </PageHeader>
 

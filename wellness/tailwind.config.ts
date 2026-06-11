@@ -24,6 +24,7 @@ export default {
         coral: "hsl(var(--coral))",
         heal: "hsl(var(--heal))",
         warn: "hsl(var(--warn))",
+        gold: "hsl(var(--gold))",
       },
       fontFamily: {
         display: ["Baloo 2", "Rubik", "Heebo", "system-ui", "sans-serif"],

@@ -30,7 +30,7 @@ export default function Sleep() {
 
   return (
     <div className="space-y-6">
-      <PageHeader tag="04 · שינה" title="שינה שמשקמת">
+      <PageHeader tag="04 · שינה" title="שינה שמשקמת" heroKey="sleep">
         הדלק של הלב ושל הגמילה. יעד: 7–8 שעות רצופות.
       </PageHeader>
 

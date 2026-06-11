@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { Play, Lock, TrendingUp, CheckCircle2 } from "lucide-react";
+import { Img } from "@/components/common/Img";
+import { hero } from "@/lib/images";
 import { useApp } from "@/app/providers/AppData";
 import { PageHeader } from "@/app/layout/PageHeader";
 import { Card } from "@/components/ui/card";
@@ -34,7 +37,7 @@ export default function Training() {
 
   return (
     <div className="space-y-6">
-      <PageHeader tag="01 · אימון בטוח-לב" title="התוכנית שלך">
+      <PageHeader tag="01 · אימון בטוח-לב" title="התוכנית שלך" heroKey="training">
         בנויה לפי שיקום לבבי, מתקדמת בקצב שלך.
       </PageHeader>
 
@@ -76,17 +79,20 @@ export default function Training() {
       {/* today's sessions */}
       <section className="space-y-3 px-5">
         <h2 className="font-display text-xl font-extrabold">אימוני השלב</h2>
-        {phaseSessions.map((s) => (
-          <Card key={s.id} className="glass-hover flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-secondary text-cyan">
-              <SessionIcon type={s.type} />
-            </div>
-            <div className="flex-1">
-              <div className="font-bold">{s.title}</div>
-              <div className="text-sm text-muted-foreground">{s.goalMinutes} דק' · יעד RPE {s.targetRpe} · {s.exercises.length} תרגילים</div>
-            </div>
-            <Button size="sm" onClick={() => setActive(s)}><Play className="h-4 w-4" /> התחל</Button>
-          </Card>
+        {phaseSessions.map((s, i) => (
+          <motion.div key={s.id} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.06 }}>
+            <Card className="glass-edge flex items-center gap-4 overflow-hidden p-0 transition-all hover:-translate-y-1">
+              <div className="relative h-20 w-20 shrink-0 overflow-hidden" style={{ background: hero(s.heroKey).gradient }}>
+                <Img src={hero(s.heroKey).img} />
+                <div className="absolute inset-0 grid place-items-center bg-black/25 text-2xl">{sessionEmoji(s.type)}</div>
+              </div>
+              <div className="flex-1 py-3">
+                <div className="font-bold">{s.title}</div>
+                <div className="text-xs text-muted-foreground">{s.goalMinutes} דק' · RPE {s.targetRpe} · {s.exercises.length} תרגילים</div>
+              </div>
+              <Button size="sm" className="ml-4" onClick={() => setActive(s)}><Play className="h-4 w-4" /> התחל</Button>
+            </Card>
+          </motion.div>
         ))}
       </section>
 
@@ -102,7 +108,7 @@ export default function Training() {
   );
 }
 
-function SessionIcon({ type }: { type: string }) {
+function sessionEmoji(type: string) {
   const map: Record<string, string> = { walk: "🚶", strength: "💪", mobility: "🧘", yoga: "🕉️", cardio: "❤️" };
-  return <span className="text-xl">{map[type] ?? "🏃"}</span>;
+  return map[type] ?? "🏃";
 }

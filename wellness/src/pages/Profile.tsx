@@ -96,7 +96,7 @@ export default function Profile() {
       </section>
 
       <div className="px-5"><SafetyDisclaimer /></div>
-      <div className="px-5 pb-4 text-center text-xs text-muted-foreground">מצפן בריאות · נבנה אישית לאורי · v0.1</div>
+      <div className="px-5 pb-4 text-center text-xs text-muted-foreground">מצפן בריאות · נבנה אישית לאורי · v0.2</div>
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Play, Pause, SkipForward, Timer, Smile, Meh, Frown } from "lucide-react";
+import { Play, Pause, SkipForward, Timer, Smile, Meh, Frown, Youtube } from "lucide-react";
 import type { SessionTemplate } from "./program";
+import { videoUrl } from "./program";
 import { useApp } from "@/app/providers/AppData";
 import { todayISO } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -79,15 +80,21 @@ export function WorkoutFlow({ session, phase, open, onOpenChange }: {
             <div className="space-y-2">
               <h4 className="text-sm font-bold text-muted-foreground">התרגילים</h4>
               {session.exercises.map((ex, i) => (
-                <div key={i} className="glass p-3">
+                <div key={i} className="glass glass-edge p-3.5">
                   <div className="flex items-center justify-between font-semibold">
                     <span>{ex.name}</span>
                     {(ex.reps || ex.durationSec) && (
-                      <span className="text-sm text-cyan">{ex.reps ?? `${ex.durationSec! >= 60 ? Math.round(ex.durationSec! / 60) + " דק'" : ex.durationSec + " שנ'"}`}</span>
+                      <span className="rounded-md bg-cyan/10 px-2 py-0.5 text-sm text-cyan">{ex.reps ?? `${ex.durationSec! >= 60 ? Math.round(ex.durationSec! / 60) + " דק'" : ex.durationSec + " שנ'"}`}</span>
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">{ex.detail}</p>
                   {ex.cue && <p className="mt-1 text-xs font-semibold text-cyan">💨 {ex.cue}</p>}
+                  {ex.video && (
+                    <a href={videoUrl(ex.video)} target="_blank" rel="noreferrer"
+                      className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-coral/15 px-2.5 py-1.5 text-xs font-bold text-coral transition hover:bg-coral/25 active:scale-95">
+                      <Youtube className="h-4 w-4" /> צפה בהדגמה
+                    </a>
+                  )}
                 </div>
               ))}
             </div>

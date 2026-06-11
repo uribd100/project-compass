@@ -19,7 +19,7 @@ export default function Library() {
 
   return (
     <div className="space-y-6">
-      <PageHeader tag="07 · ספרייה" title="ידע מהמקורות הטובים בעולם">
+      <PageHeader tag="07 · ספרייה" title="ידע מהמקורות הטובים בעולם" heroKey="library">
         מאמרים, מדריכים וכלים — מ-AHA, NHS, CDC, משרד הבריאות ועוד.
       </PageHeader>
 

@@ -37,7 +37,7 @@ export default function Cessation() {
 
   return (
     <div className="space-y-6">
-      <PageHeader tag="02 · גמילה — המטרה מספר 1" title="להשתחרר מהעישון">
+      <PageHeader tag="02 · גמילה — המטרה מספר 1" title="להשתחרר מהעישון" heroKey="cessation">
         ניקוטין + קנאביס. שלב אחרי שלב, בלי שיפוטיות.
       </PageHeader>
 
