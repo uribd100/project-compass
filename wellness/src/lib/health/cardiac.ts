@@ -48,4 +48,4 @@ export const EMERGENCY_NUMBER = "101";
 
 // Beta-blocker note shown next to any HR readout.
 export const BETA_BLOCKER_NOTE =
-  "אתה נוטל חוסם בטא (קרדילוק) — הדופק שלך מדוכא בכוונה. לכן עוצמת המאמץ נמדדת לפי תחושת המאמץ (RPE), לא לפי הדופק.";
+  "אם אתה נוטל חוסם בטא — הדופק שלך מדוכא בכוונה. לכן עוצמת המאמץ נמדדת לפי תחושת המאמץ (RPE), לא לפי הדופק.";

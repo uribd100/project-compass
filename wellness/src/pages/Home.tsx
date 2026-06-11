@@ -121,7 +121,7 @@ export default function Home() {
               label={`${(hydToday / 1000).toFixed(1)}ל׳`} sub={`/${(hydTarget / 1000).toFixed(1)}`} />
             <div className="flex-1">
               <div className="flex items-center gap-2 font-bold"><Droplets className="h-4 w-4 text-cyan" /> מים היום</div>
-              <p className="text-sm text-muted-foreground">יעד גבוה בגלל החום באילת והגאוט. כל כוס מפחיתה סיכון להתקף.</p>
+              <p className="text-sm text-muted-foreground">יעד גבוה לשמירה על הלב והמפרקים. כל כוס נחשבת.</p>
               <div className="mt-2 flex gap-2">
                 {[250, 500].map((ml) => (
                   <button key={ml} onClick={() => app.addHydration(ml)}

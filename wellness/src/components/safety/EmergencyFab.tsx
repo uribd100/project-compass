@@ -47,9 +47,11 @@ export function EmergencyFab() {
             </ul>
           </div>
 
-          <p className="text-xs text-muted-foreground">
-            רקע: אוטם שריר הלב (2020), 4 סטנטים, EF ~45%. נוטל חוסם בטא — דופק נמוך הוא צפוי.
-          </p>
+          {profile?.post_mi && (
+            <p className="text-xs text-muted-foreground">
+              רקע: אירוע לב{profile.mi_date ? ` (${profile.mi_date})` : ""}{profile.stents ? `, ${profile.stents} סטנטים` : ""}{profile.lvef ? `, EF ~${profile.lvef}%` : ""}. ייתכן דופק נמוך עקב חוסם בטא.
+            </p>
+          )}
         </div>
       </SheetContent>
     </Sheet>

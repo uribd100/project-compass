@@ -34,7 +34,7 @@ export default function Nutrition() {
           <ProgressRing value={hyd} max={target} color="hsl(var(--cyan))" label={`${(hyd / 1000).toFixed(1)}`} sub={`/${(target / 1000).toFixed(1)} ל׳`} />
           <div className="flex-1">
             <div className="flex items-center gap-2 font-bold"><Droplets className="h-4 w-4 text-cyan" /> מים היום</div>
-            <p className="text-sm text-muted-foreground">יעד מוגבר — חום אילת + גאוט.</p>
+            <p className="text-sm text-muted-foreground">יעד מוגבר לבריאות הלב והכליות.</p>
             <div className="mt-2 flex gap-2">
               {[250, 500, 750].map((ml) => (
                 <button key={ml} onClick={() => app.addHydration(ml)} className="rounded-lg bg-secondary px-3 py-1.5 text-xs font-semibold hover:bg-muted">+{ml}</button>

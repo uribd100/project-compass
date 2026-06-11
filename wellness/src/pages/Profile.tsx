@@ -30,10 +30,10 @@ export default function Profile() {
             <Field label="משקל (ק״ג)"><Input type="number" value={profile.weight_kg} onChange={(e) => app.saveProfile({ ...profile, weight_kg: +e.target.value })} /></Field>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Badge tone="cyan"><HeartPulse className="h-3 w-3" /> אוטם 2020 · EF 45%</Badge>
-            <Badge tone="heal">אישור קרדיולוג ✓</Badge>
-            <Badge tone="warn">גאוט</Badge>
-            <Badge tone="coral">LDL {profile.ldl} → {profile.ldl_target}</Badge>
+            {profile.post_mi && <Badge tone="cyan"><HeartPulse className="h-3 w-3" /> אירוע לב{profile.mi_date ? ` ${profile.mi_date}` : ""}{profile.lvef ? ` · EF ${profile.lvef}%` : ""}</Badge>}
+            {profile.cardiologist_clearance && <Badge tone="heal">אישור קרדיולוג ✓</Badge>}
+            {profile.conditions.includes("gout") && <Badge tone="warn">גאוט</Badge>}
+            {profile.ldl != null && <Badge tone="coral">LDL {profile.ldl} → {profile.ldl_target}</Badge>}
           </div>
         </Card>
       </section>

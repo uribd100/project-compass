@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "sonner";
 import { AppDataProvider, useApp } from "@/app/providers/AppData";
 import { AppShell } from "@/app/layout/AppShell";
@@ -57,10 +57,10 @@ function Gate() {
 export default function App() {
   return (
     <AppDataProvider>
-      <BrowserRouter>
+      <HashRouter>
         <Gate />
         <Toaster position="top-center" theme="dark" richColors toastOptions={{ style: { fontFamily: "Rubik" } }} />
-      </BrowserRouter>
+      </HashRouter>
     </AppDataProvider>
   );
 }
